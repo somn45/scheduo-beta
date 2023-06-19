@@ -15,6 +15,9 @@
 # production
 /build
 
+# GraphQL Generated Types
+/generates
+
 # misc
 .DS_Store
 *.pem
