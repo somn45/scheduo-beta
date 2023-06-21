@@ -1,4 +1,4 @@
-const USER_LIST = [{ name: 'kim' }, { name: 'chae' }];
+const USER_LIST = [{ userId: 'kim' }, { userId: 'chae' }];
 
 export default {
   Query: {

@@ -1,10 +1,11 @@
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import userTypeDefs from './user/user.typeDefs';
-import userQueries from './user/user.queries';
+import userTypeDefs from './users/users.typeDefs';
+import userQueries from './users/users.queries';
+import usersMutations from './users/users.mutations';
 
 const schema = makeExecutableSchema({
   typeDefs: [userTypeDefs],
-  resolvers: [userQueries],
+  resolvers: [userQueries, usersMutations],
 });
 
 export default schema;
