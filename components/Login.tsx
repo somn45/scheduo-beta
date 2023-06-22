@@ -3,6 +3,7 @@ import { AuthModelFunction } from '@/pages';
 import vaildateForm from '@/utils/validateForm';
 import { useMutation } from '@apollo/client';
 import React, { useEffect, useState } from 'react';
+import { setCookie } from 'cookies-next';
 
 const CHECK_USER = graphql(`
   mutation Login($userId: String!, $password: String!) {
@@ -44,15 +45,16 @@ export default function Login({
       variables: { userId, password },
     });
     if (loginErrors && loginErrors[0].message === USER_NOT_FOUND)
-      setErrorMsg({
+      return setErrorMsg({
         ...DEFAULT_ERROR_MSG,
         userId: '가입된 계정이 존재하지 않습니다.',
       });
     if (loginErrors && loginErrors[0].message === PASSWORD_NOT_MATCH)
-      setErrorMsg({
+      return setErrorMsg({
         ...DEFAULT_ERROR_MSG,
         password: '비밀번호가 일치하지 않습니다.',
       });
+    setCookie('uid', userId);
   };
 
   return (

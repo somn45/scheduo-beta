@@ -6,6 +6,8 @@ interface DBUser {
   password: string;
   email?: string;
   company?: string;
+  refreshToken?: string;
+  expiredAt: Date;
 }
 
 interface DBUserModel extends Model<DBUser> {}
@@ -16,6 +18,8 @@ const userSchema = new Schema<DBUser>(
     password: { type: String, required: true },
     email: String,
     company: String,
+    refreshToken: String,
+    expiredAt: Date,
   },
   { timestamps: true }
 );
