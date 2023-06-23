@@ -28,7 +28,7 @@ const USER_EXISTS_ERROR_MSG = 'User already exists';
 const DEFAULT_ERROR_MSG = {
   userId: '',
   password: '',
-  comfirmPassword: '',
+  confirmPassword: '',
   email: '',
 };
 
@@ -52,8 +52,30 @@ export default function Join({ showLogin, closeAuth }: AuthModelFunction) {
       email,
       company,
     });
-    if (!validateResponse.validatePass) return setIsDisabledSubmit(true);
-    else return setIsDisabledSubmit(false);
+    if (validateResponse.validatePass) return setIsDisabledSubmit(true);
+    if (validateResponse.route === 'userId')
+      setErrorMsg({
+        ...DEFAULT_ERROR_MSG,
+        userId: validateResponse.message ? validateResponse.message : '',
+      });
+    else if (validateResponse.route === 'password')
+      setErrorMsg({
+        ...DEFAULT_ERROR_MSG,
+        password: validateResponse.message ? validateResponse.message : '',
+      });
+    else if (validateResponse.route === 'confirmPassword')
+      setErrorMsg({
+        ...DEFAULT_ERROR_MSG,
+        confirmPassword: validateResponse.message
+          ? validateResponse.message
+          : '',
+      });
+    else if (validateResponse.route === 'email')
+      setErrorMsg({
+        ...DEFAULT_ERROR_MSG,
+        email: validateResponse.message ? validateResponse.message : '',
+      });
+    return setIsDisabledSubmit(false);
   }, [userId, password, confirmPassword, email]);
 
   const handleLogin = async (e: React.MouseEvent<HTMLInputElement>) => {
@@ -89,9 +111,12 @@ export default function Join({ showLogin, closeAuth }: AuthModelFunction) {
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             placeholder="아이디"
-            className="h-8 mb-5 p-2 outline-none rounded-[3px] text-sm focus:outline-black"
+            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
+              errorMsg.userId && 'border-red-300'
+            }`}
           />
-          <span className="bg-red-500">{errorMsg.userId}</span>
+          <span className="ml-2 mb-5 text-red-500">{errorMsg.userId}</span>
+
           <label className="ml-2 mb-1 text-xs font-semibold">
             *비밀번호(6자 이상 ~ 24자 이하)
           </label>
@@ -100,9 +125,12 @@ export default function Join({ showLogin, closeAuth }: AuthModelFunction) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="비밀번호"
-            className="h-8 mb-5 p-2 outline-none rounded-[3px] text-sm focus:outline-black"
+            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
+              errorMsg.password && 'border-red-300'
+            }`}
           />
-          <span>{errorMsg.password}</span>
+          <span className="ml-2 mb-5 text-red-500">{errorMsg.password}</span>
+
           <label className="ml-2 mb-1 text-xs font-semibold">
             *비밀번호 확인
           </label>
@@ -111,16 +139,26 @@ export default function Join({ showLogin, closeAuth }: AuthModelFunction) {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="비밀번호 확인"
-            className="h-8 mb-5 p-2 outline-none rounded-[3px] text-sm focus:outline-black"
+            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
+              errorMsg.confirmPassword && 'border-red-300'
+            }`}
           />
+          <span className="ml-2 mb-5 text-red-500">
+            {errorMsg.confirmPassword}
+          </span>
+
           <label className="ml-2 mb-1 text-xs font-semibold">이메일</label>
           <input
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="이메일"
-            className="h-8 mb-5 p-2 outline-none rounded-[3px] text-sm focus:outline-black"
+            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
+              errorMsg.email && 'border-red-300'
+            }`}
           />
+          <span className="ml-2 mb-5 text-red-500">{errorMsg.email}</span>
+
           <label className="ml-2 mb-1 text-xs font-semibold">직장</label>
           <input
             type="text"

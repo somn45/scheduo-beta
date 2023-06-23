@@ -62,7 +62,6 @@ const authLink = setContext(async (_, { headers }) => {
       SET_TOKEN,
       { userId }
     );
-    console.log(setTokenData);
     if (!setTokenData.setToken.isSuccess) return deleteCookie('uid');
     accessToken = setTokenData.setToken.accessToken;
   }
