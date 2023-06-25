@@ -34,7 +34,6 @@ export default function Login({
   });
 
   useEffect(() => {
-    console.log(errorMsg);
     const validateResponse = vaildateForm({ userId, password });
     if (validateResponse.validatePass) {
       setErrorMsg(DEFAULT_ERROR_MSG);
