@@ -34,5 +34,13 @@ export default {
       });
       return { accessToken, isSuccess: true };
     },
+    deleteToken: async (
+      _: unknown,
+      { userId }: UserId,
+      { cookies }: ContextValue
+    ) => {
+      cookies.set('accessToken');
+      return { isSuccess: true };
+    },
   },
 };

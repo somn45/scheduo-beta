@@ -68,6 +68,7 @@ export default function Login({
         password: '비밀번호가 일치하지 않습니다.',
       });
     setCookie('uid', userId);
+    window.location.reload();
   };
 
   return (

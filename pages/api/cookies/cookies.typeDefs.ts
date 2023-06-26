@@ -10,5 +10,6 @@ export default gql`
   }
   type Mutation {
     setToken(userId: String!): Token
+    deleteToken(userId: String!): Token
   }
 `;
