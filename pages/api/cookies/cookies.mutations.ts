@@ -2,7 +2,7 @@ import User from '@/models/User';
 import { ContextValue, IUser } from '../users/users.mutations';
 import jwt from 'jsonwebtoken';
 
-interface UserId {
+export interface UserId {
   userId: string;
 }
 

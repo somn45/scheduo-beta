@@ -38,7 +38,6 @@ export default function Header({ showLogin }: AuthModelFunction) {
   const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const userId = getCookie('uid');
-    console.log(userId);
     if (typeof userId !== 'string') return;
     const { data, errors } = await deleteToken({
       variables: { userId: userId },
