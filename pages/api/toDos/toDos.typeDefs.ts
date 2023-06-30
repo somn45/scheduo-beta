@@ -5,7 +5,7 @@ export default gql`
   type ToDo {
     content: String!
     registrant: String!
-    registeredAt: Date!
+    registeredAt: Float!
     state: String!
   }
   type Query {
@@ -18,5 +18,11 @@ export default gql`
       registeredAt: Float!
       state: String!
     ): ToDo
+    updateToDo(
+      content: String!
+      registrant: String!
+      registeredAt: Float!
+    ): ToDo!
+    deleteToDo(registrant: String!, registeredAt: Float!): ToDo!
   }
 `;

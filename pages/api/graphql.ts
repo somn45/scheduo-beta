@@ -3,7 +3,6 @@ import { ApolloServer } from '@apollo/server';
 import schema from './schema';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import Cookies from 'cookies';
-import { GraphQLError } from 'graphql';
 
 const server = new ApolloServer({ schema });
 

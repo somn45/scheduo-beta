@@ -3,8 +3,11 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { ApolloProvider } from '@apollo/client/react';
 import Layout from '@/components/layout/Layout';
+import store from '@/lib/store/store';
+import { Provider } from 'react-redux/es/exports';
+import wrapper from '@/lib/store/store';
 
-export default function App({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
   return (
     <ApolloProvider client={client}>
       <Layout>
@@ -13,3 +16,5 @@ export default function App({ Component, pageProps }: AppProps) {
     </ApolloProvider>
   );
 }
+
+export default wrapper.withRedux(App);

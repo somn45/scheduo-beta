@@ -1,38 +1,62 @@
 import ToDoModel from '@/models/ToDo';
-import { ToDo } from '@/pages/schedules/todos';
-import { GraphQLScalarType } from 'graphql';
+import { IToDo } from '@/pages/schedules/todos';
+import { GraphQLError, GraphQLScalarType } from 'graphql';
+import { Model } from 'mongoose';
 
-const dateScalar = new GraphQLScalarType({
-  name: 'Date',
-  description: 'Date custom scalar type',
-  serialize(value) {
-    if (value instanceof Date) return value.getTime();
-    throw Error('GraphQL Date Scalar serializer expected a `Date` object');
-  },
-  parseValue(value) {
-    if (typeof value === 'number') return new Date(value);
-    throw Error('GraphQL Date Scalar parser expected a `number`');
-  },
-  parseLiteral() {
-    return null;
-  },
-});
+export interface UpdateToDoProps {
+  content: string;
+  registrant: string;
+  registeredAt: number;
+}
+
+export interface DeleteToDoProps {
+  registrant: string;
+  registeredAt: number;
+}
 
 export default {
-  Date: dateScalar,
   Mutation: {
     addToDo: async (
       _: unknown,
-      { content, registrant, registeredAt, state }: ToDo
+      { content, registrant, registeredAt, state }: IToDo
     ) => {
-      const registeredDate = new Date(registeredAt);
       await ToDoModel.create({
         content,
         registrant,
-        registeredAt: registeredDate,
+        registeredAt,
         state,
       });
-      return { content, registrant, registeredAt: registeredDate, state };
+      return { content, registrant, registeredAt, state };
+    },
+    updateToDo: async (
+      _: unknown,
+      { content, registrant, registeredAt }: UpdateToDoProps
+    ) => {
+      const toDo: IToDo | null = await ToDoModel.findOneAndUpdate(
+        { registrant, registeredAt },
+        { content },
+        { new: true }
+      );
+
+      if (!toDo)
+        throw new GraphQLError('toDo not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      return toDo;
+    },
+    deleteToDo: async (
+      _: unknown,
+      { registrant, registeredAt }: DeleteToDoProps
+    ) => {
+      const toDo: IToDo | null = await ToDoModel.findOneAndDelete({
+        registrant,
+        registeredAt,
+      });
+      if (!toDo)
+        throw new GraphQLError('toDo not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      return toDo;
     },
   },
 };

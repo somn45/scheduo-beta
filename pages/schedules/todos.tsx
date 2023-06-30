@@ -3,8 +3,19 @@ import { graphql } from '@/generates/type';
 import { useMutation } from '@apollo/client';
 import { getCookie } from 'cookies-next';
 import request, { gql } from 'graphql-request';
+import ToDo from '@/components/ToDo';
+import { useSelector } from 'react-redux';
+import wrapper, {
+  RootState,
+  addToDoReducer,
+  initToDoReducer,
+  useAppDispatch,
+} from '@/lib/store/store';
+import { GetServerSideProps } from 'next';
+import { Context } from 'next-redux-wrapper';
 
-export interface ToDo {
+export interface IToDo {
+  id?: string;
   content: string;
   registrant: string;
   registeredAt: number;
@@ -12,11 +23,7 @@ export interface ToDo {
 }
 
 interface ToDosProps {
-  toDos: ToDo[];
-}
-
-interface GetToDosResponse {
-  getToDos: ToDo[];
+  getToDos: IToDo[];
 }
 
 const ADD_TODO = graphql(`
@@ -51,47 +58,49 @@ const GET_TODOS = gql`
   }
 `;
 
-export async function getStaticProps() {
-  const { getToDos } = await request<GetToDosResponse>(
-    'http://localhost:3000/api/graphql',
-    GET_TODOS
-  );
-  return {
-    props: {
-      toDos: getToDos,
-    },
-  };
-}
+export const getServerSideProps: GetServerSideProps =
+  wrapper.getServerSideProps((store) => async (context: Context) => {
+    const response = await request<ToDosProps>(
+      'http://localhost:3000/api/graphql',
+      GET_TODOS
+    );
+    store.dispatch(initToDoReducer(response.getToDos));
+    return {
+      props: {},
+    };
+  });
 
-export default function ToDos({ toDos }: ToDosProps) {
+export default function ToDos() {
   const [text, setText] = useState('');
-  const [printedToDos, setPrintedToDos] = useState<ToDo[]>([]);
   const [addToDo] = useMutation(ADD_TODO);
+  const { toDos } = useSelector((state: RootState) => state);
+  const dispatch = useAppDispatch();
   useEffect(() => {
-    setPrintedToDos(toDos);
+    console.log(toDos);
   }, [toDos]);
 
   const printToDo = async (e: React.MouseEvent<HTMLInputElement>) => {
     e.preventDefault();
     const userId = getCookie('uid');
     if (!userId || typeof userId !== 'string') return;
-    const { data, errors } = await addToDo({
+    const regitDate = Date.now();
+    await addToDo({
       variables: {
         content: text,
         registrant: userId,
-        registeredAt: Date.now(),
+        registeredAt: regitDate,
         state: 'toDo',
       },
     });
-    setPrintedToDos([
-      ...printedToDos,
-      {
+    dispatch(
+      addToDoReducer({
         content: text,
         registrant: userId,
-        registeredAt: Date.now(),
+        registeredAt: regitDate,
         state: 'toDo',
-      },
-    ]);
+      })
+    );
+    setText('');
   };
 
   return (
@@ -105,11 +114,14 @@ export default function ToDos({ toDos }: ToDosProps) {
         />
         <input type="submit" value="등록" onClick={printToDo} />
       </form>
-      <ul>
-        {printedToDos.map((toDo) => (
-          <li key={toDo.registeredAt}>{toDo.content}</li>
-        ))}
-      </ul>
+      {toDos && (
+        <ul>
+          {toDos.map((toDo) => (
+            <ToDo key={toDo.registeredAt} {...toDo} />
+          ))}
+        </ul>
+      )}
+      {!toDos && <span>오늘의 일정을 등록하세요</span>}
     </section>
   );
 }
