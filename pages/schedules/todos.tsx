@@ -73,7 +73,7 @@ export const getServerSideProps: GetServerSideProps =
 export default function ToDos() {
   const [text, setText] = useState('');
   const [addToDo] = useMutation(ADD_TODO);
-  const { toDos } = useSelector((state: RootState) => state);
+  const toDos = useSelector((state: RootState) => state.toDos);
   const dispatch = useAppDispatch();
   useEffect(() => {
     console.log(toDos);

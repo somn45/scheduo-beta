@@ -45,7 +45,7 @@ export default {
     checkUser: async (
       _: unknown,
       { userId, password }: IUser,
-      { req, res, cookies }: ContextValue
+      { cookies }: ContextValue
     ) => {
       const user: IUser | null = await User.findOne({ userId });
       if (!user)
@@ -59,18 +59,11 @@ export default {
           extensions: { code: 'BAD_REQUEST' },
         });
 
-      const accessToken = jwt.sign(
-        { userId },
-        process.env.NEXT_PUBLIC_JWT_SECRET
-          ? process.env.NEXT_PUBLIC_JWT_SECRET
-          : ''
-      );
-      const refreshToken = jwt.sign(
-        { userId },
-        process.env.NEXT_PUBLIC_JWT_SECRET
-          ? process.env.NEXT_PUBLIC_JWT_SECRET
-          : ''
-      );
+      const tokenSecretKey = process.env.NEXT_PUBLIC_JWT_SECRET
+        ? process.env.NEXT_PUBLIC_JWT_SECRET
+        : '';
+      const accessToken = jwt.sign({ userId }, tokenSecretKey);
+      const refreshToken = jwt.sign({ userId }, tokenSecretKey);
       cookies.set('accessToken', accessToken, {
         httpOnly: true,
         maxAge: ACCESS_TOKEN_EXPIRATION_TIME,
