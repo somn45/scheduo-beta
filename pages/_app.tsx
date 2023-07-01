@@ -3,18 +3,20 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { ApolloProvider } from '@apollo/client/react';
 import Layout from '@/components/layout/Layout';
-import store from '@/lib/store/store';
-import { Provider } from 'react-redux/es/exports';
+import { Provider } from 'react-redux';
 import wrapper from '@/lib/store/store';
 
-function App({ Component, pageProps }: AppProps) {
+function App({ Component, ...rest }: AppProps) {
+  const { store, props } = wrapper.useWrappedStore(rest);
   return (
     <ApolloProvider client={client}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <Provider store={store}>
+        <Layout>
+          <Component {...props.pageProps} />
+        </Layout>
+      </Provider>
     </ApolloProvider>
   );
 }
 
-export default wrapper.withRedux(App);
+export default App;

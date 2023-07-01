@@ -15,8 +15,8 @@ const toDosSlice = createSlice({
     addToDoReducer: (state, action: PayloadAction<IToDo>) => {
       return [...state, action.payload];
     },
-    updateToDoReducer: (state, action) => {},
-    deleteToDoReducer: (state, action) => {},
+    //updateToDoReducer: (state, action) => {},
+    //deleteToDoReducer: (state, action) => {},
   },
   extraReducers: {
     [HYDRATE]: (state, action) => {
