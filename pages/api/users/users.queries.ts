@@ -1,11 +1,21 @@
+import User from '@/models/User';
 import { ContextValue } from './users.mutations';
-
-const USER_LIST = [{ userId: 'kim' }, { userId: 'chae' }];
 
 export default {
   Query: {
-    allUsers: (_: unknown, __: unknown, { cookies }: ContextValue) => {
-      return USER_LIST;
+    allUsers: async () => {
+      const users = await User.find();
+      console.log(users);
+      return users;
+    },
+    getUser: async (_: unknown, __: unknown, { cookies }: ContextValue) => {
+      const userId = cookies.get('uid');
+      const user = await User.findOne({ userId });
+      return user;
+    },
+    getUserById: async (_: unknown, { id }: { id: string }) => {
+      const user = await User.findById(id);
+      return user;
     },
   },
 };

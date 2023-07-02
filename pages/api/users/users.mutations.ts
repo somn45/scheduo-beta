@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export interface IUser {
+  _id?: string;
   userId: string;
   password: string;
   email?: string;

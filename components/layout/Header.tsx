@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
-import { graphql } from '@/generates/type';
 import Link from 'next/link';
+import { graphql } from '@/generates/type';
 import { getCookie, deleteCookie } from 'cookies-next';
 
 export interface AuthModelFunction {
@@ -10,10 +10,13 @@ export interface AuthModelFunction {
   closeAuth?: () => void;
 }
 
-const GET_USERS = graphql(`
-  query GetUsers {
-    allUsers {
+const GET_USER = graphql(`
+  query GetUser {
+    getUser {
+      _id
       userId
+      email
+      company
     }
   }
 `);
@@ -27,12 +30,13 @@ const DELETE_TOKEN = graphql(`
 `);
 
 export default function Header({ showLogin }: AuthModelFunction) {
-  const [isLogged, setIsLogged] = useState(false);
-  const result = useQuery(GET_USERS);
+  const [loggedUser, setLoggedUser] = useState('');
+  const { data: getUserData } = useQuery(GET_USER);
   const [deleteToken] = useMutation(DELETE_TOKEN);
 
   useEffect(() => {
-    getCookie('uid') ? setIsLogged(true) : setIsLogged(false);
+    const userId = getCookie('uid') as string;
+    userId ? setLoggedUser(userId) : setLoggedUser('');
   }, []);
 
   const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -71,17 +75,25 @@ export default function Header({ showLogin }: AuthModelFunction) {
         </Link>
       </div>
       <div>
-        {isLogged ? (
-          <button
-            onClick={handleLogout}
-            className="text-sm font-semibold  ease-out duration-150 hover:text-pink-400"
-          >
-            로그아웃
-          </button>
+        {loggedUser ? (
+          <>
+            <Link
+              href={`/users/${getUserData?.getUser?._id}`}
+              className="text-sm font-semibold ease-out duration-150 hover:text-pink-400"
+            >
+              {loggedUser}
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="text-sm font-semibold ease-out duration-150 hover:text-pink-400"
+            >
+              로그아웃
+            </button>
+          </>
         ) : (
           <button
             onClick={showLogin}
-            className="text-sm font-semibold  ease-out duration-150 hover:text-pink-400"
+            className="text-sm font-semibold ease-out duration-150 hover:text-pink-400"
           >
             로그인/회원가입
           </button>

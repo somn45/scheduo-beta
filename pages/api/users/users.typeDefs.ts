@@ -2,12 +2,15 @@ import gql from 'graphql-tag';
 
 export default gql`
   type User {
+    _id: ID
     userId: String!
     email: String
     company: String
   }
   type Query {
     allUsers: [User!]!
+    getUser: User
+    getUserById(id: String!): User
   }
   type Mutation {
     addUser(
