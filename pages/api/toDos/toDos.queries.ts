@@ -5,7 +5,7 @@ import { ContextValue } from '../users/users.mutations';
 export default {
   Query: {
     getToDos: async () => {
-      const todos = await ToDoModel.find();
+      const todos = await ToDoModel.findAllToDos();
       return todos;
     },
   },

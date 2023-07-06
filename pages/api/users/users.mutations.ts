@@ -30,7 +30,7 @@ export default {
       _: unknown,
       { userId, password, email, company }: IUser
     ) => {
-      const signedUser = await User.findOne({ userId });
+      const signedUser = await User.findUser(userId);
       if (signedUser)
         throw new GraphQLError('User already exists', {
           extensions: { code: 'BAD_REQUEST' },
@@ -48,13 +48,13 @@ export default {
       { userId, password }: IUser,
       { cookies }: ContextValue
     ) => {
-      const user: IUser | null = await User.findOne({ userId });
+      const user = await User.findUser(userId);
       if (!user)
         throw new GraphQLError('User not found', {
           extensions: { code: 'NOT_FOUND' },
         });
 
-      const isMatchPassword = await bcrypt.compare(password, user.password);
+      const isMatchPassword = user.checkPassword(password);
       if (!isMatchPassword)
         throw new GraphQLError('Password not match', {
           extensions: { code: 'BAD_REQUEST' },
@@ -70,14 +70,10 @@ export default {
         maxAge: ACCESS_TOKEN_EXPIRATION_TIME,
       });
 
-      await User.findOneAndUpdate(
-        { userId },
-        {
-          refreshToken,
-          expiredAt: Date.now() + REFRESH_TOKEN_EXPIRATION_TIME,
-        },
-        { new: true, upsert: true }
-      );
+      user.refreshToken = refreshToken;
+      user.expiredAt = Date.now() + REFRESH_TOKEN_EXPIRATION_TIME;
+
+      await user.save();
 
       return { userId };
     },

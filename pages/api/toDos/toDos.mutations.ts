@@ -32,26 +32,21 @@ export default {
       _: unknown,
       { content, registrant, registeredAt }: UpdateToDoProps
     ) => {
-      const toDo: IToDo | null = await ToDoModel.findOneAndUpdate(
-        { registrant, registeredAt },
-        { content },
-        { new: true }
-      );
-
+      const toDo = await ToDoModel.findToDo(registrant, registeredAt);
       if (!toDo)
         throw new GraphQLError('toDo not found', {
           extensions: { code: 'NOT_FOUND' },
         });
+      toDo.content = content;
+      toDo.isNew = true;
+      await toDo.save();
       return toDo;
     },
     deleteToDo: async (
       _: unknown,
       { registrant, registeredAt }: DeleteToDoProps
     ) => {
-      const toDo: IToDo | null = await ToDoModel.findOneAndDelete({
-        registrant,
-        registeredAt,
-      });
+      const toDo = await ToDoModel.deleteToDo(registrant, registeredAt);
       if (!toDo)
         throw new GraphQLError('toDo not found', {
           extensions: { code: 'NOT_FOUND' },

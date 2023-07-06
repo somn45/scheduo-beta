@@ -1,5 +1,14 @@
-import { Model, Schema, model, models } from 'mongoose';
+import {
+  Document,
+  Model,
+  ObjectId,
+  PopulatedDoc,
+  Schema,
+  model,
+  models,
+} from 'mongoose';
 import bcrypt from 'bcrypt';
+import db from '@/pages/api/db';
 
 interface DBUser {
   userId: string;
@@ -7,12 +16,22 @@ interface DBUser {
   email?: string;
   company?: string;
   refreshToken?: string;
-  expiredAt: Date;
+  expiredAt: number;
+  followers: PopulatedDoc<Document<ObjectId> & DBUser>;
 }
 
-interface DBUserModel extends Model<DBUser> {}
+interface DBUserDocument extends DBUser, Document {
+  getEmail: () => string;
+  checkPassword: (password: string) => boolean;
+}
 
-const userSchema = new Schema<DBUser>(
+interface DBUserModel extends Model<DBUserDocument> {
+  findAllUsers: () => Promise<DBUserDocument>;
+  findUser: (userId: string) => Promise<DBUserDocument>;
+  findUserById: (id: string) => Promise<DBUserDocument>;
+}
+
+const userSchema: Schema<DBUserDocument> = new Schema(
   {
     userId: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -30,7 +49,29 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.methods.getEmail = function () {
+  return this.email;
+};
+
+userSchema.methods.checkPassword = async function (password: string) {
+  const check = await bcrypt.compare(password, this.password);
+  return check;
+};
+
+userSchema.statics.findAllUsers = async function () {
+  return await this.find();
+};
+
+userSchema.statics.findUser = async function (userId: string) {
+  return await this.findOne({ userId });
+};
+
+userSchema.statics.findUserById = async function (id: string) {
+  return await this.findById(id);
+};
+
 const User =
-  models.User<DBUser> || model<DBUser, DBUserModel>('User', userSchema);
+  (models.User as DBUserModel) ||
+  db.model<DBUserDocument, DBUserModel>('User', userSchema);
 
 export default User;

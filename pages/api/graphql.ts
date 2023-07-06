@@ -8,7 +8,6 @@ const server = new ApolloServer({ schema });
 
 export default startServerAndCreateNextHandler(server, {
   context: async (req, res) => {
-    const cookies = new Cookies(req, res);
-    return { cookies };
+    return { req, res, cookies: new Cookies(req, res) };
   },
 });

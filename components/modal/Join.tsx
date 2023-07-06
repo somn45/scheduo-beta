@@ -52,29 +52,30 @@ export default function Join({ showLogin, closeAuth }: AuthModelFunction) {
       email,
       company,
     });
-    if (validateResponse.validatePass) return setIsDisabledSubmit(true);
+    if (!validateResponse.validatePass) setIsDisabledSubmit(true);
     if (validateResponse.route === 'userId')
-      setErrorMsg({
+      return setErrorMsg({
         ...DEFAULT_ERROR_MSG,
         userId: validateResponse.message ? validateResponse.message : '',
       });
     else if (validateResponse.route === 'password')
-      setErrorMsg({
+      return setErrorMsg({
         ...DEFAULT_ERROR_MSG,
         password: validateResponse.message ? validateResponse.message : '',
       });
     else if (validateResponse.route === 'confirmPassword')
-      setErrorMsg({
+      return setErrorMsg({
         ...DEFAULT_ERROR_MSG,
         confirmPassword: validateResponse.message
           ? validateResponse.message
           : '',
       });
     else if (validateResponse.route === 'email')
-      setErrorMsg({
+      return setErrorMsg({
         ...DEFAULT_ERROR_MSG,
         email: validateResponse.message ? validateResponse.message : '',
       });
+    setErrorMsg(DEFAULT_ERROR_MSG);
     return setIsDisabledSubmit(false);
   }, [userId, password, confirmPassword, email]);
 
