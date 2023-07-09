@@ -1,9 +1,9 @@
 import User from '@/models/User';
 import { GraphQLError } from 'graphql';
-import bcrypt from 'bcrypt';
 import Cookies from 'cookies';
 import jwt from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { ObjectId, Schema } from 'mongoose';
 
 export interface IUser {
   _id?: string;
@@ -76,6 +76,44 @@ export default {
       await user.save();
 
       return { userId };
+    },
+    addFollower: async (
+      _: unknown,
+      { id }: { id: string },
+      { cookies }: ContextValue
+    ) => {
+      const userId = cookies.get('uid');
+      if (!userId)
+        throw new GraphQLError('UserId not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const user = await User.findUser(userId);
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const newFollower = await User.findUserById(id);
+      if (!newFollower)
+        throw new GraphQLError('follower not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      if (user.userId === newFollower.userId)
+        throw new GraphQLError(
+          'The account you want to follow is the same as your account.',
+          { extensions: { code: 'BAD_REQUEST' } }
+        );
+      const followerIds = user.followers as ObjectId[];
+      const followedList: ObjectId[] = followerIds.filter((id) => {
+        return id.toString() == newFollower._id.toString() ? id : null;
+      });
+      if (followedList.length > 0)
+        throw new GraphQLError('You are already followed', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
+
+      user.followers.push(newFollower.id);
+      await user.save();
+      return newFollower;
     },
   },
 };

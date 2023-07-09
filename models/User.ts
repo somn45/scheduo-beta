@@ -1,12 +1,4 @@
-import {
-  Document,
-  Model,
-  ObjectId,
-  PopulatedDoc,
-  Schema,
-  model,
-  models,
-} from 'mongoose';
+import { Document, Model, ObjectId, Schema, models } from 'mongoose';
 import bcrypt from 'bcrypt';
 import db from '@/pages/api/db';
 
@@ -17,7 +9,7 @@ interface DBUser {
   company?: string;
   refreshToken?: string;
   expiredAt: number;
-  followers: PopulatedDoc<Document<ObjectId> & DBUser>;
+  followers: ObjectId[] | DBUser[];
 }
 
 interface DBUserDocument extends DBUser, Document {
@@ -39,6 +31,7 @@ const userSchema: Schema<DBUserDocument> = new Schema(
     company: String,
     refreshToken: String,
     expiredAt: Date,
+    followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true }
 );

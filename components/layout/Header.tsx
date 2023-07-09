@@ -78,6 +78,12 @@ export default function Header({ showLogin }: AuthModelFunction) {
         {loggedUser ? (
           <>
             <Link
+              href="/followers"
+              className="text-sm font-semibold ease-out duration-150 hover:text-pink-400"
+            >
+              팔로워
+            </Link>
+            <Link
               href={`/users/${getUserData?.getUser?._id}`}
               className="text-sm font-semibold ease-out duration-150 hover:text-pink-400"
             >

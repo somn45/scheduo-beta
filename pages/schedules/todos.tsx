@@ -75,9 +75,6 @@ export default function ToDos() {
   const [addToDo] = useMutation(ADD_TODO);
   const toDos = useSelector((state: RootState) => state.toDos);
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    console.log(toDos);
-  }, [toDos]);
 
   const printToDo = async (e: React.MouseEvent<HTMLInputElement>) => {
     e.preventDefault();

@@ -11,6 +11,7 @@ export default gql`
     allUsers: [User!]!
     getUser: User
     getUserById(id: String!): User
+    allFollowers: [User]
   }
   type Mutation {
     addUser(
@@ -20,5 +21,6 @@ export default gql`
       company: String
     ): User
     checkUser(userId: String!, password: String!): User
+    addFollower(id: String!): User
   }
 `;
