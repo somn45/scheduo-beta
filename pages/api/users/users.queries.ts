@@ -34,15 +34,11 @@ export default {
       const user = await User.findOne({ userId }).populate([
         {
           path: 'followers',
-          transform: (doc) => {
-            return doc === null
-              ? null
-              : {
-                  userId: doc.userId,
-                  email: doc.email,
-                  company: doc.company,
-                };
-          },
+          transform: (doc) => ({
+            userId: doc.userId,
+            email: doc.email,
+            company: doc.company,
+          }),
         },
       ]);
       if (!user)

@@ -1,6 +1,14 @@
+import Follower from '@/components/Follower';
 import { graphql } from '@/generates/type';
+import {
+  RootState,
+  addFollowerReducer,
+  initFollowerReducer,
+  useAppDispatch,
+} from '@/lib/store/store';
 import { useMutation, useQuery } from '@apollo/client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 const ALL_FOLLOWERS = graphql(`
   query GetFollowers {
@@ -15,6 +23,8 @@ const ADD_FOLLOWER = graphql(`
     addFollower(id: $id) {
       _id
       userId
+      email
+      company
     }
   }
 `);
@@ -25,9 +35,22 @@ export default function Followers() {
   const [addFollower] = useMutation(ADD_FOLLOWER, {
     errorPolicy: 'all',
   });
+  const followers = useSelector((state: RootState) => state.followers);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    if (!followersQuery) return;
+    if (!followersQuery.allFollowers) return;
+    dispatch(initFollowerReducer(followersQuery.allFollowers));
+  }, [followersQuery]);
+
   const handleAddFollower = async (e: React.MouseEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const { errors } = await addFollower({ variables: { id: text } });
+    const { data: addFollowerQuery, errors } = await addFollower({
+      variables: { id: text },
+    });
+    if (!addFollowerQuery) return;
+    const { userId, email, company } = addFollowerQuery.addFollower;
+    dispatch(addFollowerReducer({ userId, email, company }));
   };
   return (
     <section>
@@ -40,9 +63,13 @@ export default function Followers() {
         />
         <input type="submit" value="팔로우 등록" onClick={handleAddFollower} />
       </form>
-      {followersQuery?.allFollowers?.map((follower) => (
-        <div key={follower?.userId}>{follower?.userId}</div>
-      ))}
+      <ul>
+        {followers.map((follower) => (
+          <li key={follower?.userId}>
+            <Follower {...follower} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

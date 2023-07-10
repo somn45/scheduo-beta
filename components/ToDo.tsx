@@ -1,10 +1,8 @@
 import { graphql } from '@/generates/type';
-import { RootState } from '@/lib/store/store';
 import { IToDo } from '@/pages/schedules/todos';
-import { convertNumberToDate } from '@/utils/convertDate';
 import { useMutation } from '@apollo/client';
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 const UPDATE_TODO = graphql(`
   mutation UpdateToDo(

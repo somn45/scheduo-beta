@@ -4,6 +4,7 @@ import Cookies from 'cookies';
 import jwt from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { ObjectId, Schema } from 'mongoose';
+import { useReactiveVar } from '@apollo/client';
 
 export interface IUser {
   _id?: string;
@@ -114,6 +115,25 @@ export default {
       user.followers.push(newFollower.id);
       await user.save();
       return newFollower;
+    },
+    deleteFollower: async (
+      _: unknown,
+      { userId: followerId }: { userId: string },
+      { cookies }: ContextValue
+    ) => {
+      const userId = cookies.get('uid');
+      if (!userId)
+        throw new GraphQLError('UserId not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const user = await User.findOne({ userId });
+      const follower = await User.findUser(followerId);
+      const followerIds = user?.followers as ObjectId[];
+      const followedList: ObjectId[] = followerIds.filter((id) => {
+        return id.toString() !== follower._id.toString() ? id : null;
+      });
+      await User.findOneAndUpdate({ userId }, { followers: followedList });
+      return follower;
     },
   },
 };
