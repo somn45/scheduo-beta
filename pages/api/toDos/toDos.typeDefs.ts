@@ -1,28 +1,26 @@
 import gql from 'graphql-tag';
 
 export default gql`
-  scalar Date
+  type TodaySkd {
+    _id: String
+    title: String!
+    author: String!
+    toDos: [ToDo]!
+  }
   type ToDo {
     content: String!
-    registrant: String!
     registeredAt: Float!
     state: String!
   }
   type Query {
-    getToDos: [ToDo]
+    allSchedules: [TodaySkd!]!
+    getSchedule(id: String!): TodaySkd!
+    allToDos: [ToDo]!
   }
   type Mutation {
-    addToDo(
-      content: String!
-      registrant: String!
-      registeredAt: Float!
-      state: String!
-    ): ToDo
-    updateToDo(
-      content: String!
-      registrant: String!
-      registeredAt: Float!
-    ): ToDo!
-    deleteToDo(registrant: String!, registeredAt: Float!): ToDo!
+    createSchedule(title: String!, author: String!): TodaySkd!
+    addToDo(author: String!, content: String!, registeredAt: Float!): ToDo!
+    updateToDo(id: String!, content: String!, registeredAt: Float!): ToDo!
+    deleteToDo(id: String!, registeredAt: Float!): [ToDo]!
   }
 `;

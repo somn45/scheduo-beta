@@ -1,44 +1,33 @@
 import { graphql } from '@/generates/type';
-import { IToDo } from '@/pages/schedules/todos';
+import { IToDo } from '@/models/TodaySkd';
 import { useMutation } from '@apollo/client';
+import { getCookie } from 'cookies-next';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
+interface ToDoProps extends IToDo {
+  id: string;
+}
+
 const UPDATE_TODO = graphql(`
-  mutation UpdateToDo(
-    $content: String!
-    $registrant: String!
-    $registeredAt: Float!
-  ) {
-    updateToDo(
-      content: $content
-      registrant: $registrant
-      registeredAt: $registeredAt
-    ) {
+  mutation UpdateToDo($id: String!, $content: String!, $registeredAt: Float!) {
+    updateToDo(id: $id, content: $content, registeredAt: $registeredAt) {
       content
-      registrant
       registeredAt
     }
   }
 `);
 const DELETE_TODO = graphql(`
-  mutation DeleteToDo($registrant: String!, $registeredAt: Float!) {
-    deleteToDo(registrant: $registrant, registeredAt: $registeredAt) {
-      registrant
+  mutation DeleteToDo($id: String!, $registeredAt: Float!) {
+    deleteToDo(id: $id, registeredAt: $registeredAt) {
       registeredAt
     }
   }
 `);
 
-export default function ToDo({
-  content,
-  registrant,
-  registeredAt,
-  state,
-}: IToDo) {
+export default function ToDo({ content, registeredAt, state, id }: ToDoProps) {
   const [toDo, setToDo] = useState({
     content,
-    registrant,
     registeredAt,
     state,
   });
@@ -52,7 +41,7 @@ export default function ToDo({
   const handleUpdateToDo = async (e: React.MouseEvent<HTMLInputElement>) => {
     e.preventDefault();
     await updateToDo({
-      variables: { content: text, registrant, registeredAt },
+      variables: { id, content: text, registeredAt },
     });
     setIsEditMode(false);
     setToDo({ ...toDo, content: text });
@@ -61,7 +50,7 @@ export default function ToDo({
   const handleDeleteToDo = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     await deleteToDo({
-      variables: { registrant, registeredAt },
+      variables: { id, registeredAt },
     });
     setHasDeleted(true);
   };

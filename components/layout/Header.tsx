@@ -56,7 +56,7 @@ export default function Header({ showLogin }: AuthModelFunction) {
     <header className="w-full h-10 px-10 py-2 fixed flex justify-between">
       <div className="w-1/4 text-sm font-semibold flex justify-between">
         <Link
-          href="/schedules/todos"
+          href="/schedules/todolist"
           className=" ease-out duration-150 hover:text-pink-400"
         >
           오늘의 일정
