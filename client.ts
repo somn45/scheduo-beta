@@ -26,8 +26,8 @@ const GET_TOKEN = gql`
 `;
 
 const SET_TOKEN = gql`
-  mutation SetToken($userId: String!) {
-    setToken(userId: $userId) {
+  mutation SetToken {
+    setToken {
       accessToken
       isSuccess
     }
@@ -46,21 +46,18 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 });
 
 const authLink = setContext(async (_, { headers }) => {
-  const userId = getCookie('uid');
-  if (!userId) return;
-
   let accessToken;
   const getTokenData = await request<GetTokenResponse>(
     'http://localhost:3000/api/graphql',
     GET_TOKEN
   );
+  console.log(getTokenData);
   if (!getTokenData.getToken) return;
   accessToken = getTokenData.getToken.accessToken;
   if (!accessToken) {
     const setTokenData = await request<SetTokenResponse>(
       'http://localhost:3000/api/graphql',
-      SET_TOKEN,
-      { userId }
+      SET_TOKEN
     );
     if (!setTokenData.setToken.isSuccess) return deleteCookie('uid');
     accessToken = setTokenData.setToken.accessToken;

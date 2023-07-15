@@ -12,10 +12,13 @@ export default {
   Mutation: {
     setToken: async (
       _: unknown,
-      { userId }: UserId,
-      { cookies }: ContextValue
+      __: unknown,
+      { req, cookies }: ContextValue
     ) => {
-      const user: IUser | null = await User.findOne({ userId });
+      const loggedUser = req.session.user;
+      if (!loggedUser) return { isSuccess: false };
+      const userId = loggedUser.id;
+      const user = await User.findUser(userId);
       if (!user) return { isSuccess: false };
       if (user && !user.refreshToken) return { isSuccess: false };
       const { expiredAt } = user;
@@ -31,14 +34,6 @@ export default {
         maxAge: ACCESS_TOKEN_EXPIRATION_TIME,
       });
       return { accessToken, isSuccess: true };
-    },
-    deleteToken: async (
-      _: unknown,
-      { userId }: UserId,
-      { cookies }: ContextValue
-    ) => {
-      cookies.set('accessToken');
-      return { isSuccess: true };
     },
   },
 };

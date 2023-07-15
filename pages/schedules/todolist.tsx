@@ -18,8 +18,8 @@ const ALL_SCHEDULES = graphql(`
 `);
 
 const CREATE_SCHEDULE = graphql(`
-  mutation CreateSchedule($title: String!, $author: String!) {
-    createSchedule(title: $title, author: $author) {
+  mutation CreateSchedule($title: String!) {
+    createSchedule(title: $title) {
       _id
       title
       author
@@ -33,16 +33,13 @@ const CREATE_SCHEDULE = graphql(`
 export default function ToDoList() {
   const [title, setTitle] = useState('');
   const { data: allSchedulesQuery } = useQuery(ALL_SCHEDULES);
-  console.log(allSchedulesQuery);
   const [createSchedule] = useMutation(CREATE_SCHEDULE);
 
   const handleCreateSchedule = async (
     e: React.MouseEvent<HTMLInputElement>
   ) => {
     e.preventDefault();
-    const author = getCookie('uid') as string | undefined;
-    if (!author) return;
-    await createSchedule({ variables: { title, author } });
+    const { data } = await createSchedule({ variables: { title } });
   };
 
   return (

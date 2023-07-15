@@ -18,8 +18,8 @@ export default gql`
     allToDos: [ToDo]!
   }
   type Mutation {
-    createSchedule(title: String!, author: String!): TodaySkd!
-    addToDo(author: String!, content: String!, registeredAt: Float!): ToDo!
+    createSchedule(title: String!): TodaySkd!
+    addToDo(content: String!, registeredAt: Float!): ToDo!
     updateToDo(id: String!, content: String!, registeredAt: Float!): ToDo!
     deleteToDo(id: String!, registeredAt: Float!): [ToDo]!
   }

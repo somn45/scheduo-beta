@@ -47,8 +47,13 @@ export default {
     checkUser: async (
       _: unknown,
       { userId, password }: IUser,
-      { cookies }: ContextValue
+      { req, cookies }: ContextValue
     ) => {
+      if (req.session.user)
+        throw new GraphQLError('이미 로그인 된 사용자입니다.', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
+
       const user = await User.findUser(userId);
       if (!user)
         throw new GraphQLError('User not found', {
@@ -73,21 +78,36 @@ export default {
 
       user.refreshToken = refreshToken;
       user.expiredAt = Date.now() + REFRESH_TOKEN_EXPIRATION_TIME;
-
       await user.save();
 
+      req.session.user = {
+        id: userId,
+      };
+      await req.session.save();
+      return { userId };
+    },
+    logout: async (_: unknown, __: unknown, { req, cookies }: ContextValue) => {
+      const userId = req.session.user?.id;
+      if (!userId)
+        throw new GraphQLError('이미 로그아웃 된 사용자입니다.', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
+      req.session.destroy();
+      cookies.set('accessToken');
+      cookies.set('sid');
       return { userId };
     },
     addFollower: async (
       _: unknown,
       { id }: { id: string },
-      { cookies }: ContextValue
+      { req }: ContextValue
     ) => {
-      const userId = cookies.get('uid');
+      const userId = req.session.user?.id;
       if (!userId)
-        throw new GraphQLError('UserId not found', {
+        throw new GraphQLError('User not found', {
           extensions: { code: 'NOT_FOUND' },
         });
+
       const user = await User.findUser(userId);
       if (!user)
         throw new GraphQLError('User not found', {
@@ -119,13 +139,14 @@ export default {
     deleteFollower: async (
       _: unknown,
       { userId: followerId }: { userId: string },
-      { cookies }: ContextValue
+      { req }: ContextValue
     ) => {
-      const userId = cookies.get('uid');
+      const userId = req.session.user?.id;
       if (!userId)
         throw new GraphQLError('UserId not found', {
           extensions: { code: 'NOT_FOUND' },
         });
+
       const user = await User.findOne({ userId });
       const follower = await User.findUser(followerId);
       const followerIds = user?.followers as ObjectId[];

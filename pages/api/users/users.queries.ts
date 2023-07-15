@@ -8,8 +8,8 @@ export default {
       const users = await User.findAllUsers();
       return users;
     },
-    getUser: async (_: unknown, __: unknown, { cookies }: ContextValue) => {
-      const userId = cookies.get('uid');
+    getUser: async (_: unknown, __: unknown, { req }: ContextValue) => {
+      const userId = req.session.user?.id;
       if (!userId)
         throw new GraphQLError('You are not an active user', {
           extensions: { code: 'UNAUTHORIZED' },
@@ -21,12 +21,8 @@ export default {
       const user = await User.findUserById(id);
       return user;
     },
-    allFollowers: async (
-      _: unknown,
-      __: unknown,
-      { cookies }: ContextValue
-    ) => {
-      const userId = cookies.get('uid');
+    allFollowers: async (_: unknown, __: unknown, { req }: ContextValue) => {
+      const userId = req.session.user?.id;
       if (!userId)
         throw new GraphQLError('UserId not found', {
           extensions: { code: 'NOT_FOUND' },

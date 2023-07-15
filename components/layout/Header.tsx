@@ -3,6 +3,8 @@ import { useMutation, useQuery } from '@apollo/client';
 import Link from 'next/link';
 import { graphql } from '@/generates/type';
 import { getCookie, deleteCookie } from 'cookies-next';
+import request from 'graphql-request';
+import { IUser } from '@/pages/api/users/users.mutations';
 
 export interface AuthModelFunction {
   showLogin?: () => void;
@@ -21,35 +23,21 @@ const GET_USER = graphql(`
   }
 `);
 
-const DELETE_TOKEN = graphql(`
-  mutation DeleteToken($userId: String!) {
-    deleteToken(userId: $userId) {
-      isSuccess
+const LOGOUT = graphql(`
+  mutation Logout {
+    logout {
+      userId
     }
   }
 `);
 
 export default function Header({ showLogin }: AuthModelFunction) {
-  const [loggedUser, setLoggedUser] = useState('');
-  const { data: getUserData } = useQuery(GET_USER);
-  const [deleteToken] = useMutation(DELETE_TOKEN);
-
-  useEffect(() => {
-    const userId = getCookie('uid') as string;
-    userId ? setLoggedUser(userId) : setLoggedUser('');
-  }, []);
-
+  const { data: geUserQuery } = useQuery(GET_USER);
+  const [logOut] = useMutation(LOGOUT);
   const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const userId = getCookie('uid');
-    if (typeof userId !== 'string') return;
-    const { data, errors } = await deleteToken({
-      variables: { userId: userId },
-    });
-    if (data?.deleteToken?.isSuccess) {
-      deleteCookie('uid');
-      window.location.reload();
-    }
+    const { data, errors } = await logOut();
+    console.log(data);
   };
 
   return (
@@ -75,7 +63,7 @@ export default function Header({ showLogin }: AuthModelFunction) {
         </Link>
       </div>
       <div>
-        {loggedUser ? (
+        {geUserQuery?.getUser.userId ? (
           <>
             <Link
               href="/followers"
@@ -84,10 +72,10 @@ export default function Header({ showLogin }: AuthModelFunction) {
               팔로워
             </Link>
             <Link
-              href={`/users/${getUserData?.getUser?._id}`}
+              href={`/users/${geUserQuery?.getUser._id}`}
               className="text-sm font-semibold ease-out duration-150 hover:text-pink-400"
             >
-              {loggedUser}
+              {geUserQuery?.getUser.userId}
             </Link>
             <button
               onClick={handleLogout}

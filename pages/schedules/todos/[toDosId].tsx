@@ -31,8 +31,8 @@ const GET_SCHEDULE = graphql(`
 `);
 
 const ADD_TODO = graphql(`
-  mutation AddToDo($author: String!, $content: String!, $registeredAt: Float!) {
-    addToDo(author: $author, content: $content, registeredAt: $registeredAt) {
+  mutation AddToDo($content: String!, $registeredAt: Float!) {
+    addToDo(content: $content, registeredAt: $registeredAt) {
       content
       registeredAt
       state
@@ -46,7 +46,6 @@ export default function ToDos() {
   const { data: getScheduleQuery } = useQuery(GET_SCHEDULE, {
     variables: { id: typeof query.toDosId === 'string' ? query.toDosId : '' },
   });
-  console.log(getScheduleQuery);
   const [addToDo] = useMutation(ADD_TODO, {
     errorPolicy: 'all',
   });
@@ -58,12 +57,10 @@ export default function ToDos() {
     const regitDate = Date.now();
     const { data: addToDoQuery } = await addToDo({
       variables: {
-        author,
         content: text,
         registeredAt: regitDate,
       },
     });
-    console.log(addToDoQuery);
   };
 
   return (

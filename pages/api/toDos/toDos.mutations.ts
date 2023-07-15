@@ -1,6 +1,7 @@
 import TodaySkd, { IToDo } from '@/models/TodaySkd';
 import ToDoModel from '@/models/TodaySkd';
 import { GraphQLError } from 'graphql';
+import { ContextValue } from '../users/users.mutations';
 
 export interface TodaySkdInfo {
   title: string;
@@ -8,7 +9,6 @@ export interface TodaySkdInfo {
 }
 
 export interface AddToDoProps {
-  author: string;
   content: string;
   registeredAt: number;
 }
@@ -26,18 +26,37 @@ export interface DeleteToDoProps {
 
 export default {
   Mutation: {
-    createSchedule: async (_: unknown, { title, author }: TodaySkdInfo) => {
+    createSchedule: async (
+      _: unknown,
+      { title }: TodaySkdInfo,
+      { req }: ContextValue
+    ) => {
+      const user = req.session.user;
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const author = user.id;
       const newTodaySkd = {
         title,
         author,
+        toDos: [],
       };
       await TodaySkd.create(newTodaySkd);
       return newTodaySkd;
     },
     addToDo: async (
       _: unknown,
-      { author, content, registeredAt }: AddToDoProps
+      { content, registeredAt }: AddToDoProps,
+      { req }: ContextValue
     ) => {
+      const { user } = req.session;
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const author = user.id;
+
       const todaySchedule = await TodaySkd.findOneTodaySkd(author);
       todaySchedule.toDos.push({ content, registeredAt, state: 'toDo' });
       await todaySchedule.save();
@@ -45,8 +64,15 @@ export default {
     },
     updateToDo: async (
       _: unknown,
-      { id, content, registeredAt }: UpdateToDoProps
+      { id, content, registeredAt }: UpdateToDoProps,
+      { req }: ContextValue
     ) => {
+      const { user } = req.session;
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
       const { toDos } = todaySchedule;
 
@@ -59,7 +85,17 @@ export default {
       todaySchedule.save();
       return updateToDo;
     },
-    deleteToDo: async (_: unknown, { id, registeredAt }: DeleteToDoProps) => {
+    deleteToDo: async (
+      _: unknown,
+      { id, registeredAt }: DeleteToDoProps,
+      { req }: ContextValue
+    ) => {
+      const { user } = req.session;
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
       const { toDos } = todaySchedule;
       todaySchedule.toDos = toDos.filter(

@@ -9,7 +9,7 @@ export default gql`
   }
   type Query {
     allUsers: [User!]!
-    getUser: User
+    getUser: User!
     getUserById(id: String!): User
     allFollowers: [User!]!
   }
@@ -21,6 +21,7 @@ export default gql`
       company: String
     ): User
     checkUser(userId: String!, password: String!): User
+    logout: User!
     addFollower(id: String!): User!
     deleteFollower(userId: String!): User!
   }
