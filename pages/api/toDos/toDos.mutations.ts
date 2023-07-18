@@ -9,6 +9,7 @@ export interface TodaySkdInfo {
 }
 
 export interface AddToDoProps {
+  id: string;
   content: string;
   registeredAt: number;
 }
@@ -37,17 +38,16 @@ export default {
           extensions: { code: 'NOT_FOUND' },
         });
       const author = user.id;
-      const newTodaySkd = {
+
+      const newTodaySkd = await TodaySkd.create({
         title,
         author,
-        toDos: [],
-      };
-      await TodaySkd.create(newTodaySkd);
+      });
       return newTodaySkd;
     },
     addToDo: async (
       _: unknown,
-      { content, registeredAt }: AddToDoProps,
+      { id, content, registeredAt }: AddToDoProps,
       { req }: ContextValue
     ) => {
       const { user } = req.session;
@@ -57,7 +57,7 @@ export default {
         });
       const author = user.id;
 
-      const todaySchedule = await TodaySkd.findOneTodaySkd(author);
+      const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
       todaySchedule.toDos.push({ content, registeredAt, state: 'toDo' });
       await todaySchedule.save();
       return { content, registeredAt, state: 'toDo' };

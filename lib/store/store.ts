@@ -1,15 +1,24 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import toDosSlice from './toDos';
 import { createWrapper } from 'next-redux-wrapper';
 import { useDispatch } from 'react-redux';
 import followerSlice from './followers';
+import todaySkdSlice from './todaySchedules';
+import toDoSlice from './toDos';
 
 const reducer = combineReducers({
-  toDos: toDosSlice.reducer,
+  todaySchedules: todaySkdSlice.reducer,
+  toDos: toDoSlice.reducer,
   followers: followerSlice.reducer,
 });
 
-export const { initToDoReducer, addToDoReducer } = toDosSlice.actions;
+export const { initTodaySchedulesReducer, addTodaySkdReducer } =
+  todaySkdSlice.actions;
+export const {
+  initToDosReducer,
+  addToDoReducer,
+  updateToDoReducer,
+  deleteToDoReducer,
+} = toDoSlice.actions;
 export const {
   initFollowerReducer,
   addFollowerReducer,

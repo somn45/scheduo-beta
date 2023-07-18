@@ -1,5 +1,5 @@
 import User from '@/models/User';
-import { ContextValue } from './users.mutations';
+import { ContextValue, IUser } from './users.mutations';
 import { GraphQLError } from 'graphql';
 
 export default {
@@ -21,12 +21,7 @@ export default {
       const user = await User.findUserById(id);
       return user;
     },
-    allFollowers: async (_: unknown, __: unknown, { req }: ContextValue) => {
-      const userId = req.session.user?.id;
-      if (!userId)
-        throw new GraphQLError('UserId not found', {
-          extensions: { code: 'NOT_FOUND' },
-        });
+    allFollowers: async (_: unknown, { userId }: { userId: string }) => {
       const user = await User.findOne({ userId }).populate([
         {
           path: 'followers',

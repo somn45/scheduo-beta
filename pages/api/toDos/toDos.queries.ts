@@ -4,11 +4,8 @@ import TodaySkd from '@/models/TodaySkd';
 
 export default {
   Query: {
-    allSchedules: async (_: unknown, __: unknown, { req }: ContextValue) => {
-      const { user } = req.session;
-      if (!user) return;
-      const author = user.id;
-      const todaySchedule = await TodaySkd.find({ author });
+    allSchedules: async () => {
+      const todaySchedule = await TodaySkd.find();
       return todaySchedule;
     },
     getSchedule: async (_: unknown, { id }: { id: string }) => {

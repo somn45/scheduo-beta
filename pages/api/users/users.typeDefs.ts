@@ -11,7 +11,7 @@ export default gql`
     allUsers: [User!]!
     getUser: User!
     getUserById(id: String!): User
-    allFollowers: [User!]!
+    allFollowers(userId: String!): [User!]!
   }
   type Mutation {
     addUser(

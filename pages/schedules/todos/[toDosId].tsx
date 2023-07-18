@@ -1,24 +1,37 @@
 import ToDo from '@/components/ToDo';
 import { graphql } from '@/generates/type';
-import { useMutation, useQuery } from '@apollo/client';
-import { getCookie } from 'cookies-next';
+import wrapper, {
+  RootState,
+  addToDoReducer,
+  initToDosReducer,
+  useAppDispatch,
+} from '@/lib/store/store';
+import { DBTodaySkd } from '@/models/TodaySkd';
+import { useMutation } from '@apollo/client';
+import { request } from 'graphql-request';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 
-export interface IToDo {
-  id?: string;
-  content: string;
-  registeredAt: number;
-  state: string;
-}
-
-interface ToDosProps {
-  getToDos: IToDo[];
-}
+const ALL_SCHEDULES = graphql(`
+  query GetSchedules {
+    allSchedules {
+      _id
+      title
+      author
+      toDos {
+        content
+        registeredAt
+        state
+      }
+    }
+  }
+`);
 
 const GET_SCHEDULE = graphql(`
   query GetSchedule($id: String!) {
     getSchedule(id: $id) {
+      _id
       title
       author
       toDos {
@@ -31,8 +44,8 @@ const GET_SCHEDULE = graphql(`
 `);
 
 const ADD_TODO = graphql(`
-  mutation AddToDo($content: String!, $registeredAt: Float!) {
-    addToDo(content: $content, registeredAt: $registeredAt) {
+  mutation AddToDo($id: String!, $content: String!, $registeredAt: Float!) {
+    addToDo(id: $id, content: $content, registeredAt: $registeredAt) {
       content
       registeredAt
       state
@@ -40,31 +53,38 @@ const ADD_TODO = graphql(`
   }
 `);
 
-export default function ToDos() {
+export default function ToDos({ title, author }: DBTodaySkd) {
   const [text, setText] = useState('');
-  const { query } = useRouter();
-  const { data: getScheduleQuery } = useQuery(GET_SCHEDULE, {
-    variables: { id: typeof query.toDosId === 'string' ? query.toDosId : '' },
-  });
   const [addToDo] = useMutation(ADD_TODO, {
     errorPolicy: 'all',
   });
+  const { query } = useRouter();
+  const toDos = useSelector((state: RootState) => state.toDos);
+  const dispatch = useAppDispatch();
 
   const handleAddToDo = async (e: React.MouseEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const author = getCookie('uid');
-    if (!author || typeof author !== 'string') return;
+    const toDosId = query.toDosId;
+    if (typeof toDosId !== 'string') return;
     const regitDate = Date.now();
     const { data: addToDoQuery } = await addToDo({
       variables: {
+        id: toDosId,
         content: text,
         registeredAt: regitDate,
       },
     });
+    if (!addToDoQuery) return;
+    dispatch(addToDoReducer(addToDoQuery.addToDo));
+    setText('');
   };
 
   return (
     <div>
+      <div>
+        <span>{title}</span>
+        <span>{author}</span>
+      </div>
       <form>
         <input
           type="text"
@@ -75,21 +95,51 @@ export default function ToDos() {
         <input type="submit" value="일정 추가" onClick={handleAddToDo} />
       </form>
       <ul>
-        {!getScheduleQuery?.getSchedule.toDos ||
-          (getScheduleQuery.getSchedule.toDos.length === 0 && (
-            <li>등록된 일정 없음</li>
-          ))}
-        {getScheduleQuery?.getSchedule.toDos.map(
-          (toDo) =>
-            toDo && (
-              <ToDo
-                key={toDo.registeredAt}
-                {...toDo}
-                id={typeof query.toDosId === 'string' ? query.toDosId : ''}
-              />
-            )
-        )}
+        {!toDos || (toDos.length === 0 && <li>등록된 일정 없음</li>)}
+        {toDos.map((toDo) => (
+          <ToDo
+            key={toDo.registeredAt}
+            {...toDo}
+            id={typeof query.toDosId === 'string' ? query.toDosId : ''}
+          />
+        ))}
       </ul>
     </div>
   );
 }
+
+export const getStaticPaths = async () => {
+  const allTodaySkdQuery = await request(
+    'http://localhost:3000/api/graphql',
+    ALL_SCHEDULES
+  );
+  const paths = allTodaySkdQuery.allSchedules.map((todaySkd) => ({
+    params: {
+      toDosId: todaySkd._id,
+    },
+  }));
+  return {
+    paths,
+    fallback: false,
+  };
+};
+
+export const getStaticProps = wrapper.getStaticProps(
+  (store) =>
+    async ({ params }) => {
+      if (!params || typeof params.toDosId !== 'string')
+        return {
+          notFound: true,
+        };
+      const getTodaySkdQuery = await request(
+        'http://localhost:3000/api/graphql',
+        GET_SCHEDULE,
+        { id: params.toDosId }
+      );
+      const { title, author, toDos } = getTodaySkdQuery.getSchedule;
+      store.dispatch(initToDosReducer(toDos));
+      return {
+        props: { title, author },
+      };
+    }
+);

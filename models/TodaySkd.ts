@@ -6,6 +6,10 @@ export interface DBTodaySkd {
   toDos: Array<IToDo>;
 }
 
+export interface ITodaySkd extends DBTodaySkd {
+  _id?: string;
+}
+
 export interface IToDo {
   content: string;
   registeredAt: number;

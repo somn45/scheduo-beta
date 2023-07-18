@@ -5,7 +5,7 @@ export default gql`
     _id: String
     title: String!
     author: String!
-    toDos: [ToDo]!
+    toDos: [ToDo!]!
   }
   type ToDo {
     content: String!
@@ -19,8 +19,8 @@ export default gql`
   }
   type Mutation {
     createSchedule(title: String!): TodaySkd!
-    addToDo(content: String!, registeredAt: Float!): ToDo!
+    addToDo(id: String!, content: String!, registeredAt: Float!): ToDo!
     updateToDo(id: String!, content: String!, registeredAt: Float!): ToDo!
-    deleteToDo(id: String!, registeredAt: Float!): [ToDo]!
+    deleteToDo(id: String!, registeredAt: Float!): [ToDo!]!
   }
 `;

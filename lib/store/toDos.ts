@@ -1,22 +1,29 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { IToDo } from '@/models/TodaySkd';
+import { PayloadAction, createSlice, current } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import { RootState } from './store';
-import { DBTodaySkd } from '@/models/TodaySkd';
 
-const initialState: DBTodaySkd[] = [];
-
-const toDosSlice = createSlice({
-  name: 'toDos',
-  initialState,
+const toDoSlice = createSlice({
+  name: 'toDo',
+  initialState: [] as IToDo[],
   reducers: {
-    initToDoReducer: (state, action: PayloadAction<DBTodaySkd[]>) => {
+    initToDosReducer: (state, action: PayloadAction<IToDo[]>) => {
       return action.payload;
     },
-    addToDoReducer: (state, action: PayloadAction<DBTodaySkd>) => {
+    addToDoReducer: (state, action: PayloadAction<IToDo>) => {
       return [...state, action.payload];
     },
-    //updateToDoReducer: (state, action) => {},
-    //deleteToDoReducer: (state, action) => {},
+    updateToDoReducer: (state, action: PayloadAction<IToDo>) => {
+      const currentState = current(state);
+      const updatedToDos = currentState.map((toDo) =>
+        toDo.registeredAt === action.payload.registeredAt
+          ? action.payload
+          : toDo
+      );
+      return updatedToDos;
+    },
+    deleteToDoReducer: (state, action: PayloadAction<IToDo[]>) => {
+      return action.payload;
+    },
   },
   extraReducers: {
     [HYDRATE]: (state, action) => {
@@ -25,4 +32,4 @@ const toDosSlice = createSlice({
   },
 });
 
-export default toDosSlice;
+export default toDoSlice;

@@ -1,18 +1,21 @@
-import Follower from '@/components/Follower';
+import Follower, { FollowerProps } from '@/components/Follower';
 import { graphql } from '@/generates/type';
-import {
+import wrapper, {
   RootState,
   addFollowerReducer,
   initFollowerReducer,
   useAppDispatch,
 } from '@/lib/store/store';
 import { useMutation, useQuery } from '@apollo/client';
+import request from 'graphql-request';
+import { withIronSessionSsr } from 'iron-session/next';
+import { GetServerSideProps } from 'next';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 const ALL_FOLLOWERS = graphql(`
-  query GetFollowers {
-    allFollowers {
+  query GetFollowers($userId: String!) {
+    allFollowers(userId: $userId) {
       userId
     }
   }
@@ -31,17 +34,11 @@ const ADD_FOLLOWER = graphql(`
 
 export default function Followers() {
   const [text, setText] = useState('');
-  const { data: followersQuery } = useQuery(ALL_FOLLOWERS);
   const [addFollower] = useMutation(ADD_FOLLOWER, {
     errorPolicy: 'all',
   });
   const followers = useSelector((state: RootState) => state.followers);
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    if (!followersQuery) return;
-    if (!followersQuery.allFollowers) return;
-    dispatch(initFollowerReducer(followersQuery.allFollowers));
-  }, [followersQuery]);
 
   const handleAddFollower = async (e: React.MouseEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -51,7 +48,9 @@ export default function Followers() {
     if (!addFollowerQuery) return;
     const { userId, email, company } = addFollowerQuery.addFollower;
     dispatch(addFollowerReducer({ userId, email, company }));
+    setText('');
   };
+
   return (
     <section>
       <form>
@@ -73,3 +72,28 @@ export default function Followers() {
     </section>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = withIronSessionSsr(
+  wrapper.getServerSideProps((store) => async ({ req }) => {
+    const { user } = req.session;
+    if (!user)
+      return {
+        notFound: true,
+      };
+    const allFollowersQuery = await request(
+      'http://localhost:3000/api/graphql',
+      ALL_FOLLOWERS,
+      { userId: user.id }
+    );
+    store.dispatch(initFollowerReducer(allFollowersQuery.allFollowers));
+    return {
+      props: {},
+    };
+  }),
+  {
+    cookieName: 'uid',
+    password: process.env.NEXT_PUBLIC_SESSION_PASSWORD
+      ? process.env.NEXT_PUBLIC_SESSION_PASSWORD
+      : '',
+  }
+);

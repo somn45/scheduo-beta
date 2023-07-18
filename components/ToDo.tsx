@@ -1,4 +1,5 @@
 import { graphql } from '@/generates/type';
+import { deleteToDoReducer, updateToDoReducer } from '@/lib/store/store';
 import { IToDo } from '@/models/TodaySkd';
 import { useMutation } from '@apollo/client';
 import { getCookie } from 'cookies-next';
@@ -20,17 +21,14 @@ const UPDATE_TODO = graphql(`
 const DELETE_TODO = graphql(`
   mutation DeleteToDo($id: String!, $registeredAt: Float!) {
     deleteToDo(id: $id, registeredAt: $registeredAt) {
+      content
       registeredAt
+      state
     }
   }
 `);
 
 export default function ToDo({ content, registeredAt, state, id }: ToDoProps) {
-  const [toDo, setToDo] = useState({
-    content,
-    registeredAt,
-    state,
-  });
   const [text, setText] = useState(content);
   const [isEditMode, setIsEditMode] = useState(false);
   const [hasDeleted, setHasDeleted] = useState(false);
@@ -40,19 +38,23 @@ export default function ToDo({ content, registeredAt, state, id }: ToDoProps) {
 
   const handleUpdateToDo = async (e: React.MouseEvent<HTMLInputElement>) => {
     e.preventDefault();
-    await updateToDo({
+    const { data: updateToDoQuery } = await updateToDo({
       variables: { id, content: text, registeredAt },
     });
+    if (!updateToDoQuery) return;
+    dispatch(
+      updateToDoReducer({ ...updateToDoQuery.updateToDo, state: 'toDo' })
+    );
     setIsEditMode(false);
-    setToDo({ ...toDo, content: text });
   };
 
   const handleDeleteToDo = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    await deleteToDo({
+    const { data: deleteToDoQuery } = await deleteToDo({
       variables: { id, registeredAt },
     });
-    setHasDeleted(true);
+    if (!deleteToDoQuery) return;
+    dispatch(deleteToDoReducer(deleteToDoQuery.deleteToDo));
   };
   return (
     !hasDeleted && (
@@ -70,7 +72,7 @@ export default function ToDo({ content, registeredAt, state, id }: ToDoProps) {
           </form>
         ) : (
           <>
-            <span>{toDo.content}</span>
+            <span>{content}</span>
             <button onClick={() => setIsEditMode(true)}>수정</button>
           </>
         )}
