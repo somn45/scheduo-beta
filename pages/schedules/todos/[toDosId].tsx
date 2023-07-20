@@ -6,7 +6,7 @@ import wrapper, {
   initToDosReducer,
   useAppDispatch,
 } from '@/lib/store/store';
-import { DBTodaySkd } from '@/models/TodaySkd';
+import { DBTodaySkd, IToDo } from '@/models/TodaySkd';
 import { useMutation } from '@apollo/client';
 import { request } from 'graphql-request';
 import { useRouter } from 'next/router';
@@ -55,6 +55,7 @@ const ADD_TODO = graphql(`
 
 export default function ToDos({ title, author }: DBTodaySkd) {
   const [text, setText] = useState('');
+  const [checkedList, setCheckedList] = useState<IToDo[]>([]);
   const [addToDo] = useMutation(ADD_TODO, {
     errorPolicy: 'all',
   });
@@ -94,6 +95,9 @@ export default function ToDos({ title, author }: DBTodaySkd) {
         />
         <input type="submit" value="일정 추가" onClick={handleAddToDo} />
       </form>
+      <h5>
+        체크박스에 체크 되어있는 일정은 다음 날이 되면 완료 처리가 됩니다.
+      </h5>
       <ul>
         {!toDos || (toDos.length === 0 && <li>등록된 일정 없음</li>)}
         {toDos.map((toDo) => (
@@ -101,6 +105,8 @@ export default function ToDos({ title, author }: DBTodaySkd) {
             key={toDo.registeredAt}
             {...toDo}
             id={typeof query.toDosId === 'string' ? query.toDosId : ''}
+            checkedList={checkedList}
+            setCheckedList={setCheckedList}
           />
         ))}
       </ul>

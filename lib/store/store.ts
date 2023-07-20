@@ -18,6 +18,7 @@ export const {
   addToDoReducer,
   updateToDoReducer,
   deleteToDoReducer,
+  updateToDoStateReducer,
 } = toDoSlice.actions;
 export const {
   initFollowerReducer,

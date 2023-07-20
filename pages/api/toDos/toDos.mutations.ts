@@ -25,6 +25,12 @@ export interface DeleteToDoProps {
   registeredAt: number;
 }
 
+export interface UpdateToDoStateProps {
+  hasFinished: boolean;
+  id: string;
+  registeredAt: number;
+}
+
 export default {
   Mutation: {
     createSchedule: async (
@@ -103,6 +109,43 @@ export default {
       );
       await todaySchedule.save();
       return todaySchedule.toDos;
+    },
+    updateToDoState: async (
+      _: unknown,
+      { hasFinished, id, registeredAt }: UpdateToDoStateProps,
+      { req }: ContextValue
+    ) => {
+      const { user } = req.session;
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+
+      const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
+      if (hasFinished) {
+        const finishedToDo = todaySchedule.toDos.filter(
+          (toDo) => toDo.registeredAt === registeredAt
+        );
+
+        finishedToDo[0].state = 'done';
+        const updatedToDos = todaySchedule.toDos.map((toDo) =>
+          toDo.registeredAt === registeredAt ? finishedToDo[0] : toDo
+        );
+        todaySchedule.toDos = updatedToDos;
+        await todaySchedule.save();
+        return finishedToDo[0];
+      }
+      const finishedToDo = todaySchedule.toDos.filter(
+        (toDo) => toDo.registeredAt === registeredAt
+      );
+
+      finishedToDo[0].state = 'toDo';
+      const updatedToDos = todaySchedule.toDos.map((toDo) =>
+        toDo.registeredAt === registeredAt ? finishedToDo[0] : toDo
+      );
+      todaySchedule.toDos = updatedToDos;
+      await todaySchedule.save();
+      return finishedToDo[0];
     },
   },
 };

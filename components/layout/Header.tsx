@@ -36,8 +36,8 @@ export default function Header({ showLogin }: AuthModelFunction) {
   const [logOut] = useMutation(LOGOUT);
   const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const { data, errors } = await logOut();
-    console.log(data);
+    await logOut();
+    window.location.reload();
   };
 
   return (

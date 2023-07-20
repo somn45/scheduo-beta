@@ -51,7 +51,6 @@ const authLink = setContext(async (_, { headers }) => {
     'http://localhost:3000/api/graphql',
     GET_TOKEN
   );
-  console.log(getTokenData);
   if (!getTokenData.getToken) return;
   accessToken = getTokenData.getToken.accessToken;
   if (!accessToken) {

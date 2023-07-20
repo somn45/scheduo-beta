@@ -22,5 +22,10 @@ export default gql`
     addToDo(id: String!, content: String!, registeredAt: Float!): ToDo!
     updateToDo(id: String!, content: String!, registeredAt: Float!): ToDo!
     deleteToDo(id: String!, registeredAt: Float!): [ToDo!]!
+    updateToDoState(
+      hasFinished: Boolean!
+      id: String!
+      registeredAt: Float!
+    ): ToDo!
   }
 `;
