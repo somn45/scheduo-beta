@@ -36,9 +36,14 @@ export default function Follower({ userId }: FollowerProps) {
     dispatch(deleteFollowerReducer(deleteFollowerQuery.deleteFollower));
   };
   return (
-    <>
-      <span>{userId}</span>
-      <button onClick={handleDeleteFollower}>해제</button>
-    </>
+    <li className="h-12">
+      <span className="mr-2">{userId}</span>
+      <button
+        onClick={handleDeleteFollower}
+        className="px-2 py-1 bg-green-300 rounded-xl hover:text-red-500"
+      >
+        해제
+      </button>
+    </li>
   );
 }

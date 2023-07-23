@@ -182,7 +182,7 @@ export default function Join({ showLogin, closeAuth }: AuthModelFunction) {
         </form>
         <button
           onClick={showLogin}
-          className="text-center font-semibold ease-out duration-100 hover:text-pink-400"
+          className="text-center font-semibold ease-out duration-100 hover:text-light-pink"
         >
           기존 계정으로 로그인
         </button>

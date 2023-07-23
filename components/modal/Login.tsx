@@ -120,7 +120,7 @@ export default function Login({
         </form>
         <button
           onClick={showJoin}
-          className="text-center font-semibold ease-out duration-100 hover:text-pink-400"
+          className="text-center font-semibold ease-out duration-100 hover:text-light-pink"
         >
           Scheduo 회원가입하기
         </button>

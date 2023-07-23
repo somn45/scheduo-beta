@@ -41,23 +41,23 @@ export default function Header({ showLogin }: AuthModelFunction) {
   };
 
   return (
-    <header className="w-full h-10 px-10 py-2 fixed flex justify-between">
+    <header className="w-full h-10 px-10 py-2 bg-white border-b-2 border-dotted border-b-black fixed flex justify-between">
       <div className="w-1/4 text-sm font-semibold flex justify-between">
         <Link
           href="/schedules/todolist"
-          className=" ease-out duration-150 hover:text-pink-400"
+          className=" ease-out duration-150 hover:text-light-pink"
         >
           오늘의 일정
         </Link>
         <Link
           href="/schedules/weekly"
-          className=" ease-out duration-150 hover:text-pink-400"
+          className=" ease-out duration-150 hover:text-light-pink"
         >
           주간 일정
         </Link>
         <Link
           href="/schedules/monthly"
-          className=" ease-out duration-150 hover:text-pink-400"
+          className=" ease-out duration-150 hover:text-light-pink"
         >
           한달 일정
         </Link>
@@ -67,19 +67,19 @@ export default function Header({ showLogin }: AuthModelFunction) {
           <>
             <Link
               href="/followers"
-              className="text-sm font-semibold ease-out duration-150 hover:text-pink-400"
+              className="text-sm font-semibold ease-out duration-150 hover:text-light-pink"
             >
               팔로워
             </Link>
             <Link
               href={`/users/${geUserQuery?.getUser._id}`}
-              className="text-sm font-semibold ease-out duration-150 hover:text-pink-400"
+              className="text-sm font-semibold ease-out duration-150 hover:text-light-pink"
             >
               {geUserQuery?.getUser.userId}
             </Link>
             <button
               onClick={handleLogout}
-              className="text-sm font-semibold ease-out duration-150 hover:text-pink-400"
+              className="text-sm font-semibold ease-out duration-150 hover:text-light-pink"
             >
               로그아웃
             </button>
@@ -87,7 +87,7 @@ export default function Header({ showLogin }: AuthModelFunction) {
         ) : (
           <button
             onClick={showLogin}
-            className="text-sm font-semibold ease-out duration-150 hover:text-pink-400"
+            className="text-sm font-semibold ease-out duration-150 hover:text-light-pink"
           >
             로그인/회원가입
           </button>
