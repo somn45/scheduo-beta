@@ -126,8 +126,8 @@ export default {
         const finishedToDo = todaySchedule.toDos.filter(
           (toDo) => toDo.registeredAt === registeredAt
         );
+        finishedToDo[0].state = 'willDone';
 
-        finishedToDo[0].state = 'done';
         const updatedToDos = todaySchedule.toDos.map((toDo) =>
           toDo.registeredAt === registeredAt ? finishedToDo[0] : toDo
         );
@@ -146,6 +146,50 @@ export default {
       todaySchedule.toDos = updatedToDos;
       await todaySchedule.save();
       return finishedToDo[0];
+    },
+    finishToDos: async (
+      _: unknown,
+      { title }: { title: string },
+      { req }: ContextValue
+    ) => {
+      const { user } = req.session;
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const todaySkd = await TodaySkd.findOne({ title });
+      if (!todaySkd)
+        throw new GraphQLError('Today skd not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      if (todaySkd.toDos.length === 0) return [];
+
+      const { toDos } = todaySkd;
+      const nextDay = new Date(Date.now() + 1000 * 60 * 60 * 24);
+      const nextDaySharp = new Date(
+        nextDay.getFullYear(),
+        nextDay.getMonth(),
+        nextDay.getDate()
+      );
+      const finishedToDos = todaySkd.toDos.map((toDo) => {
+        /*
+                if (
+          new Date(toDo.registeredAt).getDay() !== nextDaySharp.getDay() &&
+          toDo.registeredAt < nextDaySharp.getTime()
+        )
+        */
+        if (toDo.state === 'willDone')
+          return {
+            content: toDo.content,
+            registeredAt: toDo.registeredAt,
+            state: 'done',
+          };
+        return toDo;
+      });
+      todaySkd.toDos = finishedToDos;
+      await todaySkd.save();
+
+      return finishedToDos;
     },
   },
 };

@@ -8,9 +8,7 @@ import { IronSessionOptions } from 'iron-session';
 
 const options: IronSessionOptions = {
   cookieName: 'uid',
-  password: process.env.NEXT_PUBLIC_SESSION_PASSWORD
-    ? process.env.NEXT_PUBLIC_SESSION_PASSWORD
-    : '',
+  password: process.env.SESSION_PASSWORD ? process.env.SESSION_PASSWORD : '',
 };
 
 const server = new ApolloServer({ schema });

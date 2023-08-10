@@ -1,3 +1,4 @@
+import FinishToDos from '@/components/FinishedToDo';
 import ToDo from '@/components/ToDo';
 import { graphql } from '@/generates/type';
 import wrapper, {
@@ -10,7 +11,7 @@ import { DBTodaySkd, IToDo } from '@/models/TodaySkd';
 import { useMutation } from '@apollo/client';
 import { request } from 'graphql-request';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 const ALL_SCHEDULES = graphql(`
@@ -53,15 +54,33 @@ const ADD_TODO = graphql(`
   }
 `);
 
+const FINISH_TODOS = graphql(`
+  mutation FinishToDos($title: String!) {
+    finishToDos(title: $title) {
+      content
+      registeredAt
+      state
+    }
+  }
+`);
+
 export default function ToDos({ title, author }: DBTodaySkd) {
   const [text, setText] = useState('');
   const [checkedList, setCheckedList] = useState<IToDo[]>([]);
   const [addToDo] = useMutation(ADD_TODO, {
     errorPolicy: 'all',
   });
+  const [finishToDos] = useMutation(FINISH_TODOS);
   const { query } = useRouter();
   const toDos = useSelector((state: RootState) => state.toDos);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const handleFinishToDos = async () => {
+      await finishToDos({ variables: { title } });
+    };
+    handleFinishToDos();
+  }, []);
 
   const handleAddToDo = async (e: React.MouseEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -87,7 +106,7 @@ export default function ToDos({ title, author }: DBTodaySkd) {
         <h1 className="text-2xl font-semibold">{title}</h1>
         <span className="text-xl text-slate-600">{`${author}님이 등록함`}</span>
       </article>
-      <article className="flex justify-center">
+      <article className="flex flex-col items-center">
         <form className="relative">
           <input
             type="text"
@@ -105,8 +124,6 @@ export default function ToDos({ title, author }: DBTodaySkd) {
             className="font-semibold h-8 absolute right-4 cursor-pointer"
           />
         </form>
-      </article>
-      <article className="flex flex-col justify-center items-center">
         <h5
           className="w-96 h-12 px-16 my-5 
         bg-blue-400 font-sans text-sm font-semibold text-slate-700 rounded-full 
@@ -114,17 +131,38 @@ export default function ToDos({ title, author }: DBTodaySkd) {
         >
           체크박스에 체크 되어있는 일정은 다음 날이 되면 완료 처리가 됩니다.
         </h5>
-        <ul>
-          {!toDos || (toDos.length === 0 && <li>등록된 일정 없음</li>)}
-          {toDos.map((toDo) => (
-            <ToDo
-              key={toDo.registeredAt}
-              {...toDo}
-              id={typeof query.toDosId === 'string' ? query.toDosId : ''}
-              checkedList={checkedList}
-              setCheckedList={setCheckedList}
-            />
-          ))}
+      </article>
+
+      <article className="flex justify-cneter">
+        <ul className="w-1/2 flex flex-col justify-cneter items-center">
+          <h5 className="mb-3">등록된 일정</h5>
+          {!toDos ||
+            (toDos.length === 0 && (
+              <li className="text-center">등록된 일정 없음</li>
+            ))}
+          {toDos
+            .filter((toDo) => toDo.state !== 'done')
+            .map((toDo) => (
+              <ToDo
+                key={toDo.content}
+                {...toDo}
+                id={typeof query.toDosId === 'string' ? query.toDosId : ''}
+                checkedList={checkedList}
+                setCheckedList={setCheckedList}
+              />
+            ))}
+        </ul>
+        <ul className="w-1/2 flex flex-col justify-cneter items-center">
+          <h5 className="mb-3">완료된 일정</h5>
+          {!toDos ||
+            (toDos.length === 0 && (
+              <li className="text-center">완료된 일정 없음</li>
+            ))}
+          {toDos
+            .filter((toDo) => toDo.state === 'done')
+            .map((toDo) => (
+              <FinishToDos key={toDo.content} {...toDo} />
+            ))}
         </ul>
       </article>
     </section>

@@ -25,8 +25,8 @@ export default {
       if (expiredAt && new Date(expiredAt) < new Date(Date.now()))
         return { isSuccess: false };
 
-      const tokenSecretKey = process.env.NEXT_PUBLIC_JWT_SECRET
-        ? process.env.NEXT_PUBLIC_JWT_SECRET
+      const tokenSecretKey = process.env.JWT_SECRET
+        ? process.env.JWT_SECRET
         : '';
       const accessToken = jwt.sign({ userId }, tokenSecretKey);
       cookies.set('accessToken', accessToken, {

@@ -6,8 +6,8 @@ export default {
     getToken: (_: unknown, __: unknown, { req, cookies }: ContextValue) => {
       const accessToken = cookies.get('accessToken');
       if (!(req.session.user && accessToken)) return { accessToken: '' };
-      const tokenSecretKey = process.env.NEXT_PUBLIC_JWT_SECRET
-        ? process.env.NEXT_PUBLIC_JWT_SECRET
+      const tokenSecretKey = process.env.JWT_SECRET
+        ? process.env.JWT_SECRET
         : '';
       try {
         const verify = jwt.verify(accessToken, tokenSecretKey);

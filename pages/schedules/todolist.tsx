@@ -12,7 +12,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const ALL_SCHEDULES = graphql(`
-  query GetSchedules {
+  query GetScheduleList {
     allSchedules {
       _id
       title
@@ -135,8 +135,6 @@ export const getServerSideProps = withIronSessionSsr(
   }),
   {
     cookieName: 'uid',
-    password: process.env.NEXT_PUBLIC_SESSION_PASSWORD
-      ? process.env.NEXT_PUBLIC_SESSION_PASSWORD
-      : '',
+    password: process.env.SESSION_PASSWORD ? process.env.SESSION_PASSWORD : '',
   }
 );

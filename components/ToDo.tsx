@@ -54,7 +54,7 @@ const UPDATE_TODO_STATE = graphql(`
 
 export default function ToDo({ content, registeredAt, state, id }: ToDoProps) {
   const [text, setText] = useState(content);
-  const [checked, setChecked] = useState(state === 'done' ? true : false);
+  const [checked, setChecked] = useState(state === 'willDone' ? true : false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [updateToDo] = useMutation(UPDATE_TODO);
   const [deleteToDo] = useMutation(DELETE_TODO);

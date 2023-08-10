@@ -27,5 +27,6 @@ export default gql`
       id: String!
       registeredAt: Float!
     ): ToDo!
+    finishToDos(title: String!): [ToDo!]!
   }
 `;

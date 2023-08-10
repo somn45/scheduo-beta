@@ -66,8 +66,8 @@ export default {
           extensions: { code: 'BAD_REQUEST' },
         });
 
-      const tokenSecretKey = process.env.NEXT_PUBLIC_JWT_SECRET
-        ? process.env.NEXT_PUBLIC_JWT_SECRET
+      const tokenSecretKey = process.env.JWT_SECRET
+        ? process.env.JWT_SECRET
         : '';
       const accessToken = jwt.sign({ userId }, tokenSecretKey);
       const refreshToken = jwt.sign({ userId }, tokenSecretKey);

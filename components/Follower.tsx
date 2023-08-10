@@ -31,7 +31,6 @@ export default function Follower({ userId }: FollowerProps) {
     const { data: deleteFollowerQuery, errors } = await deleteFollower({
       variables: { userId },
     });
-    console.log(deleteFollowerQuery?.deleteFollower);
     if (!deleteFollowerQuery) return;
     dispatch(deleteFollowerReducer(deleteFollowerQuery.deleteFollower));
   };

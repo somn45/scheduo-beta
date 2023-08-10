@@ -102,8 +102,6 @@ export const getServerSideProps: GetServerSideProps = withIronSessionSsr(
   }),
   {
     cookieName: 'uid',
-    password: process.env.NEXT_PUBLIC_SESSION_PASSWORD
-      ? process.env.NEXT_PUBLIC_SESSION_PASSWORD
-      : '',
+    password: process.env.SESSION_PASSWORD ? process.env.SESSION_PASSWORD : '',
   }
 );
