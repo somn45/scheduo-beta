@@ -43,6 +43,9 @@ export default function Header({ showLogin }: AuthModelFunction) {
   return (
     <header className="w-full h-10 px-10 py-2 bg-white border-b-2 border-dotted border-b-black fixed flex justify-between">
       <div className="w-1/4 text-sm font-semibold flex justify-between">
+        <Link href="/" className=" ease-out duration-150 hover:text-light-pink">
+          Scheduo
+        </Link>
         <Link
           href="/schedules/todolist"
           className=" ease-out duration-150 hover:text-light-pink"

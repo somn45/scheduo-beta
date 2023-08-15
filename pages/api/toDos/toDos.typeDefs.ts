@@ -7,6 +7,14 @@ export default gql`
     author: String!
     toDos: [ToDo!]!
   }
+  type DocedTodaySkd {
+    _id: String
+    title: String!
+    author: String!
+    start: Float!
+    end: Float!
+    docedToDos: [ToDo!]!
+  }
   type ToDo {
     content: String!
     registeredAt: Float!
@@ -28,5 +36,6 @@ export default gql`
       registeredAt: Float!
     ): ToDo!
     finishToDos(title: String!): [ToDo!]!
+    documentedToDos: [DocedTodaySkd!]!
   }
 `;

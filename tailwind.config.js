@@ -13,11 +13,20 @@ module.exports = {
       padding: {
         '2px': '2px',
       },
+      spacing: {
+        '-15px': '-15px',
+        '-90px': '-90px',
+      },
       backgroundColor: {
         'main-color': '#B9E2FA',
         'schedule-color': '#FDF5DC',
       },
+      borderWidth: {
+        '10px': '10px',
+        '20px': '20px',
+      },
       borderColor: {
+        'main-color': '#B9E2FA',
         'input-color': '#5a5a5a',
       },
       fontFamily: {

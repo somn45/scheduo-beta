@@ -3,6 +3,7 @@ import { Model, Schema, Document, models, model } from 'mongoose';
 export interface DBTodaySkd {
   title: string;
   author: string;
+  createdAt?: number;
   toDos: Array<IToDo>;
 }
 
@@ -36,6 +37,7 @@ interface DBTodaySkdModel extends Model<DBTodaySkdDocument> {
 const todaySkdSchema: Schema<DBTodaySkdDocument> = new Schema({
   title: String,
   author: String,
+  createdAt: Number,
   toDos: [
     {
       content: String,
@@ -45,10 +47,6 @@ const todaySkdSchema: Schema<DBTodaySkdDocument> = new Schema({
   ],
 });
 
-/*
-        new Date(toDo.registeredAt).getDay() !==
-      new Date(Date.now() + 60000).getDay()
- */
 todaySkdSchema.pre('save', async function (next) {
   this.toDos = this.toDos.map((toDo) => {
     if (toDo.state === 'willDone' && toDo.registeredAt < Date.now() + 60000) {

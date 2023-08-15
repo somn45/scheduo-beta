@@ -1,7 +1,8 @@
-import TodaySkd, { IToDo } from '@/models/TodaySkd';
+import TodaySkd, { DBTodaySkd, IToDo } from '@/models/TodaySkd';
 import ToDoModel from '@/models/TodaySkd';
 import { GraphQLError } from 'graphql';
 import { ContextValue } from '../users/users.mutations';
+import DocedTodaySkd from '@/models/DocedTodaySkd';
 
 export interface TodaySkdInfo {
   title: string;
@@ -48,6 +49,7 @@ export default {
       const newTodaySkd = await TodaySkd.create({
         title,
         author,
+        createdAt: Date.now(),
       });
       return newTodaySkd;
     },
@@ -61,7 +63,6 @@ export default {
         throw new GraphQLError('User not found', {
           extensions: { code: 'NOT_FOUND' },
         });
-      const author = user.id;
 
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
       todaySchedule.toDos.push({ content, registeredAt, state: 'toDo' });
@@ -190,6 +191,33 @@ export default {
       await todaySkd.save();
 
       return finishedToDos;
+    },
+    documentedToDos: async (_: unknown, __: unknown, { req }: ContextValue) => {
+      const { user } = req.session;
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const todaySchedules = await TodaySkd.find({ author: user.id });
+      if (!todaySchedules)
+        throw new GraphQLError('Today schedule not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const finishedSchedules: DBTodaySkd[] = todaySchedules.filter(
+        (todaySkd) =>
+          todaySkd.toDos.length !== 0 &&
+          todaySkd.toDos.every((toDo) => toDo.state === 'done')
+      );
+      const docedTodaySchedules = finishedSchedules.map((finishedSkd) => ({
+        title: finishedSkd.title,
+        author: finishedSkd.author,
+        start: finishedSkd.createdAt,
+        end:
+          finishedSkd.createdAt && finishedSkd.createdAt + 1000 * 60 * 60 * 24,
+        docedToDos: finishedSkd.toDos,
+      }));
+      await DocedTodaySkd.create(docedTodaySchedules);
+      return docedTodaySchedules;
     },
   },
 };
