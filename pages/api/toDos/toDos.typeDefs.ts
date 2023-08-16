@@ -24,6 +24,7 @@ export default gql`
     allSchedules: [TodaySkd!]!
     getSchedule(id: String!): TodaySkd!
     allToDos: [ToDo]!
+    allDocedTodaySkds: [DocedTodaySkd!]!
   }
   type Mutation {
     createSchedule(title: String!): TodaySkd!

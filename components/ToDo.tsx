@@ -115,18 +115,18 @@ export default function ToDo({ content, registeredAt, state, id }: ToDoProps) {
             />
           </div>
           <div>
-            <button
-              onClick={() => setIsEditMode(false)}
-              className="mr-1 text-lg text-slate-500"
-            >
-              취소
-            </button>
             <input
               type="submit"
               value="편집 완료"
               onClick={handleUpdateToDo}
               className="text-lg ease-out duration-150 hover:text-blue-800 cursor-pointer"
             />
+            <button
+              onClick={() => setIsEditMode(false)}
+              className="mr-1 text-lg text-slate-500"
+            >
+              취소
+            </button>
           </div>
         </form>
       ) : (

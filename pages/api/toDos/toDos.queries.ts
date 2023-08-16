@@ -1,6 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { ContextValue } from '../users/users.mutations';
 import TodaySkd from '@/models/TodaySkd';
+import DocedTodaySkd from '@/models/DocedTodaySkd';
 
 export default {
   Query: {
@@ -21,6 +22,19 @@ export default {
       const todaySchedule = await TodaySkd.findTodaySkd(author);
       if (!todaySchedule.toDos) return [];
       return todaySchedule.toDos;
+    },
+    allDocedTodaySkds: async (
+      _: unknown,
+      __: unknown,
+      { req }: ContextValue
+    ) => {
+      const { user } = req.session;
+      if (!user)
+        throw new GraphQLError('인증된 유저 없음', {
+          extensions: { code: 'UNAUTHORIZED' },
+        });
+      const docedTodaySkds = await DocedTodaySkd.find({ author: user.id });
+      return docedTodaySkds;
     },
   },
 };

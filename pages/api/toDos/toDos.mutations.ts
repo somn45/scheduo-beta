@@ -198,6 +198,7 @@ export default {
         throw new GraphQLError('User not found', {
           extensions: { code: 'NOT_FOUND' },
         });
+
       const todaySchedules = await TodaySkd.find({ author: user.id });
       if (!todaySchedules)
         throw new GraphQLError('Today schedule not found', {
@@ -217,6 +218,11 @@ export default {
         docedToDos: finishedSkd.toDos,
       }));
       await DocedTodaySkd.create(docedTodaySchedules);
+
+      finishedSchedules.map(
+        async (finishedTodaySkd) =>
+          await TodaySkd.deleteOne({ title: finishedTodaySkd.title })
+      );
       return docedTodaySchedules;
     },
   },

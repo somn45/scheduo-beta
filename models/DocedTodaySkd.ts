@@ -19,11 +19,11 @@ interface DBDocedTodaySkdModel extends Model<DBDocedTodaySkdDocument> {}
 const docedTodaySkdSchema: Schema<DBDocedTodaySkdDocument> = new Schema({
   title: String,
   author: String,
+  start: Number,
+  end: Number,
   docedToDos: [
     {
       content: String,
-      start: Number,
-      end: Number,
     },
   ],
 });

@@ -1,5 +1,5 @@
 import { graphql } from '@/generates/type';
-import { useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import { useEffect, useRef, useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -17,6 +17,20 @@ interface Events {
 interface DocedToDos {
   content: string;
 }
+
+const ALL_DOCUMENTED_TODAY_SKDS = graphql(`
+  query AllDocedTodaySkds {
+    allDocedTodaySkds {
+      title
+      author
+      start
+      end
+      docedToDos {
+        content
+      }
+    }
+  }
+`);
 
 const DOCUMENTED_TODOS = graphql(`
   mutation DocumentedToDos {
@@ -36,26 +50,42 @@ export default function Home() {
   const [documentedTodaySkds, setDocumentedTodaySkds] = useState<Events[]>([]);
   const [showsScheduleDetail, setShowsScheduleDetail] = useState(false);
   const calendarRef = useRef();
+  const [getDocedTodaySkds] = useLazyQuery(ALL_DOCUMENTED_TODAY_SKDS);
   const [documentToDos] = useMutation(DOCUMENTED_TODOS);
   useEffect(() => {
-    const handleDocedToDos = async () => {
-      const { data: documentToDosQuery } = await documentToDos();
-      console.log(documentToDosQuery?.documentedToDos[0].docedToDos);
-      if (documentToDosQuery) {
-        const calendarEvents = documentToDosQuery.documentedToDos.map(
-          (todaySkd) => ({
-            title: todaySkd.title,
-            start: new Date(todaySkd.start),
-            end: new Date(todaySkd.end),
-            docedToDos: todaySkd.docedToDos,
-          })
-        );
-        setDocumentedTodaySkds(calendarEvents);
-      }
-    };
+    console.log('test');
     handleDocedToDos();
-    console.log(calendarRef);
+    const handleGetDocedTodaySkds = async () => {
+      const { data: docedTodaySkdsQuery } = await getDocedTodaySkds();
+      if (!docedTodaySkdsQuery) return;
+      const calendarEvents = docedTodaySkdsQuery.allDocedTodaySkds.map(
+        (todaySkd) => ({
+          title: todaySkd.title,
+          start: new Date(todaySkd.start),
+          end: new Date(todaySkd.end),
+          docedToDos: todaySkd.docedToDos,
+        })
+      );
+      setDocumentedTodaySkds(calendarEvents);
+    };
+    handleGetDocedTodaySkds();
   }, []);
+
+  const handleDocedToDos = async () => {
+    const { data: documentToDosQuery } = await documentToDos();
+    if (documentToDosQuery) {
+      const calendarEvents = documentToDosQuery.documentedToDos.map(
+        (todaySkd) => ({
+          title: todaySkd.title,
+          start: new Date(todaySkd.start),
+          end: new Date(todaySkd.end),
+          docedToDos: todaySkd.docedToDos,
+        })
+      );
+      setDocumentedTodaySkds(calendarEvents);
+    }
+  };
+
   return (
     <main className="pt-10">
       <div className="w-1/2">
@@ -84,7 +114,9 @@ export default function Home() {
                         docedTodaySkds.title === eventInfo.event.title
                     )[0]
                     .docedToDos.map((docedToDo) => (
-                      <li className="text-black">{docedToDo.content}</li>
+                      <li key={docedToDo.content} className="text-black">
+                        {docedToDo.content}
+                      </li>
                     ))}
                 </ul>
               )}
