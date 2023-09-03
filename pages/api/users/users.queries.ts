@@ -27,6 +27,7 @@ export default {
           path: 'followers',
           transform: (doc) => ({
             userId: doc.userId,
+            name: doc.name,
             email: doc.email,
             company: doc.company,
           }),

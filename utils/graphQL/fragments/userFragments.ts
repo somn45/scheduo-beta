@@ -3,6 +3,7 @@ import { gql } from '@/generates/type';
 const USER_LIST = gql(`
   fragment UserList on User {
     userId
+    name
     email
     company
   }

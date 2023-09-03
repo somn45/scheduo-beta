@@ -4,12 +4,14 @@ export const ADD_USER = gql(`
 mutation AddUser(
   $userId: String!
   $password: String!
+  $name: String!
   $email: String
   $company: String
 ) {
   addUser(
     userId: $userId
     password: $password
+    name: $name
     email: $email
     company: $company
   ) {

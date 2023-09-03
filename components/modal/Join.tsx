@@ -10,6 +10,7 @@ const DEFAULT_ERROR_MSG = {
   userId: '',
   password: '',
   confirmPassword: '',
+  name: '',
   email: '',
 };
 
@@ -17,6 +18,7 @@ export default function Join({ showLogin, closeAuth }: ModalEventProps) {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
   const [isDisabledSubmit, setIsDisabledSubmit] = useState(false);
@@ -30,6 +32,7 @@ export default function Join({ showLogin, closeAuth }: ModalEventProps) {
       userId,
       password,
       confirmPassword,
+      name,
       email,
       company,
     });
@@ -51,6 +54,11 @@ export default function Join({ showLogin, closeAuth }: ModalEventProps) {
           ? validateResponse.message
           : '',
       });
+    else if (validateResponse.route === 'name')
+      return setErrorMsg({
+        ...DEFAULT_ERROR_MSG,
+        name: validateResponse.message ? validateResponse.message : '',
+      });
     else if (validateResponse.route === 'email')
       return setErrorMsg({
         ...DEFAULT_ERROR_MSG,
@@ -58,12 +66,12 @@ export default function Join({ showLogin, closeAuth }: ModalEventProps) {
       });
     setErrorMsg(DEFAULT_ERROR_MSG);
     return setIsDisabledSubmit(false);
-  }, [userId, password, confirmPassword, email]);
+  }, [userId, password, confirmPassword, name, email]);
 
   const handleLogin = async (e: inputClickEvent) => {
     e.preventDefault();
     const { data, errors } = await join({
-      variables: { userId, password, email, company },
+      variables: { userId, password, name, email, company },
     });
     if (errors && errors[0].message === USER_EXISTS_ERROR_MSG)
       setErrorMsg({
@@ -128,6 +136,18 @@ export default function Join({ showLogin, closeAuth }: ModalEventProps) {
           <span className="ml-2 mb-5 text-red-500">
             {errorMsg.confirmPassword}
           </span>
+
+          <label className="ml-2 mb-1 text-xs font-semibold">*이름</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="이름"
+            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
+              errorMsg.name && 'border-red-300'
+            }`}
+          />
+          <span className="ml-2 mb-5 text-red-500">{errorMsg.name}</span>
 
           <label className="ml-2 mb-1 text-xs font-semibold">이메일</label>
           <input

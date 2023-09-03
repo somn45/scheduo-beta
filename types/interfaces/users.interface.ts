@@ -3,6 +3,7 @@ import { ObjectId } from 'mongoose';
 export interface BasicUserField {
   userId: string;
   password: string;
+  name: string;
 }
 
 export interface IUser extends BasicUserField {

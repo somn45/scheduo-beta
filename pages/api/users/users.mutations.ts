@@ -19,7 +19,7 @@ export default {
   Mutation: {
     addUser: async (
       _: unknown,
-      { userId, password, email, company }: IUser
+      { userId, password, name, email, company }: IUser
     ) => {
       const signedUser = await User.findUser(userId);
       if (signedUser)
@@ -29,10 +29,11 @@ export default {
       await User.create({
         userId,
         password,
+        name,
         email,
         company,
       });
-      return { userId, email, company };
+      return { userId, name, email, company };
     },
     checkUser: async (
       _: unknown,

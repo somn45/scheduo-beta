@@ -6,6 +6,7 @@ export default gql`
   type User {
     _id: ID
     userId: String!
+    name: String!
     email: String
     company: String
   }
@@ -19,6 +20,7 @@ export default gql`
     addUser(
       userId: String!
       password: String!
+      name: String!
       email: String
       company: String
     ): User

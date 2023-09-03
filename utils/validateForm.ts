@@ -5,6 +5,7 @@ interface LoginForm {
 
 interface JoinForm extends LoginForm {
   confirmPassword: string;
+  name: string;
   email: string;
   company: string;
 }
@@ -73,6 +74,18 @@ export const validateJoinForm = (
       route: 'confirmPassword',
       validatePass: false,
       message: '비밀번호 확인은 필수 항목입니다.',
+    };
+  if (!accountForm.name)
+    return {
+      route: 'name',
+      validatePass: false,
+      message: '이름은 필수 항목입니다.',
+    };
+  if (accountForm.name.length <= 2 || accountForm.name.length >= 6)
+    return {
+      route: 'name',
+      validatePass: false,
+      message: '이름은 3자 이상 5자 이하로 작성해주세요.',
     };
   if (accountForm.email && !accountForm.email.match(EMAIL_REGEXP))
     return {
