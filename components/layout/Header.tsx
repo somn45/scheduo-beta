@@ -1,29 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import Link from 'next/link';
-import { graphql } from '@/generates/type';
-import { getCookie, deleteCookie } from 'cookies-next';
-import request from 'graphql-request';
-import { IUser } from '@/pages/api/users/users.mutations';
+import { gql } from '@/generates/type';
+import { buttonClickEvent } from '@/types/HTMLEvents';
 
-export interface AuthModelFunction {
-  showLogin?: () => void;
-  showJoin?: () => void;
-  closeAuth?: () => void;
+export interface ModelEventList {
+  showLogin: () => void;
+  showJoin: () => void;
+  closeAuth: () => void;
 }
 
-const GET_USER = graphql(`
+export type ModalEventProps = Partial<ModelEventList>;
+
+const GET_USER = gql(`
   query GetUser {
     getUser {
-      _id
-      userId
-      email
-      company
+      ...UserListIncludesId
     }
   }
 `);
 
-const LOGOUT = graphql(`
+const LOGOUT = gql(`
   mutation Logout {
     logout {
       userId
@@ -31,10 +28,10 @@ const LOGOUT = graphql(`
   }
 `);
 
-export default function Header({ showLogin }: AuthModelFunction) {
+export default function Header({ showLogin }: ModalEventProps) {
   const { data: geUserQuery } = useQuery(GET_USER);
   const [logOut] = useMutation(LOGOUT);
-  const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleLogout = async (e: buttonClickEvent) => {
     e.preventDefault();
     await logOut();
     window.location.reload();

@@ -1,70 +1,28 @@
 import FinishToDos from '@/components/FinishedToDo';
 import ToDo from '@/components/ToDo';
-import { graphql } from '@/generates/type';
 import wrapper, {
   RootState,
   addToDoReducer,
   initToDosReducer,
   useAppDispatch,
 } from '@/lib/store/store';
-import { DBTodaySkd, IToDo } from '@/models/TodaySkd';
+import { inputClickEvent } from '@/types/HTMLEvents';
+import { IToDo, TodaySchedule } from '@/types/interfaces/todaySkds.interface';
+import {
+  ADD_TODO,
+  FINISH_TODOS,
+} from '@/utils/graphQL/mutations/todaySkdMutations';
+import {
+  ALL_SCHEDULES,
+  GET_SCHEDULE,
+} from '@/utils/graphQL/querys/TodaySkdQuerys';
 import { useMutation } from '@apollo/client';
 import { request } from 'graphql-request';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-const ALL_SCHEDULES = graphql(`
-  query GetSchedules {
-    allSchedules {
-      _id
-      title
-      author
-      toDos {
-        content
-        registeredAt
-        state
-      }
-    }
-  }
-`);
-
-const GET_SCHEDULE = graphql(`
-  query GetSchedule($id: String!) {
-    getSchedule(id: $id) {
-      _id
-      title
-      author
-      toDos {
-        content
-        registeredAt
-        state
-      }
-    }
-  }
-`);
-
-const ADD_TODO = graphql(`
-  mutation AddToDo($id: String!, $content: String!, $registeredAt: Float!) {
-    addToDo(id: $id, content: $content, registeredAt: $registeredAt) {
-      content
-      registeredAt
-      state
-    }
-  }
-`);
-
-const FINISH_TODOS = graphql(`
-  mutation FinishToDos($title: String!) {
-    finishToDos(title: $title) {
-      content
-      registeredAt
-      state
-    }
-  }
-`);
-
-export default function ToDos({ title, author }: DBTodaySkd) {
+export default function ToDos({ title, author }: TodaySchedule) {
   const [text, setText] = useState('');
   const [checkedList, setCheckedList] = useState<IToDo[]>([]);
   const [addToDo] = useMutation(ADD_TODO, {
@@ -82,17 +40,13 @@ export default function ToDos({ title, author }: DBTodaySkd) {
     handleFinishToDos();
   }, []);
 
-  const handleAddToDo = async (e: React.MouseEvent<HTMLInputElement>) => {
+  const handleAddToDo = async (e: inputClickEvent) => {
     e.preventDefault();
     const toDosId = query.toDosId;
     if (typeof toDosId !== 'string') return;
     const regitDate = Date.now();
     const { data: addToDoQuery } = await addToDo({
-      variables: {
-        id: toDosId,
-        content: text,
-        registeredAt: regitDate,
-      },
+      variables: { id: toDosId, content: text, registeredAt: regitDate },
     });
     if (!addToDoQuery) return;
     dispatch(addToDoReducer(addToDoQuery.addToDo));

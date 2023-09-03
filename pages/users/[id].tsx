@@ -1,28 +1,7 @@
-import { graphql } from '@/generates/type';
+import { gql } from '@/generates/type';
 import request from 'graphql-request';
-import { IUser } from '../api/users/users.mutations';
-
-const GET_USERS = graphql(`
-  query GetUsers {
-    allUsers {
-      _id
-      userId
-      email
-      company
-    }
-  }
-`);
-
-const GET_USER_BY_ID = graphql(`
-  query GetUserById($id: String!) {
-    getUserById(id: $id) {
-      _id
-      userId
-      email
-      company
-    }
-  }
-`);
+import { IUser } from '@/types/interfaces/users.interface';
+import { GET_USERS, GET_USER_BY_Id } from '@/utils/graphQL/querys/userQuerys';
 
 export default function User({ user }: { user: IUser }) {
   return (
@@ -74,7 +53,7 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }: { params: { id: string } }) {
   const getUserData = await request(
     'http://localhost:3000/api/graphql',
-    GET_USER_BY_ID,
+    GET_USER_BY_Id,
     { id: params.id }
   );
   return {

@@ -1,17 +1,11 @@
-import { graphql } from '@/generates/type';
-import { AuthModelFunction } from '../layout/Header';
+import { gql } from '@/generates/type';
+import { ModalEventProps } from '../layout/Header';
 import vaildateForm from '@/utils/validateForm';
 import { useMutation } from '@apollo/client';
 import React, { useEffect, useState } from 'react';
 import { setCookie } from 'cookies-next';
-
-const CHECK_USER = graphql(`
-  mutation Login($userId: String!, $password: String!) {
-    checkUser(userId: $userId, password: $password) {
-      userId
-    }
-  }
-`);
+import { CHECK_USER } from '@/utils/graphQL/mutations/usersMutations';
+import { inputClickEvent } from '@/types/HTMLEvents';
 
 const USER_NOT_FOUND = 'User not found';
 const PASSWORD_NOT_MATCH = 'Password not match';
@@ -20,11 +14,7 @@ const DEFAULT_ERROR_MSG = {
   password: '',
 };
 
-export default function Login({
-  showLogin,
-  showJoin,
-  closeAuth,
-}: AuthModelFunction) {
+export default function Login({ showJoin, closeAuth }: ModalEventProps) {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [isDisabledSubmit, setIsDisabledSubmit] = useState(false);
@@ -52,7 +42,7 @@ export default function Login({
     return setIsDisabledSubmit(true);
   }, [userId, password]);
 
-  const handleLogin = async (e: React.MouseEvent<HTMLInputElement>) => {
+  const handleLogin = async (e: inputClickEvent) => {
     e.preventDefault();
     const { data, errors: loginErrors } = await login({
       variables: { userId, password },

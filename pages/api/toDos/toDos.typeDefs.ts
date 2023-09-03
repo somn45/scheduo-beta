@@ -1,14 +1,19 @@
 import gql from 'graphql-tag';
 
 export default gql`
-  type TodaySkd {
-    _id: String
+  interface Schedule {
+    _id: String!
+    title: String!
+    author: String!
+  }
+  type TodaySkd implements Schedule {
+    _id: String!
     title: String!
     author: String!
     toDos: [ToDo!]!
   }
-  type DocedTodaySkd {
-    _id: String
+  type DocedTodaySkd implements Schedule {
+    _id: String!
     title: String!
     author: String!
     start: Float!
@@ -28,15 +33,25 @@ export default gql`
   }
   type Mutation {
     createSchedule(title: String!): TodaySkd!
-    addToDo(id: String!, content: String!, registeredAt: Float!): ToDo!
-    updateToDo(id: String!, content: String!, registeredAt: Float!): ToDo!
-    deleteToDo(id: String!, registeredAt: Float!): [ToDo!]!
-    updateToDoState(
-      hasFinished: Boolean!
-      id: String!
-      registeredAt: Float!
-    ): ToDo!
+    addToDo(input: AddToDoAndUpdateToDoInput): ToDo!
+    updateToDo(input: AddToDoAndUpdateToDoInput): ToDo!
+    deleteToDo(input: DeleteToDoInput): [ToDo!]!
+    updateToDoState(input: UpdateToDoStateInput): ToDo!
     finishToDos(title: String!): [ToDo!]!
     documentedToDos: [DocedTodaySkd!]!
+  }
+  input AddToDoAndUpdateToDoInput {
+    id: String!
+    content: String!
+    registeredAt: Float!
+  }
+  input DeleteToDoInput {
+    id: String!
+    registeredAt: Float!
+  }
+  input UpdateToDoStateInput {
+    hasFinished: Boolean!
+    id: String!
+    registeredAt: Float!
   }
 `;

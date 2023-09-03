@@ -1,28 +1,9 @@
-import { graphql } from '@/generates/type';
-import { AuthModelFunction } from '../layout/Header';
+import { ADD_USER } from '@/utils/graphQL/mutations/usersMutations';
+import { ModalEventProps } from '../layout/Header';
 import { validateJoinForm } from '@/utils/validateForm';
 import { useMutation } from '@apollo/client';
 import React, { useEffect, useState } from 'react';
-
-const ADD_USER = graphql(`
-  mutation join(
-    $userId: String!
-    $password: String!
-    $email: String
-    $company: String
-  ) {
-    addUser(
-      userId: $userId
-      password: $password
-      email: $email
-      company: $company
-    ) {
-      userId
-      email
-      company
-    }
-  }
-`);
+import { inputClickEvent } from '@/types/HTMLEvents';
 
 const USER_EXISTS_ERROR_MSG = 'User already exists';
 const DEFAULT_ERROR_MSG = {
@@ -32,7 +13,7 @@ const DEFAULT_ERROR_MSG = {
   email: '',
 };
 
-export default function Join({ showLogin, closeAuth }: AuthModelFunction) {
+export default function Join({ showLogin, closeAuth }: ModalEventProps) {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -79,7 +60,7 @@ export default function Join({ showLogin, closeAuth }: AuthModelFunction) {
     return setIsDisabledSubmit(false);
   }, [userId, password, confirmPassword, email]);
 
-  const handleLogin = async (e: React.MouseEvent<HTMLInputElement>) => {
+  const handleLogin = async (e: inputClickEvent) => {
     e.preventDefault();
     const { data, errors } = await join({
       variables: { userId, password, email, company },

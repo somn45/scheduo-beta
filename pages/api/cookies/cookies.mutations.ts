@@ -1,5 +1,5 @@
 import User from '@/models/User';
-import { ContextValue, IUser } from '../users/users.mutations';
+import { ContextValue } from '../users/users.mutations';
 import jwt from 'jsonwebtoken';
 
 export interface UserId {

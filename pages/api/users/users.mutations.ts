@@ -3,18 +3,8 @@ import { GraphQLError } from 'graphql';
 import Cookies from 'cookies';
 import jwt from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { ObjectId, Schema } from 'mongoose';
-import { useReactiveVar } from '@apollo/client';
-
-export interface IUser {
-  _id?: string;
-  userId: string;
-  password: string;
-  email?: string;
-  company?: string;
-  refreshToken?: string;
-  expiredAt?: Date;
-}
+import { ObjectId } from 'mongoose';
+import { BasicUserField, IUser } from '@/types/interfaces/users.interface';
 
 export interface ContextValue {
   req: NextApiRequest;
@@ -46,7 +36,7 @@ export default {
     },
     checkUser: async (
       _: unknown,
-      { userId, password }: IUser,
+      { userId, password }: BasicUserField,
       { req, cookies }: ContextValue
     ) => {
       if (req.session.user)
@@ -77,7 +67,7 @@ export default {
       });
 
       user.refreshToken = refreshToken;
-      user.expiredAt = Date.now() + REFRESH_TOKEN_EXPIRATION_TIME;
+      user.expiredAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRATION_TIME);
       await user.save();
 
       req.session.user = {
@@ -138,7 +128,7 @@ export default {
     },
     deleteFollower: async (
       _: unknown,
-      { userId: followerId }: { userId: string },
+      { userId: followerId }: Pick<BasicUserField, 'userId'>,
       { req }: ContextValue
     ) => {
       const userId = req.session.user?.id;

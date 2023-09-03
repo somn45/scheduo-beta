@@ -1,22 +1,23 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import { RootState } from './store';
-import TodaySkd, { DBTodaySkd, IToDo, ITodaySkd } from '@/models/TodaySkd';
+import {
+  TodaySchedule,
+  TodayScheduleWithID,
+} from '@/types/interfaces/todaySkds.interface';
 
-interface ToDoPayloadAction extends IToDo {
-  author: string;
-}
-
-const initialState: ITodaySkd[] = [];
+const initialState: TodayScheduleWithID[] = [];
 
 const todaySkdSlice = createSlice({
   name: 'todaySchedules',
   initialState,
   reducers: {
-    initTodaySchedulesReducer: (state, action: PayloadAction<DBTodaySkd[]>) => {
+    initTodaySchedulesReducer: (
+      state,
+      action: PayloadAction<TodaySchedule[]>
+    ) => {
       return action.payload;
     },
-    addTodaySkdReducer: (state, action: PayloadAction<DBTodaySkd>) => {
+    addTodaySkdReducer: (state, action: PayloadAction<TodaySchedule>) => {
       return [...state, action.payload];
     },
     //updateToDoReducer: (state, action) => {},

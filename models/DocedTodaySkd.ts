@@ -1,16 +1,7 @@
+import { IDocedTodaySkd } from '@/types/interfaces/todaySkds.interface';
 import { Document, Model, Schema, model, models } from 'mongoose';
 
-export interface DBDocedTodaySkd {
-  title: string;
-  author: string;
-  start: number;
-  end: number;
-  docedToDos: Array<IDocedToDo>;
-}
-
-export interface IDocedToDo {
-  content: string;
-}
+interface DBDocedTodaySkd extends IDocedTodaySkd {}
 
 interface DBDocedTodaySkdDocument extends DBDocedTodaySkd, Document {}
 

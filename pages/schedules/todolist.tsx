@@ -1,45 +1,17 @@
-import { graphql } from '@/generates/type';
 import wrapper, {
   RootState,
   addTodaySkdReducer,
   initTodaySchedulesReducer,
 } from '@/lib/store/store';
+import { inputClickEvent } from '@/types/HTMLEvents';
+import { CREATE_SCHEDULE } from '@/utils/graphQL/mutations/todaySkdMutations';
+import { ALL_SCHEDULES } from '@/utils/graphQL/querys/TodaySkdQuerys';
 import { useMutation } from '@apollo/client';
 import request from 'graphql-request';
 import { withIronSessionSsr } from 'iron-session/next';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
-const ALL_SCHEDULES = graphql(`
-  query GetScheduleList {
-    allSchedules {
-      _id
-      title
-      author
-      toDos {
-        content
-        registeredAt
-        state
-      }
-    }
-  }
-`);
-
-const CREATE_SCHEDULE = graphql(`
-  mutation CreateSchedule($title: String!) {
-    createSchedule(title: $title) {
-      _id
-      title
-      author
-      toDos {
-        content
-        registeredAt
-        state
-      }
-    }
-  }
-`);
 
 export default function ToDoList() {
   const [title, setTitle] = useState('');
@@ -49,9 +21,7 @@ export default function ToDoList() {
   );
   const dispatch = useDispatch();
 
-  const handleCreateSchedule = async (
-    e: React.MouseEvent<HTMLInputElement>
-  ) => {
+  const handleCreateSchedule = async (e: inputClickEvent) => {
     e.preventDefault();
     const { data: createScheduleQuery } = await createSchedule({
       variables: { title },

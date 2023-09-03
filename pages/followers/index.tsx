@@ -1,36 +1,20 @@
 import Follower, { FollowerProps } from '@/components/Follower';
-import { graphql } from '@/generates/type';
+import { gql } from '@/generates/type';
 import wrapper, {
   RootState,
   addFollowerReducer,
   initFollowerReducer,
   useAppDispatch,
 } from '@/lib/store/store';
+import { inputClickEvent } from '@/types/HTMLEvents';
+import { ADD_FOLLOWER } from '@/utils/graphQL/mutations/usersMutations';
+import { ALL_FOLLOWERS } from '@/utils/graphQL/querys/userQuerys';
 import { useMutation, useQuery } from '@apollo/client';
 import request from 'graphql-request';
 import { withIronSessionSsr } from 'iron-session/next';
 import { GetServerSideProps } from 'next';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-
-const ALL_FOLLOWERS = graphql(`
-  query GetFollowers($userId: String!) {
-    allFollowers(userId: $userId) {
-      userId
-    }
-  }
-`);
-
-const ADD_FOLLOWER = graphql(`
-  mutation AddFollower($id: String!) {
-    addFollower(id: $id) {
-      _id
-      userId
-      email
-      company
-    }
-  }
-`);
 
 export default function Followers() {
   const [text, setText] = useState('');
@@ -40,7 +24,7 @@ export default function Followers() {
   const followers = useSelector((state: RootState) => state.followers);
   const dispatch = useAppDispatch();
 
-  const handleAddFollower = async (e: React.MouseEvent<HTMLInputElement>) => {
+  const handleAddFollower = async (e: inputClickEvent) => {
     e.preventDefault();
     const { data: addFollowerQuery, errors } = await addFollower({
       variables: { id: text },

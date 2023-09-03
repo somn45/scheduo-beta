@@ -1,11 +1,14 @@
-import { graphql } from '@/generates/type';
+import { gql } from '@/generates/type';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { useEffect, useRef, useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import DocedTodaySkd, { DBDocedTodaySkd } from '@/models/DocedTodaySkd';
 import { EventContentArg } from '@fullcalendar/common';
+import {
+  ALL_DOCUMENTED_TODAY_SKDS,
+  DOCUMENTED_TODOS,
+} from '@/utils/graphQL/mutations/todaySkdMutations';
 
 interface Events {
   title: string;
@@ -18,34 +21,6 @@ interface DocedToDos {
   content: string;
 }
 
-const ALL_DOCUMENTED_TODAY_SKDS = graphql(`
-  query AllDocedTodaySkds {
-    allDocedTodaySkds {
-      title
-      author
-      start
-      end
-      docedToDos {
-        content
-      }
-    }
-  }
-`);
-
-const DOCUMENTED_TODOS = graphql(`
-  mutation DocumentedToDos {
-    documentedToDos {
-      title
-      author
-      start
-      end
-      docedToDos {
-        content
-      }
-    }
-  }
-`);
-
 export default function Home() {
   const [documentedTodaySkds, setDocumentedTodaySkds] = useState<Events[]>([]);
   const [showsScheduleDetail, setShowsScheduleDetail] = useState(false);
@@ -53,7 +28,6 @@ export default function Home() {
   const [getDocedTodaySkds] = useLazyQuery(ALL_DOCUMENTED_TODAY_SKDS);
   const [documentToDos] = useMutation(DOCUMENTED_TODOS);
   useEffect(() => {
-    console.log('test');
     handleDocedToDos();
     const handleGetDocedTodaySkds = async () => {
       const { data: docedTodaySkdsQuery } = await getDocedTodaySkds();

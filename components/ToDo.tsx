@@ -1,58 +1,29 @@
-import { graphql } from '@/generates/type';
 import {
   deleteToDoReducer,
   updateToDoReducer,
   updateToDoStateReducer,
 } from '@/lib/store/store';
-import { IToDo } from '@/models/TodaySkd';
+import {
+  buttonClickEvent,
+  checkboxEvent,
+  inputClickEvent,
+} from '@/types/HTMLEvents';
+import { IToDo, ITodoWithId } from '@/types/interfaces/todaySkds.interface';
+import {
+  DELETE_TODO,
+  UPDATE_TODO,
+  UPDATE_TODO_STATE,
+} from '@/utils/graphQL/mutations/todaySkdMutations';
 import { useMutation } from '@apollo/client';
-import { getCookie } from 'cookies-next';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-interface ToDoProps extends IToDo {
-  id: string;
-  checkedList: IToDo[];
-  setCheckedList: React.Dispatch<React.SetStateAction<IToDo[]>>;
-}
-
-const UPDATE_TODO = graphql(`
-  mutation UpdateToDo($id: String!, $content: String!, $registeredAt: Float!) {
-    updateToDo(id: $id, content: $content, registeredAt: $registeredAt) {
-      content
-      registeredAt
-    }
-  }
-`);
-const DELETE_TODO = graphql(`
-  mutation DeleteToDo($id: String!, $registeredAt: Float!) {
-    deleteToDo(id: $id, registeredAt: $registeredAt) {
-      content
-      registeredAt
-      state
-    }
-  }
-`);
-
-const UPDATE_TODO_STATE = graphql(`
-  mutation UpdateToDoState(
-    $hasFinished: Boolean!
-    $id: String!
-    $registeredAt: Float!
-  ) {
-    updateToDoState(
-      hasFinished: $hasFinished
-      id: $id
-      registeredAt: $registeredAt
-    ) {
-      content
-      registeredAt
-      state
-    }
-  }
-`);
-
-export default function ToDo({ content, registeredAt, state, id }: ToDoProps) {
+export default function ToDo({
+  content,
+  registeredAt,
+  state,
+  id,
+}: ITodoWithId) {
   const [text, setText] = useState(content);
   const [checked, setChecked] = useState(state === 'willDone' ? true : false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -61,7 +32,7 @@ export default function ToDo({ content, registeredAt, state, id }: ToDoProps) {
   const [updateToDoState] = useMutation(UPDATE_TODO_STATE);
   const dispatch = useDispatch();
 
-  const handleUpdateToDo = async (e: React.MouseEvent<HTMLInputElement>) => {
+  const handleUpdateToDo = async (e: inputClickEvent) => {
     e.preventDefault();
     const { data: updateToDoQuery } = await updateToDo({
       variables: { id, content: text, registeredAt },
@@ -73,7 +44,7 @@ export default function ToDo({ content, registeredAt, state, id }: ToDoProps) {
     setIsEditMode(false);
   };
 
-  const handleDeleteToDo = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDeleteToDo = async (e: buttonClickEvent) => {
     e.preventDefault();
     const { data: deleteToDoQuery } = await deleteToDo({
       variables: { id, registeredAt },
@@ -82,7 +53,7 @@ export default function ToDo({ content, registeredAt, state, id }: ToDoProps) {
     dispatch(deleteToDoReducer(deleteToDoQuery.deleteToDo));
   };
 
-  const setToDoStateFinish = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const setToDoStateFinish = async (e: checkboxEvent) => {
     if (e.target.checked) {
       setChecked(true);
       const { data: updateToDoStateQuery } = await updateToDoState({

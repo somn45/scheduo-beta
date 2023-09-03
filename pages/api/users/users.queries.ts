@@ -1,5 +1,5 @@
 import User from '@/models/User';
-import { ContextValue, IUser } from './users.mutations';
+import { ContextValue } from './users.mutations';
 import { GraphQLError } from 'graphql';
 
 export default {

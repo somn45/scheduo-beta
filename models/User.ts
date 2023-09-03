@@ -1,16 +1,7 @@
 import { Document, Model, ObjectId, Schema, models } from 'mongoose';
 import bcrypt from 'bcrypt';
 import db from '@/pages/api/db';
-
-interface DBUser {
-  userId: string;
-  password: string;
-  email?: string;
-  company?: string;
-  refreshToken?: string;
-  expiredAt: number;
-  followers: ObjectId[] | DBUser[];
-}
+import { DBUser } from '@/types/interfaces/users.interface';
 
 interface DBUserDocument extends DBUser, Document {
   getEmail: () => string;

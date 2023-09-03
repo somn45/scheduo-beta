@@ -1,31 +1,23 @@
-import { graphql } from '@/generates/type';
+import { gql } from '@/generates/type';
 import { deleteFollowerReducer, useAppDispatch } from '@/lib/store/store';
+import { buttonClickEvent } from '@/types/HTMLEvents';
+import { publicUserInfo } from '@/types/interfaces/users.interface';
 import { useMutation } from '@apollo/client';
 import React from 'react';
 
-export interface FollowerProps {
-  userId?: string | null;
-  email?: string | null;
-  company?: string | null;
-}
-
-const DELETE_FOLLOWER = graphql(`
+const DELETE_FOLLOWER = gql(`
   mutation DeleteFollower($userId: String!) {
     deleteFollower(userId: $userId) {
-      userId
-      email
-      company
+      ...UserList
     }
   }
 `);
 
-export default function Follower({ userId }: FollowerProps) {
+export default function Follower({ userId }: publicUserInfo) {
   const [deleteFollower] = useMutation(DELETE_FOLLOWER);
   const dispatch = useAppDispatch();
 
-  const handleDeleteFollower = async (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleDeleteFollower = async (e: buttonClickEvent) => {
     e.preventDefault();
     if (!userId) return;
     const { data: deleteFollowerQuery, errors } = await deleteFollower({

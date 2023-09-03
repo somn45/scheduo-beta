@@ -1,23 +1,9 @@
+import { TodaySchedule } from '@/types/interfaces/todaySkds.interface';
 import { Model, Schema, Document, models, model } from 'mongoose';
 
-export interface DBTodaySkd {
-  title: string;
-  author: string;
-  createdAt?: number;
-  toDos: Array<IToDo>;
-}
+interface DBTodaySchedule extends TodaySchedule {}
 
-export interface ITodaySkd extends DBTodaySkd {
-  _id?: string;
-}
-
-export interface IToDo {
-  content: string;
-  registeredAt: number;
-  state: string;
-}
-
-interface DBTodaySkdDocument extends DBTodaySkd, Document {}
+interface DBTodaySkdDocument extends DBTodaySchedule, Document {}
 
 interface DBTodaySkdModel extends Model<DBTodaySkdDocument> {
   findTodaySkd: (author: string) => Promise<DBTodaySkdDocument>;

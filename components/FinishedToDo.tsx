@@ -1,4 +1,4 @@
-import { IToDo } from '@/models/TodaySkd';
+import { IToDo } from '@/types/interfaces/todaySkds.interface';
 
 export default function FinishToDos({ content }: IToDo) {
   return (

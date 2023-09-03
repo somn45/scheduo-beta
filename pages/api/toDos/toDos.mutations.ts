@@ -1,42 +1,21 @@
-import TodaySkd, { DBTodaySkd, IToDo } from '@/models/TodaySkd';
-import ToDoModel from '@/models/TodaySkd';
 import { GraphQLError } from 'graphql';
 import { ContextValue } from '../users/users.mutations';
 import DocedTodaySkd from '@/models/DocedTodaySkd';
-
-export interface TodaySkdInfo {
-  title: string;
-  author: string;
-}
-
-export interface AddToDoProps {
-  id: string;
-  content: string;
-  registeredAt: number;
-}
-
-export interface UpdateToDoProps {
-  id: string;
-  content: string;
-  registeredAt: number;
-}
-
-export interface DeleteToDoProps {
-  id: string;
-  registeredAt: number;
-}
-
-export interface UpdateToDoStateProps {
-  hasFinished: boolean;
-  id: string;
-  registeredAt: number;
-}
+import TodaySkd from '@/models/TodaySkd';
+import {
+  IToDo,
+  TodaySchedule,
+  todayScheduleWithoutState,
+  todaySchedulePreview,
+  todayScheduleUniqueField,
+  UpdateToDoStateProps,
+} from '@/types/interfaces/todaySkds.interface';
 
 export default {
   Mutation: {
     createSchedule: async (
       _: unknown,
-      { title }: TodaySkdInfo,
+      { title }: todaySchedulePreview,
       { req }: ContextValue
     ) => {
       const user = req.session.user;
@@ -55,9 +34,10 @@ export default {
     },
     addToDo: async (
       _: unknown,
-      { id, content, registeredAt }: AddToDoProps,
+      { input }: { input: todayScheduleWithoutState },
       { req }: ContextValue
     ) => {
+      const { id, content, registeredAt } = input;
       const { user } = req.session;
       if (!user)
         throw new GraphQLError('User not found', {
@@ -71,9 +51,10 @@ export default {
     },
     updateToDo: async (
       _: unknown,
-      { id, content, registeredAt }: UpdateToDoProps,
+      { input }: { input: todayScheduleWithoutState },
       { req }: ContextValue
     ) => {
+      const { id, content, registeredAt } = input;
       const { user } = req.session;
       if (!user)
         throw new GraphQLError('User not found', {
@@ -83,7 +64,7 @@ export default {
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
       const { toDos } = todaySchedule;
 
-      const updateToDo = { content, registeredAt, state: 'toDo' };
+      const updateToDo: IToDo = { content, registeredAt, state: 'toDo' };
       const updatedToDos = toDos.map((toDo) => {
         if (toDo.registeredAt === registeredAt) return updateToDo;
         return { ...toDo };
@@ -94,9 +75,10 @@ export default {
     },
     deleteToDo: async (
       _: unknown,
-      { id, registeredAt }: DeleteToDoProps,
+      { input }: { input: todayScheduleUniqueField },
       { req }: ContextValue
     ) => {
+      const { id, registeredAt } = input;
       const { user } = req.session;
       if (!user)
         throw new GraphQLError('User not found', {
@@ -113,9 +95,10 @@ export default {
     },
     updateToDoState: async (
       _: unknown,
-      { hasFinished, id, registeredAt }: UpdateToDoStateProps,
+      { input }: { input: UpdateToDoStateProps },
       { req }: ContextValue
     ) => {
+      const { hasFinished, id, registeredAt } = input;
       const { user } = req.session;
       if (!user)
         throw new GraphQLError('User not found', {
@@ -150,7 +133,7 @@ export default {
     },
     finishToDos: async (
       _: unknown,
-      { title }: { title: string },
+      { title }: todaySchedulePreview,
       { req }: ContextValue
     ) => {
       const { user } = req.session;
@@ -172,7 +155,7 @@ export default {
         nextDay.getMonth(),
         nextDay.getDate()
       );
-      const finishedToDos = todaySkd.toDos.map((toDo) => {
+      const finishedToDos: IToDo[] = todaySkd.toDos.map((toDo) => {
         /*
                 if (
           new Date(toDo.registeredAt).getDay() !== nextDaySharp.getDay() &&
@@ -204,7 +187,7 @@ export default {
         throw new GraphQLError('Today schedule not found', {
           extensions: { code: 'NOT_FOUND' },
         });
-      const finishedSchedules: DBTodaySkd[] = todaySchedules.filter(
+      const finishedSchedules: TodaySchedule[] = todaySchedules.filter(
         (todaySkd) =>
           todaySkd.toDos.length !== 0 &&
           todaySkd.toDos.every((toDo) => toDo.state === 'done')
