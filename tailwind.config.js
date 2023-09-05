@@ -8,18 +8,23 @@ module.exports = {
   theme: {
     extend: {
       height: {
+        header: '60px',
+        'header-nav': '45px',
         '10px': '10px',
       },
       padding: {
+        'desktop-white-space': '300px',
         '2px': '2px',
+        '15px': '15px',
       },
       spacing: {
+        '-5px': '-5px',
         '-15px': '-15px',
         '-90px': '-90px',
       },
       backgroundColor: {
         'main-color': '#B9E2FA',
-        'schedule-color': '#FDF5DC',
+        'schedule-color': '#FEF9E7',
       },
       borderWidth: {
         '10px': '10px',
@@ -28,6 +33,8 @@ module.exports = {
       borderColor: {
         'main-color': '#B9E2FA',
         'input-color': '#5a5a5a',
+        'schedule-board-color': '#7FB3D5',
+        'schedule-content-color': '#D4E6F1',
       },
       fontFamily: {
         ssat: ['SangSangAnt', 'sans-serif'],

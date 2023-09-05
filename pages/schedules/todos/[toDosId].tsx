@@ -106,7 +106,7 @@ export default function ToDos({ title, author }: TodaySchedule) {
               />
             ))}
         </ul>
-        <ul className="w-1/2 flex flex-col justify-cneter items-center">
+        <ul className="w-1/2 h-80 bg-slate-200 rounded-md flex flex-col justify-cneter items-center">
           <h5 className="mb-3">완료된 일정</h5>
           {!toDos ||
             (toDos.length === 0 && (

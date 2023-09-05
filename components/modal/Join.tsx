@@ -81,7 +81,7 @@ export default function Join({ showLogin, closeAuth }: ModalEventProps) {
   };
 
   return (
-    <section className="w-full h-screen fixed bg-black/60 flex justify-center items-center">
+    <section className="w-full h-screen z-20 fixed bg-black/60 flex justify-center items-center">
       <div className="w-1/5 px-8 py-5 rounded-[5px] text-sm bg-slate-50">
         <div className="mb-5 flex justify-end">
           <button

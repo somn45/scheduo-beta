@@ -72,7 +72,7 @@ export default function ToDo({
   };
 
   return (
-    <li className="w-96 mb-1 flex justify-between">
+    <li className="w-80 mb-1 flex justify-between">
       {isEditMode ? (
         <form className="w-full flex justify-between">
           <div>

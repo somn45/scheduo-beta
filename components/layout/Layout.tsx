@@ -21,7 +21,7 @@ export default function Home(props: { children: React.ReactNode }) {
       {showAuthModel.join && (
         <Join showLogin={showLogin} closeAuth={closeAuth} />
       )}
-      <div className="h-screen pt-8 bg-main-color text-sm">
+      <div className="h-screen px-desktop-white-space pt-8 text-sm">
         {props.children}
       </div>
     </>

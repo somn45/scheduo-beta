@@ -1,5 +1,4 @@
-import Follower, { FollowerProps } from '@/components/Follower';
-import { gql } from '@/generates/type';
+import Follower from '@/components/Follower';
 import wrapper, {
   RootState,
   addFollowerReducer,
@@ -9,11 +8,11 @@ import wrapper, {
 import { inputClickEvent } from '@/types/HTMLEvents';
 import { ADD_FOLLOWER } from '@/utils/graphQL/mutations/usersMutations';
 import { ALL_FOLLOWERS } from '@/utils/graphQL/querys/userQuerys';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import request from 'graphql-request';
 import { withIronSessionSsr } from 'iron-session/next';
 import { GetServerSideProps } from 'next';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 
 export default function Followers() {

@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import Link from 'next/link';
 import { gql } from '@/generates/type';
 import { buttonClickEvent } from '@/types/HTMLEvents';
+import { useRouter } from 'next/router';
 
 export interface ModelEventList {
   showLogin: () => void;
@@ -30,7 +31,10 @@ const LOGOUT = gql(`
 
 export default function Header({ showLogin }: ModalEventProps) {
   const { data: geUserQuery } = useQuery(GET_USER);
+  const router = useRouter();
+  console.log(router);
   const [logOut] = useMutation(LOGOUT);
+
   const handleLogout = async (e: buttonClickEvent) => {
     e.preventDefault();
     await logOut();
@@ -38,61 +42,89 @@ export default function Header({ showLogin }: ModalEventProps) {
   };
 
   return (
-    <header className="w-full h-10 px-10 py-2 bg-white border-b-2 border-dotted border-b-black fixed flex justify-between">
-      <div className="w-1/4 text-sm font-semibold flex justify-between">
-        <Link href="/" className=" ease-out duration-150 hover:text-light-pink">
-          Scheduo
-        </Link>
-        <Link
-          href="/schedules/todolist"
-          className=" ease-out duration-150 hover:text-light-pink"
-        >
-          오늘의 일정
-        </Link>
-        <Link
-          href="/schedules/weekly"
-          className=" ease-out duration-150 hover:text-light-pink"
-        >
-          주간 일정
-        </Link>
-        <Link
-          href="/schedules/monthly"
-          className=" ease-out duration-150 hover:text-light-pink"
-        >
-          한달 일정
-        </Link>
-      </div>
-      <div>
-        {geUserQuery?.getUser.userId ? (
-          <>
+    <header className="w-full h-header px-desktop-white-space pt-[15px] bg-white border-b-2 border-slate-200 fixed">
+      <nav className="flex justify-between">
+        <ul className="text-sm font-semibold flex justify-between">
+          <li className="h-header-nav mr-8">
             <Link
-              href="/followers"
-              className="text-sm font-semibold ease-out duration-150 hover:text-light-pink"
+              href="/"
+              className="text-2xl font-solmee ease-out duration-150 hover:text-light-pink"
             >
-              팔로워
+              Scheduo
             </Link>
-            <Link
-              href={`/users/${geUserQuery?.getUser._id}`}
-              className="text-sm font-semibold ease-out duration-150 hover:text-light-pink"
-            >
-              {geUserQuery?.getUser.userId}
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="text-sm font-semibold ease-out duration-150 hover:text-light-pink"
-            >
-              로그아웃
-            </button>
-          </>
-        ) : (
-          <button
-            onClick={showLogin}
-            className="text-sm font-semibold ease-out duration-150 hover:text-light-pink"
+          </li>
+          <li
+            className={`mr-8      ${
+              router.asPath === '/schedules/todolist' &&
+              'border-b-4 border-black'
+            }`}
           >
-            로그인/회원가입
-          </button>
-        )}
-      </div>
+            <Link
+              href="/schedules/todolist"
+              className="pb-3 text-base ease-out duration-150 
+              hover:text-light-pink"
+            >
+              오늘의 일정
+            </Link>
+          </li>
+          <li
+            className={`mr-8 ${
+              router.asPath === '/schedules/weekly' && 'border-b-4 border-black'
+            }`}
+          >
+            <Link
+              href="/schedules/weekly"
+              className="text-base pb-3 ease-out duration-150 hover:text-light-pink"
+            >
+              주간 일정
+            </Link>
+          </li>
+          <li
+            className={`mr-8 ${
+              router.asPath === '/schedules/monthly' &&
+              'border-b-4 border-black'
+            }`}
+          >
+            <Link
+              href="/schedules/monthly"
+              className="text-base pb-3 ease-out duration-150 hover:text-light-pink"
+            >
+              한달 일정
+            </Link>
+          </li>
+        </ul>
+        <ul className=" text-sm flex justify-between">
+          {geUserQuery?.getUser.userId ? (
+            <>
+              <li className="mr-8">
+                <Link
+                  href={`/users/${geUserQuery?.getUser._id}`}
+                  className="text-sm pb-3"
+                >
+                  <span className="p-1 bg-blue-900 border rounded-md text-white ease-out duration-150 hover:bg-white hover:text-blue-900">
+                    {geUserQuery?.getUser.userId}
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm pb-3 ease-out duration-150 hover:text-light-pink"
+                >
+                  로그아웃
+                </button>
+              </li>
+            </>
+          ) : (
+            <button
+              onClick={showLogin}
+              className="text-sm pb-3 ease-out duration-150 hover:text-light-pink"
+            >
+              로그인/회원가입
+            </button>
+          )}
+        </ul>
+      </nav>
     </header>
   );
 }

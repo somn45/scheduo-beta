@@ -7,6 +7,8 @@ import { inputClickEvent } from '@/types/HTMLEvents';
 import { CREATE_SCHEDULE } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { ALL_SCHEDULES } from '@/utils/graphQL/querys/TodaySkdQuerys';
 import { useMutation } from '@apollo/client';
+import { faClipboard } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import request from 'graphql-request';
 import { withIronSessionSsr } from 'iron-session/next';
 import Link from 'next/link';
@@ -32,7 +34,7 @@ export default function ToDoList() {
   };
 
   return (
-    <section className="mt-10 bg-main-color flex flex-col">
+    <section className="mt-10 flex flex-col relative">
       <h1 className="mb-5 text-xl font-semibold text-center">오늘의 일정</h1>
       <article className="flex justify-center">
         <form className="mb-12 relative">
@@ -53,23 +55,29 @@ export default function ToDoList() {
           />
         </form>
       </article>
-      <p className="w-full mb-4 border border-input-color border-dashed"></p>
+      <p className="w-screen border border-input-color border-dashed fixed left-0 top-44"></p>
       {todaySchedules.length === 0 && <span>오늘의 일정을 등록하세요</span>}
       {todaySchedules.length !== 0 && (
-        <article className="px-72 grid gap-4 grid-cols-4">
+        <article className="w-full h-full px-72 pt-[15px] grid gap-4 grid-cols-4">
           {todaySchedules.map((skd) => (
             <Link href={`/schedules/todos/${skd._id}`} key={skd._id}>
-              <h4 className="mb-1 text-md font-semibold">{skd.title}</h4>
-              <div className="w-48 h-56 py-2 bg-schedule-color border-2 border-input-color rounded-md">
-                <ul className="w-full h-full flex flex-col">
+              <div className="w-40 h-44 py-2 bg-schedule-color border-2 border-schedule-board-color rounded-md">
+                <ul className="w-full h-full flex flex-col relative">
+                  <FontAwesomeIcon
+                    icon={faClipboard}
+                    className="opacity-75 text-xl absolute top-[-15px] left-[-5px]"
+                  />
+                  <h4 className="mb-1 pb-2 border-b-2 border-schedule-board-color text-md font-semibold text-center">
+                    {skd.title}
+                  </h4>
                   {skd.toDos.length === 0 && (
-                    <div className="flex justify-center items-center">
+                    <div className="w-full h-full flex justify-center items-center">
                       일정 없음
                     </div>
                   )}
                   {skd.toDos.map((toDo) => (
-                    <li className="border-b-2 border-slate-800">
-                      <div className="pl-2 text-xs text-slate-800">
+                    <li className="border-b-2 border-schedule-content-color">
+                      <div className="pl-2 text-xs text-slate-800 before:content-['o'] before:mr-1">
                         {toDo.content}
                       </div>
                     </li>
