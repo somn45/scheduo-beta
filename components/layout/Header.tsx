@@ -32,7 +32,6 @@ const LOGOUT = gql(`
 export default function Header({ showLogin }: ModalEventProps) {
   const { data: geUserQuery } = useQuery(GET_USER);
   const router = useRouter();
-  console.log(router);
   const [logOut] = useMutation(LOGOUT);
 
   const handleLogout = async (e: buttonClickEvent) => {

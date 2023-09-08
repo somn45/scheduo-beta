@@ -8,6 +8,10 @@ const config: CodegenConfig = {
   generates: {
     'generates/type/': {
       preset: 'client',
+      plugins: ['typescript'],
+      config: {
+        avoidOptionals: true,
+      },
       presetConfig: {
         gqlTagName: 'gql',
         fragmentMasking: false,

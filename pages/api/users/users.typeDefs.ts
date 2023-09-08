@@ -15,6 +15,8 @@ export default gql`
     getUser: User!
     getUserById(id: String!): User
     allFollowers(userId: String!): [User!]!
+    searchFollowers(name: String!): [User!]!
+    searchFollowersById(id: String!): User!
   }
   type Mutation {
     addUser(
@@ -26,7 +28,7 @@ export default gql`
     ): User
     checkUser(userId: String!, password: String!): User
     logout: User!
-    addFollower(id: String!): User!
+    addFollower(userId: String!): User!
     deleteFollower(userId: String!): User!
   }
 `;

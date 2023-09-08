@@ -1,20 +1,23 @@
-import { FollowerProps } from '@/components/Follower';
+import {
+  FollowerSearchItem,
+  IFollowers,
+} from '@/types/interfaces/users.interface';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
-const initialState: FollowerProps[] = [];
+const initialState: IFollowers[] = [];
 
 const followerSlice = createSlice({
   name: 'followers',
   initialState,
   reducers: {
-    initFollowerReducer: (state, action: PayloadAction<FollowerProps[]>) => {
+    initFollowerReducer: (state, action: PayloadAction<IFollowers[]>) => {
       return action.payload;
     },
-    addFollowerReducer: (state, action: PayloadAction<FollowerProps>) => {
+    addFollowerReducer: (state, action: PayloadAction<IFollowers>) => {
       return [...state, action.payload];
     },
-    deleteFollowerReducer: (state, action: PayloadAction<FollowerProps>) => {
+    deleteFollowerReducer: (state, action: PayloadAction<IFollowers>) => {
       return state.filter(
         (follower) => follower.userId !== action.payload.userId
       );

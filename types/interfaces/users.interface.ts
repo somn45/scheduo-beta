@@ -12,12 +12,25 @@ export interface IUser extends BasicUserField {
   company?: string;
   refreshToken?: string;
   expiredAt?: Date;
+  followers: FollowerSearchItem[];
 }
 
 export type publicUserInfo = Pick<IUser, 'userId' | 'email' | 'company'>;
 
 export type IUserWithoutID = Omit<IUser, '_id'>;
 
-export interface DBUser extends IUserWithoutID {
+export interface DBUser extends Omit<IUserWithoutID, 'followers'> {
   followers: ObjectId[] | IUser[];
+}
+
+export interface FollowerSearchItem {
+  userId: string;
+  name: string;
+}
+
+export interface IFollowers {
+  _id: string;
+  userId: string;
+  name: string;
+  email: string;
 }

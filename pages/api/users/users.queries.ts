@@ -40,5 +40,22 @@ export default {
       const followers = user.followers;
       return followers;
     },
+    searchFollowers: async (
+      _: unknown,
+      { name }: { name: string },
+      { req }: ContextValue
+    ) => {
+      const users = await User.find({ name });
+      return users;
+    },
+    searchFollowersById: async (
+      _: unknown,
+      { id }: { id: string },
+      { req }: ContextValue
+    ) => {
+      console.log(id);
+      const users = await User.findUserById(id);
+      return users;
+    },
   },
 };

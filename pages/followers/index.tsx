@@ -17,20 +17,19 @@ import { useSelector } from 'react-redux';
 
 export default function Followers() {
   const [text, setText] = useState('');
-  const [addFollower] = useMutation(ADD_FOLLOWER, {
-    errorPolicy: 'all',
-  });
   const followers = useSelector((state: RootState) => state.followers);
   const dispatch = useAppDispatch();
 
   const handleAddFollower = async (e: inputClickEvent) => {
     e.preventDefault();
+    /*
     const { data: addFollowerQuery, errors } = await addFollower({
       variables: { id: text },
     });
     if (!addFollowerQuery) return;
     const { userId, email, company } = addFollowerQuery.addFollower;
     dispatch(addFollowerReducer({ userId, email, company }));
+    */
     setText('');
   };
 

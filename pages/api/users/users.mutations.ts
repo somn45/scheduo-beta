@@ -90,41 +90,33 @@ export default {
     },
     addFollower: async (
       _: unknown,
-      { id }: { id: string },
+      { userId }: { userId: string },
       { req }: ContextValue
     ) => {
-      const userId = req.session.user?.id;
-      if (!userId)
+      const loggedUserId = req.session.user?.id;
+      if (!loggedUserId)
         throw new GraphQLError('User not found', {
           extensions: { code: 'NOT_FOUND' },
         });
 
-      const user = await User.findUser(userId);
-      if (!user)
+      const loggedUser = await (
+        await User.findUser(loggedUserId)
+      ).populate('followers');
+      if (!loggedUser)
         throw new GraphQLError('User not found', {
           extensions: { code: 'NOT_FOUND' },
         });
-      const newFollower = await User.findUserById(id);
-      if (!newFollower)
-        throw new GraphQLError('follower not found', {
-          extensions: { code: 'NOT_FOUND' },
-        });
-      if (user.userId === newFollower.userId)
-        throw new GraphQLError(
-          'The account you want to follow is the same as your account.',
-          { extensions: { code: 'BAD_REQUEST' } }
-        );
-      const followerIds = user.followers as ObjectId[];
-      const followedList: ObjectId[] = followerIds.filter((id) => {
-        return id.toString() == newFollower._id.toString() ? id : null;
-      });
-      if (followedList.length > 0)
-        throw new GraphQLError('You are already followed', {
+      const newFollower = (await User.findUser(userId)) as IUser;
+      if (!newFollower) return {};
+      const followList = loggedUser.followers as IUser[];
+
+      const followerUserIds = followList.map((follower) => follower.userId);
+      if (followerUserIds.includes(userId))
+        throw new GraphQLError('Already followed', {
           extensions: { code: 'BAD_REQUEST' },
         });
-
-      user.followers.push(newFollower.id);
-      await user.save();
+      loggedUser.followers = [...followList, newFollower];
+      await loggedUser.save();
       return newFollower;
     },
     deleteFollower: async (

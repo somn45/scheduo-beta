@@ -29,8 +29,8 @@ export const CHECK_USER = gql(`
 `);
 
 export const ADD_FOLLOWER = gql(`
-mutation AddFollower($id: String!) {
-  addFollower(id: $id) {
+mutation AddFollower($userId: String!) {
+  addFollower(userId: $userId) {
     ...UserListIncludesId
   }
 }
