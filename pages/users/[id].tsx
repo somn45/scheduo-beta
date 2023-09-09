@@ -1,5 +1,9 @@
 import request from 'graphql-request';
-import { FollowerSearchItem, IUser } from '@/types/interfaces/users.interface';
+import {
+  FollowerSearchItem,
+  IFollowers,
+  IUser,
+} from '@/types/interfaces/users.interface';
 import {
   ALL_FOLLOWERS,
   GET_USERS,
@@ -8,74 +12,29 @@ import {
   SEARCH_FOLLOWERS_BY_ID,
 } from '@/utils/graphQL/querys/userQuerys';
 import { useSelector } from 'react-redux';
-import {
+import wrapper, {
   RootState,
   addFollowerReducer,
+  initFollowerReducer,
   useAppDispatch,
 } from '@/lib/store/store';
 import Follower from '@/components/Follower';
 import { useEffect, useState } from 'react';
-import { useLazyQuery, useMutation } from '@apollo/client';
-import { ADD_FOLLOWER } from '@/utils/graphQL/mutations/usersMutations';
-import { buttonClickEvent, inputClickEvent } from '@/types/HTMLEvents';
+import FollowerPreview from '@/components/FollowerPreview';
 
 interface UserProfileProps {
   user: IUser;
-  myFollowers: FollowerSearchItem[];
+  myFollowers: IFollowers[];
 }
 
 export default function User({ user, myFollowers }: UserProfileProps) {
-  const followers = useSelector((state: RootState) => state.followers);
-  const [text, setText] = useState('');
-  const [searchItems, setSearchItems] = useState<
-    FollowerSearchItem[] | undefined
-  >(undefined);
   const [showesFollowModal, setShowesFollowModal] = useState(false);
-  const [searchFollowers] = useLazyQuery(SEARCH_FOLLOWERS);
-  const [searchFollowersById] = useLazyQuery(SEARCH_FOLLOWERS_BY_ID);
-  const [addFollower] = useMutation(ADD_FOLLOWER, {
-    errorPolicy: 'all',
-  });
+  const followers = useSelector((state: RootState) => state.followers);
   const dispatch = useAppDispatch();
 
-  const handleAddFollower = async (e: buttonClickEvent, userId: string) => {
-    e.preventDefault();
-    const { data } = await addFollower({ variables: { userId } });
-    if (!data) return;
-    const { _id, userId: followerId, name, email } = data.addFollower;
-    dispatch(
-      addFollowerReducer({
-        _id: _id ? _id : '',
-        userId: followerId,
-        name,
-        email: email ? email : '',
-      })
-    );
-  };
-
-  const handleSearchFollowers = async (e: inputClickEvent) => {
-    e.preventDefault();
-    let searchFollowersResult: FollowerSearchItem[];
-    if (text.length >= 3 && text.length <= 5) {
-      const { data } = await searchFollowers({ variables: { name: text } });
-      if (!data) return;
-      searchFollowersResult = data.searchFollowers.map((user) => ({
-        userId: user.userId,
-        name: user.name,
-      }));
-    } else {
-      const { data } = await searchFollowersById({ variables: { id: text } });
-      if (!data) return;
-      searchFollowersResult = [data.searchFollowersById];
-    }
-    setSearchItems(searchFollowersResult);
-    setText('');
-  };
-
-  const closeFollowModal = (e: buttonClickEvent) => {
-    e.preventDefault();
-    setShowesFollowModal(false);
-  };
+  useEffect(() => {
+    dispatch(initFollowerReducer(followers));
+  }, []);
 
   return (
     <section className="mt-10 flex">
@@ -120,73 +79,18 @@ export default function User({ user, myFollowers }: UserProfileProps) {
         </div>
         <div className="w-full px-20 grid gap-4 grid-cols-4">
           <ul>
-            {myFollowers &&
-              myFollowers.map((follower) => (
-                <li key={follower.userId}>{follower.name}</li>
+            {followers &&
+              followers.map((follower) => (
+                <Follower key={follower.userId} follower={follower} />
               ))}
           </ul>
         </div>
       </article>
       {showesFollowModal && (
-        <article className="w-full h-screen z-20 fixed left-0 top-0 bg-black/60 flex justify-center items-center">
-          <div
-            className="w-1/3 h-96 px-10 py-5 rounded-[5px] text-sm bg-slate-50 
-        flex flex-col items-center relavite"
-          >
-            <div className="w-full flex justify-end">
-              <button
-                onClick={closeFollowModal}
-                className="text-xl font-semibold"
-              >
-                X
-              </button>
-            </div>
-            <p
-              className="w-80 h-12 my-3 px-6 bg-blue-400 rounded-full font-semibold 
-          flex justify-center items-center"
-            >
-              팔로우의 ID를 검색하여 등록할 수 있습니다.
-            </p>
-
-            <form className="w-80 mb-6 relative">
-              <input
-                type="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="팔로우 검색"
-                className="w-80 h-8 px-2 border-2 border-input-color rounded-md"
-              />
-              <input
-                type="submit"
-                value="검색"
-                onClick={handleSearchFollowers}
-                className="font-semibold absolute right-3 top-1 cursor-pointer"
-              />
-            </form>
-            <ul className="w-full">
-              {searchItems &&
-                searchItems.map((user) => (
-                  <li
-                    key={user.userId}
-                    className="w-1/4 p-1 border-2 rounded-md flex flex-row justify-between"
-                  >
-                    <div className="flex flex-col">
-                      <span className="mr-2 font-semibold">{user.name}</span>
-                      <span className="text-xs text-slate-500">
-                        {user.userId}
-                      </span>
-                    </div>
-                    <button
-                      onClick={(e) => handleAddFollower(e, user.userId)}
-                      className="px-2 py-1 bg-blue-300 rounded-xl ease-out duration-75 text-white hover:bg-blue-500"
-                    >
-                      팔로우
-                    </button>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        </article>
+        <FollowerPreview
+          setShowesFollowModal={setShowesFollowModal}
+          followers={followers}
+        />
       )}
     </section>
   );
@@ -234,3 +138,36 @@ export async function getStaticProps({ params }: { params: { id: string } }) {
     },
   };
 }
+
+/*
+export const getStaticProps = wrapper.getStaticProps(
+  (store) =>
+    async ({ params }) => {
+      if (!params) return { props: {} };
+      const { id } = params;
+      if (typeof id !== 'string') return { props: {} };
+      const getUserData = await request(
+        'http://localhost:3000/api/graphql',
+        GET_USER_BY_Id,
+        { id }
+      );
+      const userId = getUserData.getUserById.userId;
+      if (userId) {
+        const allFollowersData = await request(
+          'http://localhost:3000/api/graphql',
+          ALL_FOLLOWERS,
+          { userId }
+        );
+        const followers = allFollowersData.allFollowers.map((follower) => ({
+          ...follower,
+          email: follower.email ? follower.email : '',
+          company: follower.company ? follower.company : '',
+        }));
+        store.dispatch(initFollowerReducer(followers));
+      }
+      return {
+        props: { user: getUserData.getUserById },
+      };
+    }
+);
+*/

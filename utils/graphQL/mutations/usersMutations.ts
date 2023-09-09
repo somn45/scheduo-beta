@@ -35,3 +35,11 @@ mutation AddFollower($userId: String!) {
   }
 }
 `);
+
+export const DELETE_FOLLOWER = gql(`
+  mutation DeleteFollower($userId: String!) {
+    deleteFollower(userId: $userId) {
+      ...UserList
+    }
+  }
+`);

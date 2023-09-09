@@ -13,7 +13,7 @@ export default gql`
   type Query {
     allUsers: [User!]!
     getUser: User!
-    getUserById(id: String!): User
+    getUserById(id: String!): User!
     allFollowers(userId: String!): [User!]!
     searchFollowers(name: String!): [User!]!
     searchFollowersById(id: String!): User!

@@ -28,9 +28,13 @@ export interface FollowerSearchItem {
   name: string;
 }
 
+export interface IFollowerPreview extends FollowerSearchItem {
+  follow: boolean;
+}
+
 export interface IFollowers {
-  _id: string;
   userId: string;
   name: string;
   email: string;
+  company: string;
 }

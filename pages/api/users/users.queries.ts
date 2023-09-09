@@ -53,7 +53,6 @@ export default {
       { id }: { id: string },
       { req }: ContextValue
     ) => {
-      console.log(id);
       const users = await User.findUserById(id);
       return users;
     },
