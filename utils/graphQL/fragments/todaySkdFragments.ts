@@ -4,6 +4,15 @@ const TODAY_SCHEDULE_LIST = gql(`
   fragment TodayScheduleField on TodaySkd {
     title
     author
+    sharingUsers {
+      userId
+      name
+    }
+    toDos {
+      content
+      registeredAt
+      state
+    }
   }
 `);
 

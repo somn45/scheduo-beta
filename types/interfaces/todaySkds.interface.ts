@@ -1,3 +1,5 @@
+import { IFollowers } from './users.interface';
+
 interface BasicTodayScheduleInfo {
   title: string;
   author: string;
@@ -8,7 +10,11 @@ export interface TodaySchedule extends BasicTodayScheduleInfo {
   toDos: Array<IToDo>;
 }
 
-export interface TodayScheduleWithID extends TodaySchedule {
+export interface TodaySkdWithFollowers extends TodaySchedule {
+  sharingUsers?: IFollowers[];
+}
+
+export interface TodayScheduleWithID extends TodaySkdWithFollowers {
   _id?: string;
 }
 

@@ -11,6 +11,14 @@ export const CREATE_SCHEDULE = gql(`
   }
 `);
 
+export const CREATE_SCHEDULE_WITH_FOLLOWERS = gql(`
+  mutation CreateScheduleWithFollowers($title: String!, $followers: [followersInput]) {
+    createScheduleWithFollowers(title: $title, followers: $followers) {
+      ...TodayScheduleField
+    }
+  }
+`);
+
 export const ADD_TODO = gql(`
   mutation AddToDo($id: String!, $content: String!, $registeredAt: Float!) {
     addToDo(input: {id: $id, content: $content, registeredAt: $registeredAt}) {

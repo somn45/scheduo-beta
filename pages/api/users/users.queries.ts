@@ -21,7 +21,19 @@ export default {
       const user = await User.findUserById(id);
       return user;
     },
-    allFollowers: async (_: unknown, { userId }: { userId: string }) => {
+    allFollowers: async (
+      _: unknown,
+      { userId }: { userId?: string },
+      { req }: ContextValue
+    ) => {
+      if (!userId) {
+        const loggedUser = req.session.user;
+        if (!loggedUser)
+          throw new GraphQLError('User not found', {
+            extensions: { code: 'NOT_FOUND' },
+          });
+        userId = loggedUser.id;
+      }
       const user = await User.findOne({ userId }).populate([
         {
           path: 'followers',

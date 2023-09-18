@@ -33,6 +33,7 @@ export interface IFollowerPreview extends FollowerSearchItem {
 }
 
 export interface IFollowers {
+  __typename?: string;
   userId: string;
   name: string;
   email: string;

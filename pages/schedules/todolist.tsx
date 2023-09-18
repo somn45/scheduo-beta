@@ -1,3 +1,4 @@
+import CreationTodaySkdModal from '@/components/modal/CreationTodaySkdModal';
 import wrapper, {
   RootState,
   addTodaySkdReducer,
@@ -17,44 +18,23 @@ import { useDispatch, useSelector } from 'react-redux';
 
 export default function ToDoList() {
   const [title, setTitle] = useState('');
+  const [showsCreationTodaySkdModal, setShowsCreationTodaySkdModal] =
+    useState(false);
   const [createSchedule] = useMutation(CREATE_SCHEDULE);
   const todaySchedules = useSelector(
     (state: RootState) => state.todaySchedules
   );
   const dispatch = useDispatch();
 
-  const handleCreateSchedule = async (e: inputClickEvent) => {
-    e.preventDefault();
-    const { data: createScheduleQuery } = await createSchedule({
-      variables: { title },
-    });
-    if (!createScheduleQuery) return;
-    dispatch(addTodaySkdReducer(createScheduleQuery.createSchedule));
-    setTitle('');
-  };
-
   return (
     <section className="mt-10 flex flex-col relative">
       <h1 className="mb-5 text-xl font-semibold text-center">오늘의 일정</h1>
-      <article className="flex justify-center">
-        <form className="mb-12 relative">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="오늘의 일정 제목"
-            className="w-96 h-8 px-2 border-2 border-input-color rounded-md 
-          outline-none placeholder:text-sm
-          hover:border-pink-400 focus:border-pink-400"
-          />
-          <input
-            type="submit"
-            value="생성"
-            onClick={handleCreateSchedule}
-            className="h-6 font-semibold absolute right-2 top-1 cursor-pointer"
-          />
-        </form>
-      </article>
+      <button
+        onClick={() => setShowsCreationTodaySkdModal(true)}
+        className="mb-10"
+      >
+        일정 생성
+      </button>
       <p className="w-screen border border-input-color border-dashed fixed left-0 top-44"></p>
       {todaySchedules.length === 0 && <span>오늘의 일정을 등록하세요</span>}
       {todaySchedules.length !== 0 && (
@@ -76,7 +56,10 @@ export default function ToDoList() {
                     </div>
                   )}
                   {skd.toDos.map((toDo) => (
-                    <li className="border-b-2 border-schedule-content-color">
+                    <li
+                      key={toDo.content}
+                      className="border-b-2 border-schedule-content-color"
+                    >
                       <div className="pl-2 text-xs text-slate-800 before:content-['o'] before:mr-1">
                         {toDo.content}
                       </div>
@@ -87,6 +70,11 @@ export default function ToDoList() {
             </Link>
           ))}
         </article>
+      )}
+      {showsCreationTodaySkdModal && (
+        <CreationTodaySkdModal
+          setShowsCreationTodaySkdModal={setShowsCreationTodaySkdModal}
+        />
       )}
     </section>
   );
@@ -103,9 +91,12 @@ export const getServerSideProps = withIronSessionSsr(
       return {
         props: {},
       };
-    const allTodaySkds = allTodaySkdQuery.allSchedules.filter(
-      (todaySkd) => todaySkd.author === user.id
-    );
+    const allTodaySkds = allTodaySkdQuery.allSchedules
+      .filter((todaySkd) => todaySkd.author === user.id)
+      .map((todaySkd) => {
+        delete todaySkd.__typename;
+        return todaySkd;
+      });
     store.dispatch(initTodaySchedulesReducer(allTodaySkds));
     return {
       props: {},

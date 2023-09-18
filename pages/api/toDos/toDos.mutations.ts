@@ -10,6 +10,13 @@ import {
   todayScheduleUniqueField,
   UpdateToDoStateProps,
 } from '@/types/interfaces/todaySkds.interface';
+import { IFollowers } from '@/types/interfaces/users.interface';
+import User from '@/models/User';
+
+interface props {
+  title: string;
+  followers: IFollowers[];
+}
 
 export default {
   Mutation: {
@@ -31,6 +38,38 @@ export default {
         createdAt: Date.now(),
       });
       return newTodaySkd;
+    },
+    createScheduleWithFollowers: async (
+      _: unknown,
+      { title, followers }: props,
+      { req }: ContextValue
+    ) => {
+      const user = req.session.user;
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const author = user.id;
+
+      let sharingUsers = [];
+      for (let follower of followers) {
+        const followerWithId = await User.findUser(follower.userId);
+        sharingUsers.push(followerWithId._id);
+      }
+
+      const newTodaySkd = await TodaySkd.create({
+        title,
+        author,
+        sharingUsers,
+        createdAt: Date.now(),
+      });
+      return {
+        _id: newTodaySkd._id,
+        title,
+        author,
+        sharingUsers: followers,
+        toDos: newTodaySkd.toDos,
+      };
     },
     addToDo: async (
       _: unknown,

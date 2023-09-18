@@ -6,10 +6,17 @@ export default gql`
     title: String!
     author: String!
   }
+  type Follower {
+    userId: String!
+    name: String!
+    email: String
+    company: String
+  }
   type TodaySkd implements Schedule {
     _id: String!
     title: String!
     author: String!
+    sharingUsers: [Follower!]!
     toDos: [ToDo!]!
   }
   type DocedTodaySkd implements Schedule {
@@ -33,6 +40,10 @@ export default gql`
   }
   type Mutation {
     createSchedule(title: String!): TodaySkd!
+    createScheduleWithFollowers(
+      title: String!
+      followers: [followersInput]
+    ): TodaySkd!
     addToDo(input: AddToDoAndUpdateToDoInput): ToDo!
     updateToDo(input: AddToDoAndUpdateToDoInput): ToDo!
     deleteToDo(input: DeleteToDoInput): [ToDo!]!
@@ -53,5 +64,11 @@ export default gql`
     hasFinished: Boolean!
     id: String!
     registeredAt: Float!
+  }
+  input followersInput {
+    userId: String!
+    name: String!
+    email: String
+    company: String
   }
 `;

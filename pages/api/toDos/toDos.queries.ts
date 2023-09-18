@@ -6,7 +6,7 @@ import DocedTodaySkd from '@/models/DocedTodaySkd';
 export default {
   Query: {
     allSchedules: async () => {
-      const todaySchedule = await TodaySkd.find();
+      const todaySchedule = await TodaySkd.find().populate('sharingUsers');
       return todaySchedule;
     },
     getSchedule: async (_: unknown, { id }: { id: string }) => {
