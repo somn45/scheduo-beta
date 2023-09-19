@@ -10,7 +10,9 @@ export default {
       return todaySchedule;
     },
     getSchedule: async (_: unknown, { id }: { id: string }) => {
-      const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
+      const todaySchedule = (await TodaySkd.findByIdTodaySkd(id)).populate(
+        'sharingUsers'
+      );
       return todaySchedule;
     },
     allToDos: async (_: unknown, __: unknown, { cookies }: ContextValue) => {

@@ -91,13 +91,29 @@ export const getServerSideProps = withIronSessionSsr(
       return {
         props: {},
       };
+    /*
     const allTodaySkds = allTodaySkdQuery.allSchedules
-      .filter((todaySkd) => todaySkd.author === user.id)
+      .filter((todaySkd) => todaySkd.author === user.id || todaySkd.sharingUsers)
       .map((todaySkd) => {
         delete todaySkd.__typename;
         return todaySkd;
       });
-    store.dispatch(initTodaySchedulesReducer(allTodaySkds));
+      */
+    const allTodaySkds = allTodaySkdQuery.allSchedules.map((todaySkd) => {
+      delete todaySkd.__typename;
+      return todaySkd;
+    });
+    const myTodaySkds = allTodaySkds.filter(
+      (todaySkd) => todaySkd.author === user.id
+    );
+    const sharedTodaySkds = allTodaySkds.filter((todaySkd) =>
+      todaySkd.sharingUsers.some(
+        (sharingUser) => sharingUser.userId === user.id
+      )
+    );
+    store.dispatch(
+      initTodaySchedulesReducer([...myTodaySkds, ...sharedTodaySkds])
+    );
     return {
       props: {},
     };
