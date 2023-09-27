@@ -10,7 +10,7 @@ import {
   todayScheduleUniqueField,
   UpdateToDoStateProps,
 } from '@/types/interfaces/todaySkds.interface';
-import { IFollowers } from '@/types/interfaces/users.interface';
+import { IFollowers, IUser } from '@/types/interfaces/users.interface';
 import User from '@/models/User';
 
 interface props {
@@ -70,6 +70,24 @@ export default {
         sharingUsers: followers,
         toDos: newTodaySkd.toDos,
       };
+    },
+    deleteSchedule: async (
+      _: unknown,
+      { _id }: { _id: string },
+      { req }: ContextValue
+    ) => {
+      const { user } = req.session;
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const todaySchedule = await TodaySkd.findById(_id);
+      if (!todaySchedule)
+        throw new GraphQLError('Schedule not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      todaySchedule.deleteOne();
+      return todaySchedule;
     },
     addToDo: async (
       _: unknown,
@@ -195,18 +213,16 @@ export default {
         nextDay.getDate()
       );
       const finishedToDos: IToDo[] = todaySkd.toDos.map((toDo) => {
-        /*
-                if (
+        if (
           new Date(toDo.registeredAt).getDay() !== nextDaySharp.getDay() &&
           toDo.registeredAt < nextDaySharp.getTime()
         )
-        */
-        if (toDo.state === 'willDone')
-          return {
-            content: toDo.content,
-            registeredAt: toDo.registeredAt,
-            state: 'done',
-          };
+          if (toDo.state === 'willDone')
+            return {
+              content: toDo.content,
+              registeredAt: toDo.registeredAt,
+              state: 'done',
+            };
         return toDo;
       });
       todaySkd.toDos = finishedToDos;
@@ -246,6 +262,39 @@ export default {
           await TodaySkd.deleteOne({ title: finishedTodaySkd.title })
       );
       return docedTodaySchedules;
+    },
+    updateTitle: async (
+      _: unknown,
+      { title, _id }: { title: string; _id: string },
+      { req }: ContextValue
+    ) => {
+      const { user } = req.session;
+      if (!user)
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const todaySchedule = await TodaySkd.findById(_id).populate(
+        'sharingUsers'
+      );
+      if (!todaySchedule)
+        throw new GraphQLError('Today schedule not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      const hasAccessTodaySkd = todaySchedule.author === user.id;
+      console.log(hasAccessTodaySkd);
+      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharedTodaySkd = sharingUsers.filter(
+        (follwer) => follwer.userId === user.id
+      );
+
+      const hasSharedTodaySkd = sharedTodaySkd ? true : false;
+      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
+        throw new GraphQLError('You have not access', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
+      todaySchedule.title = title;
+      await todaySchedule.save();
+      return todaySchedule;
     },
   },
 };

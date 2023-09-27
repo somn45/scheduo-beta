@@ -138,36 +138,3 @@ export async function getStaticProps({ params }: { params: { id: string } }) {
     },
   };
 }
-
-/*
-export const getStaticProps = wrapper.getStaticProps(
-  (store) =>
-    async ({ params }) => {
-      if (!params) return { props: {} };
-      const { id } = params;
-      if (typeof id !== 'string') return { props: {} };
-      const getUserData = await request(
-        'http://localhost:3000/api/graphql',
-        GET_USER_BY_Id,
-        { id }
-      );
-      const userId = getUserData.getUserById.userId;
-      if (userId) {
-        const allFollowersData = await request(
-          'http://localhost:3000/api/graphql',
-          ALL_FOLLOWERS,
-          { userId }
-        );
-        const followers = allFollowersData.allFollowers.map((follower) => ({
-          ...follower,
-          email: follower.email ? follower.email : '',
-          company: follower.company ? follower.company : '',
-        }));
-        store.dispatch(initFollowerReducer(followers));
-      }
-      return {
-        props: { user: getUserData.getUserById },
-      };
-    }
-);
-*/

@@ -1,11 +1,15 @@
 import CreationTodaySkdModal from '@/components/modal/CreationTodaySkdModal';
+import TitleChangeModal from '@/components/modal/TitleChangeModal';
 import wrapper, {
   RootState,
   addTodaySkdReducer,
+  deleteScheduleReducer,
+  deleteToDoReducer,
   initTodaySchedulesReducer,
+  useAppDispatch,
 } from '@/lib/store/store';
-import { inputClickEvent } from '@/types/HTMLEvents';
-import { CREATE_SCHEDULE } from '@/utils/graphQL/mutations/todaySkdMutations';
+import { buttonClickEvent } from '@/types/HTMLEvents';
+import { DELETE_SCHEDULE } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { ALL_SCHEDULES } from '@/utils/graphQL/querys/TodaySkdQuerys';
 import { useMutation } from '@apollo/client';
 import { faClipboard } from '@fortawesome/free-solid-svg-icons';
@@ -20,11 +24,19 @@ export default function ToDoList() {
   const [title, setTitle] = useState('');
   const [showsCreationTodaySkdModal, setShowsCreationTodaySkdModal] =
     useState(false);
-  const [createSchedule] = useMutation(CREATE_SCHEDULE);
+  const [showsTitleChangeModel, setShowsTitleChangeModel] = useState(false);
+  const [deleteSchedule] = useMutation(DELETE_SCHEDULE);
   const todaySchedules = useSelector(
     (state: RootState) => state.todaySchedules
   );
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+
+  const handleDeleteTodaySkd = async (e: buttonClickEvent, _id?: string) => {
+    e.preventDefault();
+    if (!_id) return;
+    await deleteSchedule({ variables: { _id } });
+    dispatch(deleteScheduleReducer({ _id }));
+  };
 
   return (
     <section className="mt-10 flex flex-col relative">
@@ -40,34 +52,55 @@ export default function ToDoList() {
       {todaySchedules.length !== 0 && (
         <article className="w-full h-full px-72 pt-[15px] grid gap-4 grid-cols-4">
           {todaySchedules.map((skd) => (
-            <Link href={`/schedules/todos/${skd._id}`} key={skd._id}>
-              <div className="w-40 h-44 py-2 bg-schedule-color border-2 border-schedule-board-color rounded-md">
-                <ul className="w-full h-full flex flex-col relative">
-                  <FontAwesomeIcon
-                    icon={faClipboard}
-                    className="opacity-75 text-xl absolute top-[-15px] left-[-5px]"
-                  />
-                  <h4 className="mb-1 pb-2 border-b-2 border-schedule-board-color text-md font-semibold text-center">
-                    {skd.title}
-                  </h4>
-                  {skd.toDos.length === 0 && (
-                    <div className="w-full h-full flex justify-center items-center">
-                      일정 없음
-                    </div>
-                  )}
-                  {skd.toDos.map((toDo) => (
-                    <li
-                      key={toDo.content}
-                      className="border-b-2 border-schedule-content-color"
-                    >
-                      <div className="pl-2 text-xs text-slate-800 before:content-['o'] before:mr-1">
-                        {toDo.content}
+            <>
+              <Link href={`/schedules/todos/${skd._id}`} key={skd._id}>
+                <div className="w-40 h-44 py-2 bg-schedule-color border-2 border-schedule-board-color rounded-md">
+                  <ul className="w-full h-full flex flex-col relative">
+                    <FontAwesomeIcon
+                      icon={faClipboard}
+                      className="opacity-75 text-xl absolute top-[-15px] left-[-5px]"
+                    />
+                    <h4 className="mb-1 pb-2 border-b-2 border-schedule-board-color text-md font-semibold text-center">
+                      {skd.title}
+                    </h4>
+                    {skd.toDos.length === 0 && (
+                      <div className="w-full h-full flex justify-center items-center">
+                        일정 없음
                       </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Link>
+                    )}
+                    {skd.toDos.map((toDo) => (
+                      <li
+                        key={toDo.content}
+                        className="border-b-2 border-schedule-content-color"
+                      >
+                        <div className="pl-2 text-xs text-slate-800 before:content-['o'] before:mr-1">
+                          {toDo.content}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Link>
+              <ul>
+                <li>
+                  <button onClick={() => setShowsTitleChangeModel(true)}>
+                    제목 수정
+                  </button>
+                </li>
+                <li>
+                  <button onClick={(e) => handleDeleteTodaySkd(e, skd._id)}>
+                    스케줄 삭제
+                  </button>
+                </li>
+              </ul>
+              {showsTitleChangeModel && (
+                <TitleChangeModal
+                  todaySkdId={skd._id}
+                  title={title}
+                  setShowsTitleChangeModel={setShowsTitleChangeModel}
+                />
+              )}
+            </>
           ))}
         </article>
       )}
@@ -91,14 +124,7 @@ export const getServerSideProps = withIronSessionSsr(
       return {
         props: {},
       };
-    /*
-    const allTodaySkds = allTodaySkdQuery.allSchedules
-      .filter((todaySkd) => todaySkd.author === user.id || todaySkd.sharingUsers)
-      .map((todaySkd) => {
-        delete todaySkd.__typename;
-        return todaySkd;
-      });
-      */
+
     const allTodaySkds = allTodaySkdQuery.allSchedules.map((todaySkd) => {
       delete todaySkd.__typename;
       return todaySkd;

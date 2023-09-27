@@ -11,8 +11,12 @@ const reducer = combineReducers({
   followers: followerSlice.reducer,
 });
 
-export const { initTodaySchedulesReducer, addTodaySkdReducer } =
-  todaySkdSlice.actions;
+export const {
+  initTodaySchedulesReducer,
+  addTodaySkdReducer,
+  updateTitleTodaySkdReducer,
+  deleteScheduleReducer,
+} = todaySkdSlice.actions;
 export const {
   initToDosReducer,
   addToDoReducer,

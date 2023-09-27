@@ -46,8 +46,14 @@ export default function CreationTodaySkdModal({
   };
 
   return (
-    <article className="w-full h-screen  bg-black/60 flex justify-center items-center z-20 fixed top-0 left-0">
-      <div className="w-1/4 px-8 py-5 rounded-[5px] text-sm bg-slate-50 flex flex-col items-center">
+    <article
+      className="w-full h-screen  bg-black/60 
+    flex justify-center items-center z-20 fixed top-0 left-0"
+    >
+      <div
+        className="w-1/4 px-8 py-5 rounded-[5px] text-sm bg-slate-50 
+      flex flex-col items-center"
+      >
         <div className="w-full flex justify-end">
           <button
             onClick={() => setShowsCreationTodaySkdModal(false)}

@@ -19,6 +19,23 @@ export const CREATE_SCHEDULE_WITH_FOLLOWERS = gql(`
   }
 `);
 
+export const UPDATE_TODAY_SKD_TITLE = gql(`
+  mutation UpdateTodaySkdTitle($title: String!, $_id: String!) {
+    updateTitle(title: $title, _id: $_id) {
+      _id
+      title
+    }
+  }
+`);
+
+export const DELETE_SCHEDULE = gql(`
+  mutation DeleteScheDule($_id: String!) {
+    deleteSchedule(_id: $_id) {
+      _id
+    }
+  }
+`);
+
 export const ADD_TODO = gql(`
   mutation AddToDo($id: String!, $content: String!, $registeredAt: Float!) {
     addToDo(input: {id: $id, content: $content, registeredAt: $registeredAt}) {

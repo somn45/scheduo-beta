@@ -44,6 +44,8 @@ export default gql`
       title: String!
       followers: [followersInput]
     ): TodaySkd!
+    updateTitle(title: String!, _id: String!): TodaySkd!
+    deleteSchedule(_id: String!): TodaySkd!
     addToDo(input: AddToDoAndUpdateToDoInput): ToDo!
     updateToDo(input: AddToDoAndUpdateToDoInput): ToDo!
     deleteToDo(input: DeleteToDoInput): [ToDo!]!
