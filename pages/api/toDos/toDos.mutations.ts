@@ -9,6 +9,7 @@ import {
   todaySchedulePreview,
   todayScheduleUniqueField,
   UpdateToDoStateProps,
+  TodaySkdWithFollowers,
 } from '@/types/interfaces/todaySkds.interface';
 import { IFollowers, IUser } from '@/types/interfaces/users.interface';
 import User from '@/models/User';
@@ -237,31 +238,56 @@ export default {
           extensions: { code: 'NOT_FOUND' },
         });
 
-      const todaySchedules = await TodaySkd.find({ author: user.id });
+      const todaySchedules = (await TodaySkd.find({ author: user.id }).populate(
+        'sharingUsers'
+      )) as TodaySkdWithFollowers[];
       if (!todaySchedules)
         throw new GraphQLError('Today schedule not found', {
           extensions: { code: 'NOT_FOUND' },
         });
-      const finishedSchedules: TodaySchedule[] = todaySchedules.filter(
+      const finishedSchedules = todaySchedules.filter(
         (todaySkd) =>
           todaySkd.toDos.length !== 0 &&
           todaySkd.toDos.every((toDo) => toDo.state === 'done')
       );
-      const docedTodaySchedules = finishedSchedules.map((finishedSkd) => ({
-        title: finishedSkd.title,
-        author: finishedSkd.author,
-        start: finishedSkd.createdAt,
-        end:
-          finishedSkd.createdAt && finishedSkd.createdAt + 1000 * 60 * 60 * 24,
-        docedToDos: finishedSkd.toDos,
-      }));
-      await DocedTodaySkd.create(docedTodaySchedules);
+
+      let outputDocedSchedule = [];
+
+      for (let schedule of finishedSchedules) {
+        const docedScheduleTemplate = {
+          title: schedule.title,
+          start: schedule.createdAt,
+          end: schedule.createdAt && schedule.createdAt + 1000 * 60 * 60 * 24,
+          docedToDos: schedule.toDos,
+        };
+
+        const documentedSchedule = {
+          ...docedScheduleTemplate,
+          author: schedule.author,
+        };
+        const sharingUsers = schedule.sharingUsers;
+        if (sharingUsers && sharingUsers.length > 0) {
+          const docedSchedulesWithSharingUsers = [
+            documentedSchedule,
+            ...sharingUsers.map((user) => ({
+              ...documentedSchedule,
+              author: user.userId,
+            })),
+          ];
+          await DocedTodaySkd.create(docedSchedulesWithSharingUsers);
+          outputDocedSchedule.push(docedSchedulesWithSharingUsers);
+          console.log('공유 유저가 있을 때', docedSchedulesWithSharingUsers);
+        } else {
+          await DocedTodaySkd.create(documentedSchedule);
+          outputDocedSchedule.push(documentedSchedule);
+        }
+      }
 
       finishedSchedules.map(
         async (finishedTodaySkd) =>
           await TodaySkd.deleteOne({ title: finishedTodaySkd.title })
       );
-      return docedTodaySchedules;
+      return outputDocedSchedule;
     },
     updateTitle: async (
       _: unknown,

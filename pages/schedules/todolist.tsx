@@ -30,7 +30,7 @@ export default function ToDoList() {
     (state: RootState) => state.todaySchedules
   );
   const dispatch = useAppDispatch();
-
+  console.log(todaySchedules);
   const handleDeleteTodaySkd = async (e: buttonClickEvent, _id?: string) => {
     e.preventDefault();
     if (!_id) return;
