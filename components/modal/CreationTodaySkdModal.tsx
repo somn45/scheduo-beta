@@ -10,6 +10,7 @@ import { useState } from 'react';
 import FollowerToShare from '../FollowerToShare';
 import { IFollowers } from '@/types/interfaces/users.interface';
 import { useRouter } from 'next/router';
+import AlertBoxNonLogged from '../messageBox/AlertBoxIfNonLogged';
 
 interface CreationTodaySkdModalProps {
   setShowsCreationTodaySkdModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -20,10 +21,13 @@ export default function CreationTodaySkdModal({
 }: CreationTodaySkdModalProps) {
   const [title, setTitle] = useState('');
   const [sharingFollowers, setSharingFollowers] = useState<IFollowers[]>([]);
+  const [showsAlertBox, setShowsAlertBox] = useState(false);
   const { data: followersQuery } = useQuery(ALL_FOLLOWERS);
-  const [createSchedule] = useMutation(CREATE_SCHEDULE);
   const [createScheduleWithFollowers] = useMutation(
-    CREATE_SCHEDULE_WITH_FOLLOWERS
+    CREATE_SCHEDULE_WITH_FOLLOWERS,
+    {
+      errorPolicy: 'all',
+    }
   );
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -36,10 +40,11 @@ export default function CreationTodaySkdModal({
         return follower;
       }
     });
-    const { data } = await createScheduleWithFollowers({
+    const { data, errors } = await createScheduleWithFollowers({
       variables: { title, followers },
     });
-    console.log(data?.createScheduleWithFollowers);
+    if (errors && errors[0].message === 'User not found')
+      return setShowsAlertBox(true);
     if (data) addTodaySkdReducer(data.createScheduleWithFollowers);
     setShowsCreationTodaySkdModal(false);
     router.push('/schedules/todolist');
@@ -80,17 +85,19 @@ export default function CreationTodaySkdModal({
           <div className="w-64 h-56 mb-3 border-4 border-slate-400 rounded-lg">
             <ul className="w-full h-full p-2">
               {!followersQuery && <li>팔로워가 없습니다.</li>}
-              {followersQuery?.allFollowers.map((follower) => (
-                <FollowerToShare
-                  key={follower.userId}
-                  follower={{
-                    ...follower,
-                    email: follower.email ? follower.email : '',
-                    company: follower.company ? follower.company : '',
-                  }}
-                  setSharingFollowers={setSharingFollowers}
-                />
-              ))}
+              {followersQuery &&
+                followersQuery.allFollowers &&
+                followersQuery.allFollowers.map((follower) => (
+                  <FollowerToShare
+                    key={follower.userId}
+                    follower={{
+                      ...follower,
+                      email: follower.email ? follower.email : '',
+                      company: follower.company ? follower.company : '',
+                    }}
+                    setSharingFollowers={setSharingFollowers}
+                  />
+                ))}
             </ul>
           </div>
           <input
@@ -99,6 +106,7 @@ export default function CreationTodaySkdModal({
             onClick={handleCreateTodaySkd}
           />
         </form>
+        {showsAlertBox && <AlertBoxNonLogged />}
       </div>
     </article>
   );

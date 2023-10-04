@@ -12,6 +12,7 @@ import {
 } from '@/utils/graphQL/querys/userQuerys';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { Dispatch, SetStateAction, useState } from 'react';
+import AlertBoxNonLogged from './messageBox/AlertBoxIfNonLogged';
 
 interface FollowerPreviewProps {
   setShowesFollowModal: Dispatch<SetStateAction<boolean>>;
@@ -23,9 +24,11 @@ export default function FollowerPreview({
   followers,
 }: FollowerPreviewProps) {
   const [text, setText] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const [searchItems, setSearchItems] = useState<
     IFollowerPreview[] | undefined
   >(undefined);
+  const [showsAlertBox, setShowsAlertBox] = useState(false);
   const dispatch = useAppDispatch();
   const [searchFollowers] = useLazyQuery(SEARCH_FOLLOWERS);
   const [searchFollowersById] = useLazyQuery(SEARCH_FOLLOWERS_BY_ID);
@@ -59,7 +62,13 @@ export default function FollowerPreview({
 
   const handleAddFollower = async (e: buttonClickEvent, userId: string) => {
     e.preventDefault();
-    const { data } = await addFollower({ variables: { userId } });
+    const { data, errors } = await addFollower({ variables: { userId } });
+    if (errors && errors[0].message === 'User not found')
+      return setShowsAlertBox(true);
+    if (errors && errors[0].message === 'You cannot follow yourself')
+      setErrorMsg('팔로워 대상이 로그인 된 계정입니다.');
+    if (errors && errors[0].message === 'Already followed')
+      setErrorMsg('이미 팔로우된 사용자입니다.');
     if (!data) return;
     const { userId: followerId, name, email, company } = data.addFollower;
     dispatch(
@@ -108,6 +117,7 @@ flex flex-col items-center relavite"
             className="font-semibold absolute right-3 top-1 cursor-pointer"
           />
         </form>
+        <span>{errorMsg}</span>
         <ul className="w-full">
           {searchItems &&
             searchItems.map((user) => (
@@ -138,6 +148,7 @@ flex flex-col items-center relavite"
             ))}
         </ul>
       </div>
+      {showsAlertBox && <AlertBoxNonLogged />}
     </article>
   );
 }

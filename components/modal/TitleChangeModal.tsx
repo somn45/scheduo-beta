@@ -26,7 +26,6 @@ export default function TitleChangeModal({
     });
     if (!data) return;
 
-    console.log(data.updateTitle.title);
     dispatch(
       updateTitleTodaySkdReducer({
         title: data.updateTitle.title,

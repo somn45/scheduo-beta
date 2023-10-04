@@ -6,6 +6,8 @@ import React, { useEffect, useState } from 'react';
 import { setCookie } from 'cookies-next';
 import { CHECK_USER } from '@/utils/graphQL/mutations/usersMutations';
 import { inputClickEvent } from '@/types/HTMLEvents';
+import { useRouter } from 'next/router';
+import AlertBox from '../messageBox/AlertBox';
 
 const USER_NOT_FOUND = 'User not found';
 const PASSWORD_NOT_MATCH = 'Password not match';
@@ -19,9 +21,11 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
   const [password, setPassword] = useState('');
   const [isDisabledSubmit, setIsDisabledSubmit] = useState(false);
   const [errorMsg, setErrorMsg] = useState(DEFAULT_ERROR_MSG);
+  const [showsAlertBox, setShowsAlertBox] = useState(false);
   const [login] = useMutation(CHECK_USER, {
     errorPolicy: 'all',
   });
+  const router = useRouter();
 
   useEffect(() => {
     const validateResponse = vaildateForm({ userId, password });
@@ -57,8 +61,13 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
         ...DEFAULT_ERROR_MSG,
         password: '비밀번호가 일치하지 않습니다.',
       });
+    if (
+      loginErrors &&
+      loginErrors[0].message === '이미 로그인 된 사용자입니다.'
+    )
+      return setShowsAlertBox(true);
     setCookie('uid', userId);
-    window.location.reload();
+    router.push('/');
   };
 
   return (
@@ -115,6 +124,7 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
           Scheduo 회원가입하기
         </button>
       </div>
+      {showsAlertBox && <AlertBox message="이미 로그인 된 계정입니다." />}
     </section>
   );
 }

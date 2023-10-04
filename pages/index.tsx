@@ -26,28 +26,31 @@ export default function Home() {
   const [showsScheduleDetail, setShowsScheduleDetail] = useState(false);
   const calendarRef = useRef();
   const [getDocedTodaySkds] = useLazyQuery(ALL_DOCUMENTED_TODAY_SKDS);
-  const [documentToDos] = useMutation(DOCUMENTED_TODOS);
+  const [documentToDos] = useMutation(DOCUMENTED_TODOS, {
+    errorPolicy: 'all',
+  });
   useEffect(() => {
     handleDocedToDos();
     const handleGetDocedTodaySkds = async () => {
       const { data: docedTodaySkdsQuery } = await getDocedTodaySkds();
-      if (!docedTodaySkdsQuery) return;
-      const calendarEvents = docedTodaySkdsQuery.allDocedTodaySkds.map(
-        (todaySkd) => ({
-          title: todaySkd.title,
-          start: new Date(todaySkd.start),
-          end: new Date(todaySkd.end),
-          docedToDos: todaySkd.docedToDos,
-        })
-      );
-      setDocumentedTodaySkds(calendarEvents);
+      if (docedTodaySkdsQuery && docedTodaySkdsQuery.allDocedTodaySkds) {
+        const calendarEvents = docedTodaySkdsQuery.allDocedTodaySkds.map(
+          (todaySkd) => ({
+            title: todaySkd.title,
+            start: new Date(todaySkd.start),
+            end: new Date(todaySkd.end),
+            docedToDos: todaySkd.docedToDos,
+          })
+        );
+        setDocumentedTodaySkds(calendarEvents);
+      }
     };
     handleGetDocedTodaySkds();
   }, []);
 
   const handleDocedToDos = async () => {
     const { data: documentToDosQuery } = await documentToDos();
-    if (documentToDosQuery) {
+    if (documentToDosQuery && documentToDosQuery.documentedToDos) {
       const calendarEvents = documentToDosQuery.documentedToDos.map(
         (todaySkd) => ({
           title: todaySkd.title,

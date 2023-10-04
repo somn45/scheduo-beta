@@ -31,10 +31,7 @@ export default {
       { req }: ContextValue
     ) => {
       const { user } = req.session;
-      if (!user)
-        throw new GraphQLError('인증된 유저 없음', {
-          extensions: { code: 'UNAUTHORIZED' },
-        });
+      if (!user) return;
       const docedTodaySkds = await DocedTodaySkd.find({ author: user.id });
       return docedTodaySkds;
     },

@@ -195,10 +195,7 @@ export default {
       { req }: ContextValue
     ) => {
       const { user } = req.session;
-      if (!user)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
-        });
+      if (!user) return;
       const todaySkd = await TodaySkd.findOne({ title });
       if (!todaySkd)
         throw new GraphQLError('Today skd not found', {
@@ -233,10 +230,7 @@ export default {
     },
     documentedToDos: async (_: unknown, __: unknown, { req }: ContextValue) => {
       const { user } = req.session;
-      if (!user)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
-        });
+      if (!user) return null;
 
       const todaySchedules = (await TodaySkd.find({ author: user.id }).populate(
         'sharingUsers'
@@ -276,7 +270,6 @@ export default {
           ];
           await DocedTodaySkd.create(docedSchedulesWithSharingUsers);
           outputDocedSchedule.push(docedSchedulesWithSharingUsers);
-          console.log('공유 유저가 있을 때', docedSchedulesWithSharingUsers);
         } else {
           await DocedTodaySkd.create(documentedSchedule);
           outputDocedSchedule.push(documentedSchedule);
@@ -307,7 +300,6 @@ export default {
           extensions: { code: 'NOT_FOUND' },
         });
       const hasAccessTodaySkd = todaySchedule.author === user.id;
-      console.log(hasAccessTodaySkd);
       const sharingUsers = todaySchedule.sharingUsers as IUser[];
       const sharedTodaySkd = sharingUsers.filter(
         (follwer) => follwer.userId === user.id

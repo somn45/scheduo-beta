@@ -98,14 +98,14 @@ export default {
         throw new GraphQLError('User not found', {
           extensions: { code: 'NOT_FOUND' },
         });
-
+      if (userId === loggedUserId)
+        throw new GraphQLError('You cannot follow yourself', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
       const loggedUser = await (
         await User.findUser(loggedUserId)
       ).populate('followers');
-      if (!loggedUser)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
-        });
+
       const newFollower = (await User.findUser(userId)) as IUser;
       if (!newFollower) return {};
       const followList = loggedUser.followers as IUser[];
@@ -126,7 +126,7 @@ export default {
     ) => {
       const userId = req.session.user?.id;
       if (!userId)
-        throw new GraphQLError('UserId not found', {
+        throw new GraphQLError('User not found', {
           extensions: { code: 'NOT_FOUND' },
         });
 

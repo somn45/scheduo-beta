@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { gql } from '@/generates/type';
 import { buttonClickEvent } from '@/types/HTMLEvents';
 import { useRouter } from 'next/router';
+import AlertBox from '../messageBox/AlertBox';
 
 export interface ModelEventList {
   showLogin: () => void;
@@ -30,13 +31,19 @@ const LOGOUT = gql(`
 `);
 
 export default function Header({ showLogin }: ModalEventProps) {
-  const { data: geUserQuery } = useQuery(GET_USER);
-  const router = useRouter();
+  const [showsAlertBox, setShowsAlertBox] = useState(false);
+  const { data: getUserQuery } = useQuery(GET_USER);
   const [logOut] = useMutation(LOGOUT);
+  const router = useRouter();
 
   const handleLogout = async (e: buttonClickEvent) => {
     e.preventDefault();
-    await logOut();
+    const { errors: logoutErrors } = await logOut();
+    if (
+      logoutErrors &&
+      logoutErrors[0].message === '이미 로그아웃 된 사용자입니다.'
+    )
+      return setShowsAlertBox(true);
     window.location.reload();
   };
 
@@ -93,15 +100,15 @@ export default function Header({ showLogin }: ModalEventProps) {
           </li>
         </ul>
         <ul className=" text-sm flex justify-between">
-          {geUserQuery?.getUser.userId ? (
+          {getUserQuery !== undefined && getUserQuery.getUser !== null ? (
             <>
               <li className="mr-8">
                 <Link
-                  href={`/users/${geUserQuery?.getUser._id}`}
+                  href={`/users/${getUserQuery.getUser._id}`}
                   className="text-sm pb-3"
                 >
                   <span className="p-1 bg-blue-900 border rounded-md text-white ease-out duration-150 hover:bg-white hover:text-blue-900">
-                    {geUserQuery?.getUser.userId}
+                    {getUserQuery.getUser.userId}
                   </span>
                 </Link>
               </li>
@@ -124,6 +131,7 @@ export default function Header({ showLogin }: ModalEventProps) {
           )}
         </ul>
       </nav>
+      {showsAlertBox && <AlertBox message="이미 로그아웃 된 사용자입니다." />}
     </header>
   );
 }

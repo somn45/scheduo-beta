@@ -33,7 +33,7 @@ export default function User({ user, myFollowers }: UserProfileProps) {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(initFollowerReducer(followers));
+    dispatch(initFollowerReducer(myFollowers));
   }, []);
 
   return (

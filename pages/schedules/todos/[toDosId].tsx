@@ -1,5 +1,6 @@
 import FinishToDos from '@/components/FinishedToDo';
 import ToDo from '@/components/ToDo';
+import AlertBoxNonLogged from '@/components/messageBox/AlertBoxIfNonLogged';
 import wrapper, {
   RootState,
   addToDoReducer,
@@ -25,6 +26,7 @@ import { useSelector } from 'react-redux';
 export default function ToDos({ title, author }: TodaySchedule) {
   const [text, setText] = useState('');
   const [checkedList, setCheckedList] = useState<IToDo[]>([]);
+  const [showsAlertBox, setShowsAlertBox] = useState(false);
   const [addToDo] = useMutation(ADD_TODO, {
     errorPolicy: 'all',
   });
@@ -45,9 +47,11 @@ export default function ToDos({ title, author }: TodaySchedule) {
     const toDosId = query.toDosId;
     if (typeof toDosId !== 'string') return;
     const regitDate = Date.now();
-    const { data: addToDoQuery } = await addToDo({
+    const { data: addToDoQuery, errors } = await addToDo({
       variables: { id: toDosId, content: text, registeredAt: regitDate },
     });
+    if (errors && errors[0].message === 'User not found')
+      return setShowsAlertBox(true);
     if (!addToDoQuery) return;
     dispatch(addToDoReducer(addToDoQuery.addToDo));
     setText('');
@@ -118,6 +122,7 @@ export default function ToDos({ title, author }: TodaySchedule) {
               <FinishToDos key={toDo.content} {...toDo} />
             ))}
         </ul>
+        {showsAlertBox && <AlertBoxNonLogged />}
       </article>
     </section>
   );

@@ -2,9 +2,7 @@ import CreationTodaySkdModal from '@/components/modal/CreationTodaySkdModal';
 import TitleChangeModal from '@/components/modal/TitleChangeModal';
 import wrapper, {
   RootState,
-  addTodaySkdReducer,
   deleteScheduleReducer,
-  deleteToDoReducer,
   initTodaySchedulesReducer,
   useAppDispatch,
 } from '@/lib/store/store';
@@ -18,7 +16,7 @@ import request from 'graphql-request';
 import { withIronSessionSsr } from 'iron-session/next';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 export default function ToDoList() {
   const [title, setTitle] = useState('');
@@ -30,7 +28,6 @@ export default function ToDoList() {
     (state: RootState) => state.todaySchedules
   );
   const dispatch = useAppDispatch();
-  console.log(todaySchedules);
   const handleDeleteTodaySkd = async (e: buttonClickEvent, _id?: string) => {
     e.preventDefault();
     if (!_id) return;

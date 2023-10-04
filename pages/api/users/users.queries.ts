@@ -10,12 +10,10 @@ export default {
     },
     getUser: async (_: unknown, __: unknown, { req }: ContextValue) => {
       const userId = req.session.user?.id;
-      if (!userId)
-        throw new GraphQLError('You are not an active user', {
-          extensions: { code: 'UNAUTHORIZED' },
-        });
-      const user = await User.findUser(userId);
-      return user;
+      if (userId) {
+        const user = await User.findUser(userId);
+        return user;
+      }
     },
     getUserById: async (_: unknown, { id }: { id: string }) => {
       const user = await User.findUserById(id);
@@ -23,17 +21,9 @@ export default {
     },
     allFollowers: async (
       _: unknown,
-      { userId }: { userId?: string },
+      { userId }: { userId: string },
       { req }: ContextValue
     ) => {
-      if (!userId) {
-        const loggedUser = req.session.user;
-        if (!loggedUser)
-          throw new GraphQLError('User not found', {
-            extensions: { code: 'NOT_FOUND' },
-          });
-        userId = loggedUser.id;
-      }
       const user = await User.findOne({ userId }).populate([
         {
           path: 'followers',

@@ -17,6 +17,7 @@ import {
 import { useMutation } from '@apollo/client';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import AlertBoxNonLogged from './messageBox/AlertBoxIfNonLogged';
 
 export default function ToDo({
   content,
@@ -27,16 +28,25 @@ export default function ToDo({
   const [text, setText] = useState(content);
   const [checked, setChecked] = useState(state === 'willDone' ? true : false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [updateToDo] = useMutation(UPDATE_TODO);
-  const [deleteToDo] = useMutation(DELETE_TODO);
-  const [updateToDoState] = useMutation(UPDATE_TODO_STATE);
+  const [showsAlertBox, setShowsAlertBox] = useState(false);
+  const [updateToDo] = useMutation(UPDATE_TODO, {
+    errorPolicy: 'all',
+  });
+  const [deleteToDo] = useMutation(DELETE_TODO, {
+    errorPolicy: 'all',
+  });
+  const [updateToDoState] = useMutation(UPDATE_TODO_STATE, {
+    errorPolicy: 'all',
+  });
   const dispatch = useDispatch();
 
   const handleUpdateToDo = async (e: inputClickEvent) => {
     e.preventDefault();
-    const { data: updateToDoQuery } = await updateToDo({
+    const { data: updateToDoQuery, errors } = await updateToDo({
       variables: { id, content: text, registeredAt },
     });
+    if (errors && errors[0].message === 'User not found')
+      setShowsAlertBox(true);
     if (!updateToDoQuery) return;
     dispatch(
       updateToDoReducer({ ...updateToDoQuery.updateToDo, state: 'toDo' })
@@ -46,27 +56,42 @@ export default function ToDo({
 
   const handleDeleteToDo = async (e: buttonClickEvent) => {
     e.preventDefault();
-    const { data: deleteToDoQuery } = await deleteToDo({
-      variables: { id, registeredAt },
-    });
+    const { data: deleteToDoQuery, errors: deleteToDoErrors } =
+      await deleteToDo({
+        variables: { id, registeredAt },
+      });
+    if (deleteToDoErrors && deleteToDoErrors[0].message === 'User not found')
+      setShowsAlertBox(true);
     if (!deleteToDoQuery) return;
     dispatch(deleteToDoReducer(deleteToDoQuery.deleteToDo));
   };
 
   const setToDoStateFinish = async (e: checkboxEvent) => {
     if (e.target.checked) {
-      setChecked(true);
-      const { data: updateToDoStateQuery } = await updateToDoState({
-        variables: { hasFinished: true, id, registeredAt },
-      });
+      const { data: updateToDoStateQuery, errors: updateToDoStateErrors } =
+        await updateToDoState({
+          variables: { hasFinished: true, id, registeredAt },
+        });
+      if (
+        updateToDoStateErrors &&
+        updateToDoStateErrors[0].message === 'User not found'
+      )
+        return setShowsAlertBox(true);
       if (!updateToDoStateQuery) return;
+      setChecked(true);
       dispatch(updateToDoStateReducer(updateToDoStateQuery.updateToDoState));
     } else {
-      setChecked(false);
-      const { data: updateToDoStateQuery } = await updateToDoState({
-        variables: { hasFinished: false, id, registeredAt },
-      });
+      const { data: updateToDoStateQuery, errors: updateToDoStateErrors } =
+        await updateToDoState({
+          variables: { hasFinished: false, id, registeredAt },
+        });
+      if (
+        updateToDoStateErrors &&
+        updateToDoStateErrors[0].message === 'User not found'
+      )
+        return setShowsAlertBox(true);
       if (!updateToDoStateQuery) return;
+      setChecked(false);
       dispatch(updateToDoStateReducer(updateToDoStateQuery.updateToDoState));
     }
   };
@@ -134,6 +159,7 @@ export default function ToDo({
           </div>
         </>
       )}
+      {showsAlertBox && <AlertBoxNonLogged />}
     </li>
   );
 }
