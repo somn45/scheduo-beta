@@ -21,9 +21,10 @@ export default function TitleChangeModal({
 
   const handleUpdateTitle = async (e: inputClickEvent) => {
     e.preventDefault();
-    const { data } = await updateTodaySkdTitle({
+    const { data, errors } = await updateTodaySkdTitle({
       variables: { title: changedTitle, _id: todaySkdId ? todaySkdId : '' },
     });
+    if (errors) alert(errors[0].message);
     if (!data) return;
 
     dispatch(

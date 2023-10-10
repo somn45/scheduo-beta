@@ -47,6 +47,7 @@ export default function ToDo({
     });
     if (errors && errors[0].message === 'User not found')
       setShowsAlertBox(true);
+    else if (errors && errors[0].message) alert(errors[0].message);
     if (!updateToDoQuery) return;
     dispatch(
       updateToDoReducer({ ...updateToDoQuery.updateToDo, state: 'toDo' })
@@ -62,6 +63,9 @@ export default function ToDo({
       });
     if (deleteToDoErrors && deleteToDoErrors[0].message === 'User not found')
       setShowsAlertBox(true);
+    else if (deleteToDoErrors && deleteToDoErrors[0].message) {
+      alert(deleteToDoErrors[0].message);
+    }
     if (!deleteToDoQuery) return;
     dispatch(deleteToDoReducer(deleteToDoQuery.deleteToDo));
   };
@@ -77,6 +81,8 @@ export default function ToDo({
         updateToDoStateErrors[0].message === 'User not found'
       )
         return setShowsAlertBox(true);
+      else if (updateToDoStateErrors && updateToDoStateErrors[0].message)
+        alert(updateToDoStateErrors[0].message);
       if (!updateToDoStateQuery) return;
       setChecked(true);
       dispatch(updateToDoStateReducer(updateToDoStateQuery.updateToDoState));
@@ -90,6 +96,8 @@ export default function ToDo({
         updateToDoStateErrors[0].message === 'User not found'
       )
         return setShowsAlertBox(true);
+      else if (updateToDoStateErrors && updateToDoStateErrors[0].message)
+        alert(updateToDoStateErrors[0].message);
       if (!updateToDoStateQuery) return;
       setChecked(false);
       dispatch(updateToDoStateReducer(updateToDoStateQuery.updateToDoState));

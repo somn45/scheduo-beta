@@ -8,10 +8,10 @@ interface DBDocedTodaySkdDocument extends DBDocedTodaySkd, Document {}
 interface DBDocedTodaySkdModel extends Model<DBDocedTodaySkdDocument> {}
 
 const docedTodaySkdSchema: Schema<DBDocedTodaySkdDocument> = new Schema({
-  title: String,
-  author: String,
-  start: Number,
-  end: Number,
+  title: { type: String, required: true },
+  author: { type: String, required: true },
+  start: Date,
+  end: Date,
   docedToDos: [
     {
       content: String,

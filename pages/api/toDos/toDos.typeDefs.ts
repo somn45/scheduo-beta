@@ -1,6 +1,11 @@
 import gql from 'graphql-tag';
 
 export default gql`
+  enum State {
+    toDo
+    willDone
+    done
+  }
   interface Schedule {
     _id: String!
     title: String!
@@ -30,7 +35,7 @@ export default gql`
   type ToDo {
     content: String!
     registeredAt: Float!
-    state: String!
+    state: State!
   }
   type Query {
     allSchedules: [TodaySkd!]!

@@ -4,7 +4,11 @@ import Cookies from 'cookies';
 import jwt from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { ObjectId } from 'mongoose';
-import { BasicUserField, IUser } from '@/types/interfaces/users.interface';
+import {
+  BasicUserField,
+  IFollowers,
+  IUser,
+} from '@/types/interfaces/users.interface';
 
 export interface ContextValue {
   req: NextApiRequest;
@@ -108,7 +112,7 @@ export default {
 
       const newFollower = (await User.findUser(userId)) as IUser;
       if (!newFollower) return {};
-      const followList = loggedUser.followers as IUser[];
+      const followList = loggedUser.getFollowerList();
 
       const followerUserIds = followList.map((follower) => follower.userId);
       if (followerUserIds.includes(userId))
@@ -124,19 +128,22 @@ export default {
       { userId: followerId }: Pick<BasicUserField, 'userId'>,
       { req }: ContextValue
     ) => {
-      const userId = req.session.user?.id;
-      if (!userId)
+      const loggedUser = req.session.user;
+      if (!loggedUser)
         throw new GraphQLError('User not found', {
           extensions: { code: 'NOT_FOUND' },
         });
 
-      const user = await User.findOne({ userId });
+      const user = await User.findUser(loggedUser.id);
       const follower = await User.findUser(followerId);
-      const followerIds = user?.followers as ObjectId[];
+      const followerIds = user?.getFollowerIds();
       const followedList: ObjectId[] = followerIds.filter((id) => {
         return id.toString() !== follower._id.toString() ? id : null;
       });
-      await User.findOneAndUpdate({ userId }, { followers: followedList });
+      await User.findOneAndUpdate(
+        { userId: loggedUser.id },
+        { followers: followedList }
+      );
       return follower;
     },
   },

@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import request from 'graphql-request';
 import { withIronSessionSsr } from 'iron-session/next';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -23,15 +24,21 @@ export default function ToDoList() {
   const [showsCreationTodaySkdModal, setShowsCreationTodaySkdModal] =
     useState(false);
   const [showsTitleChangeModel, setShowsTitleChangeModel] = useState(false);
-  const [deleteSchedule] = useMutation(DELETE_SCHEDULE);
+  const [deleteSchedule] = useMutation(DELETE_SCHEDULE, { errorPolicy: 'all' });
   const todaySchedules = useSelector(
     (state: RootState) => state.todaySchedules
   );
   const dispatch = useAppDispatch();
+  const router = useRouter();
+
   const handleDeleteTodaySkd = async (e: buttonClickEvent, _id?: string) => {
     e.preventDefault();
     if (!_id) return;
-    await deleteSchedule({ variables: { _id } });
+    const { errors } = await deleteSchedule({ variables: { _id } });
+    if (errors) {
+      alert(errors[0].message);
+      router.push('/');
+    }
     dispatch(deleteScheduleReducer({ _id }));
   };
 

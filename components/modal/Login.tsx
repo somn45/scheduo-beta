@@ -67,7 +67,7 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
     )
       return setShowsAlertBox(true);
     setCookie('uid', userId);
-    router.push('/');
+    window.location.href;
   };
 
   return (

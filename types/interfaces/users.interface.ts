@@ -19,10 +19,6 @@ export type publicUserInfo = Pick<IUser, 'userId' | 'email' | 'company'>;
 
 export type IUserWithoutID = Omit<IUser, '_id'>;
 
-export interface DBUser extends Omit<IUserWithoutID, 'followers'> {
-  followers: ObjectId[] | IUser[];
-}
-
 export interface FollowerSearchItem {
   userId: string;
   name: string;

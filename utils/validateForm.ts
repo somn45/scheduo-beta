@@ -31,7 +31,7 @@ export const vaildateForm = (accountForm: LoginForm): ValidateLoginResponse => {
       validatePass: false,
       message: '아이디는 필수 항목입니다.',
     };
-  else if (accountForm.userId.length <= 5 || accountForm.userId.length >= 21)
+  if (accountForm.userId.length <= 5 || accountForm.userId.length >= 21)
     return {
       route: 'userId',
       validatePass: false,

@@ -45,7 +45,8 @@ export default function CreationTodaySkdModal({
     });
     if (errors && errors[0].message === 'User not found')
       return setShowsAlertBox(true);
-    if (data) addTodaySkdReducer(data.createScheduleWithFollowers);
+    if (data && data.createScheduleWithFollowers)
+      addTodaySkdReducer(data.createScheduleWithFollowers);
     setShowsCreationTodaySkdModal(false);
     router.push('/schedules/todolist');
   };

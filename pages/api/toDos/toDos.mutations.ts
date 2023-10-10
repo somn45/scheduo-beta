@@ -36,7 +36,6 @@ export default {
       const newTodaySkd = await TodaySkd.create({
         title,
         author,
-        createdAt: Date.now(),
       });
       return newTodaySkd;
     },
@@ -82,11 +81,23 @@ export default {
         throw new GraphQLError('User not found', {
           extensions: { code: 'NOT_FOUND' },
         });
-      const todaySchedule = await TodaySkd.findById(_id);
+      const todaySchedule = await TodaySkd.findByIdTodaySkd(_id);
       if (!todaySchedule)
         throw new GraphQLError('Schedule not found', {
           extensions: { code: 'NOT_FOUND' },
         });
+
+      const hasAccessTodaySkd = todaySchedule.author === user.id;
+      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharedTodaySkd = sharingUsers.filter(
+        (follwer) => follwer.userId === user.id
+      );
+      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
+      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
+        throw new GraphQLError('You have not access', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
+
       todaySchedule.deleteOne();
       return todaySchedule;
     },
@@ -103,6 +114,19 @@ export default {
         });
 
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
+
+      const hasAccessTodaySkd = todaySchedule.author === user.id;
+      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharedTodaySkd = sharingUsers.filter(
+        (follwer) => follwer.userId === user.id
+      );
+
+      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
+      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
+        throw new GraphQLError('You have not access', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
+
       todaySchedule.toDos.push({ content, registeredAt, state: 'toDo' });
       await todaySchedule.save();
       return { content, registeredAt, state: 'toDo' };
@@ -120,6 +144,19 @@ export default {
         });
 
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
+
+      const hasAccessTodaySkd = todaySchedule.author === user.id;
+      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharedTodaySkd = sharingUsers.filter(
+        (follwer) => follwer.userId === user.id
+      );
+
+      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
+      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
+        throw new GraphQLError('You have not access', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
+
       const { toDos } = todaySchedule;
 
       const updateToDo: IToDo = { content, registeredAt, state: 'toDo' };
@@ -144,6 +181,19 @@ export default {
         });
 
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
+
+      const hasAccessTodaySkd = todaySchedule.author === user.id;
+      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharedTodaySkd = sharingUsers.filter(
+        (follwer) => follwer.userId === user.id
+      );
+
+      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
+      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
+        throw new GraphQLError('You have not access', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
+
       const { toDos } = todaySchedule;
       todaySchedule.toDos = toDos.filter(
         (toDo) => toDo.registeredAt !== registeredAt
@@ -164,6 +214,20 @@ export default {
         });
 
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
+
+      const hasAccessTodaySkd = todaySchedule.author === user.id;
+      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharedTodaySkd = sharingUsers.filter(
+        (follwer) => follwer.userId === user.id
+      );
+
+      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
+      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
+        throw new GraphQLError('You have not access', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
+      sharedTodaySkd;
+
       if (hasFinished) {
         const finishedToDo = todaySchedule.toDos.filter(
           (toDo) => toDo.registeredAt === registeredAt
@@ -250,8 +314,10 @@ export default {
       for (let schedule of finishedSchedules) {
         const docedScheduleTemplate = {
           title: schedule.title,
-          start: schedule.createdAt,
-          end: schedule.createdAt && schedule.createdAt + 1000 * 60 * 60 * 24,
+          start: schedule.createdAt && new Date(schedule.createdAt),
+          end:
+            schedule.createdAt &&
+            new Date(schedule.createdAt + 1000 * 60 * 60 * 24),
           docedToDos: schedule.toDos,
         };
 
@@ -305,7 +371,7 @@ export default {
         (follwer) => follwer.userId === user.id
       );
 
-      const hasSharedTodaySkd = sharedTodaySkd ? true : false;
+      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
       if (!(hasAccessTodaySkd || hasSharedTodaySkd))
         throw new GraphQLError('You have not access', {
           extensions: { code: 'BAD_REQUEST' },

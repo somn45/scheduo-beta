@@ -4,6 +4,7 @@ import { validateJoinForm } from '@/utils/validateForm';
 import { useMutation } from '@apollo/client';
 import React, { useEffect, useState } from 'react';
 import { inputClickEvent } from '@/types/HTMLEvents';
+import { useRouter } from 'next/router';
 
 const USER_EXISTS_ERROR_MSG = 'User already exists';
 const DEFAULT_ERROR_MSG = {
@@ -23,6 +24,7 @@ export default function Join({ showLogin, closeAuth }: ModalEventProps) {
   const [company, setCompany] = useState('');
   const [isDisabledSubmit, setIsDisabledSubmit] = useState(false);
   const [errorMsg, setErrorMsg] = useState(DEFAULT_ERROR_MSG);
+  const router = useRouter();
   const [join] = useMutation(ADD_USER, {
     errorPolicy: 'all',
   });
@@ -70,7 +72,7 @@ export default function Join({ showLogin, closeAuth }: ModalEventProps) {
 
   const handleLogin = async (e: inputClickEvent) => {
     e.preventDefault();
-    const { data, errors } = await join({
+    const { errors } = await join({
       variables: { userId, password, name, email, company },
     });
     if (errors && errors[0].message === USER_EXISTS_ERROR_MSG)
@@ -78,6 +80,9 @@ export default function Join({ showLogin, closeAuth }: ModalEventProps) {
         ...DEFAULT_ERROR_MSG,
         userId: '이미 가입된 계정이 존재합니다',
       });
+    else if (errors) {
+      alert(errors[0].message);
+    }
   };
 
   return (

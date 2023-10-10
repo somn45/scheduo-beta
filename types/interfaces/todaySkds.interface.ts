@@ -1,4 +1,4 @@
-import { IFollowers } from './users.interface';
+import { FollowerSearchItem, IFollowers } from './users.interface';
 
 interface BasicTodayScheduleInfo {
   title: string;
@@ -11,7 +11,7 @@ export interface TodaySchedule extends BasicTodayScheduleInfo {
 }
 
 export interface TodaySkdWithFollowers extends TodaySchedule {
-  sharingUsers?: IFollowers[];
+  sharingUsers?: FollowerSearchItem[];
 }
 
 export interface TodayScheduleWithID extends TodaySkdWithFollowers {
@@ -21,7 +21,7 @@ export interface TodayScheduleWithID extends TodaySkdWithFollowers {
 export interface IToDo {
   content: string;
   registeredAt: number;
-  state: string; // toDo | willDone | done
+  state: 'toDo' | 'willDone' | 'done';
 }
 
 export interface IDocedTodaySkd extends BasicTodayScheduleInfo {

@@ -3,6 +3,7 @@ import { IUser } from '@/types/interfaces/users.interface';
 import { Model, Schema, Document, models, model, Types } from 'mongoose';
 
 interface DBTodaySchedule extends TodaySchedule {
+  createdAt: number;
   sharingUsers: Types.ObjectId[] | IUser[];
 }
 
@@ -24,17 +25,26 @@ interface DBTodaySkdModel extends Model<DBTodaySkdDocument> {
 }
 
 const todaySkdSchema: Schema<DBTodaySkdDocument> = new Schema({
-  title: String,
-  author: String,
+  title: { type: String, required: true, maxlength: 80 },
+  author: { type: String, required: true },
   sharingUsers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   createdAt: Number,
   toDos: [
     {
-      content: String,
-      registeredAt: Number,
-      state: String,
+      content: { type: String, required: true },
+      registeredAt: { type: Number, required: true },
+      state: {
+        type: String,
+        required: true,
+        enum: ['toDo', 'willDone', 'done'],
+      },
     },
   ],
+});
+
+todaySkdSchema.pre('save', async function (next) {
+  if (!this.createdAt) this.createdAt = Date.now();
+  next();
 });
 
 todaySkdSchema.pre('save', async function (next) {

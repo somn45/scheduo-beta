@@ -1,6 +1,7 @@
 import User from '@/models/User';
 import { ContextValue } from './users.mutations';
 import { GraphQLError } from 'graphql';
+import { FollowerSearchItem, IUser } from '@/types/interfaces/users.interface';
 
 export default {
   Query: {
@@ -35,11 +36,27 @@ export default {
           }),
         },
       ]);
-      if (!user)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
-        });
-      const followers = user.followers;
+      const followers = user?.followers;
+      if (!user) {
+        const loggedUser = req.session.user;
+        if (!loggedUser)
+          throw new GraphQLError('User not found', {
+            extensions: { code: 'NOT_FOUND' },
+          });
+        const user = await User.findOne({ userId: loggedUser.id }).populate([
+          {
+            path: 'followers',
+            transform: (doc) => ({
+              userId: doc.userId,
+              name: doc.name,
+              email: doc.email,
+              company: doc.company,
+            }),
+          },
+        ]);
+        const followers = user?.followers;
+        return followers;
+      }
       return followers;
     },
     searchFollowers: async (
