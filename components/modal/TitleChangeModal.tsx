@@ -3,6 +3,8 @@ import { buttonClickEvent, inputClickEvent } from '@/types/HTMLEvents';
 import { UPDATE_TODAY_SKD_TITLE } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { useMutation } from '@apollo/client';
 import { useState } from 'react';
+import ErrorMessageBox from '../messageBox/ErrorMessageBox';
+import AlertBox from '../messageBox/AlertBox';
 
 interface TitleChangeModalProps {
   todaySkdId?: string;
@@ -16,6 +18,8 @@ export default function TitleChangeModal({
   setShowsTitleChangeModel,
 }: TitleChangeModalProps) {
   const [changedTitle, setChangedTitle] = useState(title);
+  const [alertMsg, setAlertMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const [updateTodaySkdTitle] = useMutation(UPDATE_TODAY_SKD_TITLE);
   const dispatch = useAppDispatch();
 
@@ -24,7 +28,14 @@ export default function TitleChangeModal({
     const { data, errors } = await updateTodaySkdTitle({
       variables: { title: changedTitle, _id: todaySkdId ? todaySkdId : '' },
     });
-    if (errors) alert(errors[0].message);
+    if (errors) {
+      if (errors[0].message === '하루 일정을 찾을 수 없습니다.')
+        setAlertMsg('하루 일정을 찾을 수 없습니다.');
+      if (errors[0].message === '게스트는 접근할 수 없는 기능입니다.')
+        setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+      if (errors[0].message === '권한이 없습니다.')
+        setErrorMsg('권한이 없습니다.');
+    }
     if (!data) return;
 
     dispatch(
@@ -62,6 +73,8 @@ export default function TitleChangeModal({
           <input type="submit" value="제목 변경" onClick={handleUpdateTitle} />
         </form>
       </div>
+      {alertMsg && <AlertBox message={alertMsg} setAlertMsg={setAlertMsg} />}
+      {errorMsg && <ErrorMessageBox message={errorMsg} />}
     </article>
   );
 }

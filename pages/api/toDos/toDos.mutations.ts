@@ -76,26 +76,26 @@ export default {
       { _id }: { _id: string },
       { req }: ContextValue
     ) => {
-      const { user } = req.session;
-      if (!user)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError('게스트로 접근할 수 없는 기능입니다.', {
+          extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
       const todaySchedule = await TodaySkd.findByIdTodaySkd(_id);
       if (!todaySchedule)
-        throw new GraphQLError('Schedule not found', {
+        throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
           extensions: { code: 'NOT_FOUND' },
         });
 
-      const hasAccessTodaySkd = todaySchedule.author === user.id;
+      const hasAccessTodaySkd = todaySchedule.author === storedSessionUser.id;
       const sharingUsers = todaySchedule.sharingUsers as IUser[];
       const sharedTodaySkd = sharingUsers.filter(
-        (follwer) => follwer.userId === user.id
+        (follwer) => follwer.userId === storedSessionUser.id
       );
       const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
       if (!(hasAccessTodaySkd || hasSharedTodaySkd))
-        throw new GraphQLError('You have not access', {
-          extensions: { code: 'BAD_REQUEST' },
+        throw new GraphQLError('권한이 없습니다.', {
+          extensions: { code: 'UNAUTHORIZED' },
         });
 
       todaySchedule.deleteOne();
@@ -107,24 +107,24 @@ export default {
       { req }: ContextValue
     ) => {
       const { id, content, registeredAt } = input;
-      const { user } = req.session;
-      if (!user)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError('게스트는 접근할 수 없는 기능입니다.', {
+          extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
 
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
 
-      const hasAccessTodaySkd = todaySchedule.author === user.id;
+      const hasAccessTodaySkd = todaySchedule.author === storedSessionUser.id;
       const sharingUsers = todaySchedule.sharingUsers as IUser[];
       const sharedTodaySkd = sharingUsers.filter(
-        (follwer) => follwer.userId === user.id
+        (follwer) => follwer.userId === storedSessionUser.id
       );
 
       const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
       if (!(hasAccessTodaySkd || hasSharedTodaySkd))
-        throw new GraphQLError('You have not access', {
-          extensions: { code: 'BAD_REQUEST' },
+        throw new GraphQLError('권한이 없습니다.', {
+          extensions: { code: 'UNAUTHORIZED' },
         });
 
       todaySchedule.toDos.push({ content, registeredAt, state: 'toDo' });
@@ -139,8 +139,8 @@ export default {
       const { id, content, registeredAt } = input;
       const { user } = req.session;
       if (!user)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
+        throw new GraphQLError('게스트는 접근할 수 없는 기능입니다.', {
+          extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
 
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
@@ -153,8 +153,8 @@ export default {
 
       const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
       if (!(hasAccessTodaySkd || hasSharedTodaySkd))
-        throw new GraphQLError('You have not access', {
-          extensions: { code: 'BAD_REQUEST' },
+        throw new GraphQLError('권한이 없습니다.', {
+          extensions: { code: 'UNAUTHORIZED' },
         });
 
       const { toDos } = todaySchedule;
@@ -176,8 +176,8 @@ export default {
       const { id, registeredAt } = input;
       const { user } = req.session;
       if (!user)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
+        throw new GraphQLError('게스트는 접근할 수 없는 기능입니다.', {
+          extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
 
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
@@ -190,8 +190,8 @@ export default {
 
       const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
       if (!(hasAccessTodaySkd || hasSharedTodaySkd))
-        throw new GraphQLError('You have not access', {
-          extensions: { code: 'BAD_REQUEST' },
+        throw new GraphQLError('권한이 없습니다.', {
+          extensions: { code: 'UNAUTHORIZED' },
         });
 
       const { toDos } = todaySchedule;
@@ -209,8 +209,8 @@ export default {
       const { hasFinished, id, registeredAt } = input;
       const { user } = req.session;
       if (!user)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
+        throw new GraphQLError('게스트는 접근할 수 없는 기능입니다.', {
+          extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
 
       const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
@@ -223,8 +223,8 @@ export default {
 
       const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
       if (!(hasAccessTodaySkd || hasSharedTodaySkd))
-        throw new GraphQLError('You have not access', {
-          extensions: { code: 'BAD_REQUEST' },
+        throw new GraphQLError('권한이 없습니다.', {
+          extensions: { code: 'UNAUTHORIZED' },
         });
       sharedTodaySkd;
 
@@ -262,7 +262,7 @@ export default {
       if (!user) return;
       const todaySkd = await TodaySkd.findOne({ title });
       if (!todaySkd)
-        throw new GraphQLError('Today skd not found', {
+        throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
           extensions: { code: 'NOT_FOUND' },
         });
       if (todaySkd.toDos.length === 0) return [];
@@ -300,7 +300,7 @@ export default {
         'sharingUsers'
       )) as TodaySkdWithFollowers[];
       if (!todaySchedules)
-        throw new GraphQLError('Today schedule not found', {
+        throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
           extensions: { code: 'NOT_FOUND' },
         });
       const finishedSchedules = todaySchedules.filter(
@@ -355,14 +355,14 @@ export default {
     ) => {
       const { user } = req.session;
       if (!user)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
+        throw new GraphQLError('게스트는 접근할 수 없는 기능입니다.', {
+          extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
       const todaySchedule = await TodaySkd.findById(_id).populate(
         'sharingUsers'
       );
       if (!todaySchedule)
-        throw new GraphQLError('Today schedule not found', {
+        throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
           extensions: { code: 'NOT_FOUND' },
         });
       const hasAccessTodaySkd = todaySchedule.author === user.id;
@@ -373,8 +373,8 @@ export default {
 
       const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
       if (!(hasAccessTodaySkd || hasSharedTodaySkd))
-        throw new GraphQLError('You have not access', {
-          extensions: { code: 'BAD_REQUEST' },
+        throw new GraphQLError('권한이 없습니다.', {
+          extensions: { code: 'UNAUTHORIZED' },
         });
       todaySchedule.title = title;
       await todaySchedule.save();

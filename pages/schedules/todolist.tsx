@@ -1,3 +1,5 @@
+import AlertBox from '@/components/messageBox/AlertBox';
+import ErrorMessageBox from '@/components/messageBox/ErrorMessageBox';
 import CreationTodaySkdModal from '@/components/modal/CreationTodaySkdModal';
 import TitleChangeModal from '@/components/modal/TitleChangeModal';
 import wrapper, {
@@ -21,6 +23,8 @@ import { useSelector } from 'react-redux';
 
 export default function ToDoList() {
   const [title, setTitle] = useState('');
+  const [alertMsg, setAlertMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const [showsCreationTodaySkdModal, setShowsCreationTodaySkdModal] =
     useState(false);
   const [showsTitleChangeModel, setShowsTitleChangeModel] = useState(false);
@@ -36,8 +40,12 @@ export default function ToDoList() {
     if (!_id) return;
     const { errors } = await deleteSchedule({ variables: { _id } });
     if (errors) {
-      alert(errors[0].message);
-      router.push('/');
+      if (errors[0].message === '게스트로 접근할 수 없는 기능입니다.')
+        return setErrorMsg('게스트로 접근할 수 없는 기능입니다.');
+      if (errors[0].message === '권한이 없습니다.')
+        setErrorMsg('권한이 없습니다.');
+      if (errors[0].message === '하루 일정을 찾을 수 없습니다.')
+        setAlertMsg('하루 일정을 찾을 수 없습니다.');
     }
     dispatch(deleteScheduleReducer({ _id }));
   };
@@ -113,6 +121,8 @@ export default function ToDoList() {
           setShowsCreationTodaySkdModal={setShowsCreationTodaySkdModal}
         />
       )}
+      {alertMsg && <AlertBox message={alertMsg} setAlertMsg={setAlertMsg} />}
+      {errorMsg && <ErrorMessageBox message={errorMsg} />}
     </section>
   );
 }

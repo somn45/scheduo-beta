@@ -44,7 +44,7 @@ export default function Header({ showLogin }: ModalEventProps) {
       logoutErrors[0].message === '이미 로그아웃 된 사용자입니다.'
     )
       return setShowsAlertBox(true);
-    window.location.reload();
+    router.reload();
   };
 
   return (

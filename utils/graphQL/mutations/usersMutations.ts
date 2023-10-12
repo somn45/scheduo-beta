@@ -29,16 +29,16 @@ export const CHECK_USER = gql(`
 `);
 
 export const ADD_FOLLOWER = gql(`
-mutation AddFollower($userId: String!) {
-  addFollower(userId: $userId) {
+mutation AddFollower($userId: String!, $profileUserId: String!) {
+  addFollower(userId: $userId, profileUserId: $profileUserId) {
     ...UserListIncludesId
   }
 }
 `);
 
 export const DELETE_FOLLOWER = gql(`
-  mutation DeleteFollower($userId: String!) {
-    deleteFollower(userId: $userId) {
+  mutation DeleteFollower($userId: String!, $profileUserId: String!) {
+    deleteFollower(userId: $userId, profileUserId: $profileUserId) {
       ...UserList
     }
   }

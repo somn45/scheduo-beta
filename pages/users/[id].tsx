@@ -81,7 +81,11 @@ export default function User({ user, myFollowers }: UserProfileProps) {
           <ul>
             {followers &&
               followers.map((follower) => (
-                <Follower key={follower.userId} follower={follower} />
+                <Follower
+                  key={follower.userId}
+                  follower={follower}
+                  profileUserId={user.userId}
+                />
               ))}
           </ul>
         </div>
@@ -90,6 +94,7 @@ export default function User({ user, myFollowers }: UserProfileProps) {
         <FollowerPreview
           setShowesFollowModal={setShowesFollowModal}
           followers={followers}
+          profileUserId={user.userId}
         />
       )}
     </section>
@@ -113,28 +118,38 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }: { params: { id: string } }) {
-  const getUserData = await request(
-    'http://localhost:3000/api/graphql',
-    GET_USER_BY_Id,
-    { id: params.id }
-  );
-  const userId = getUserData.getUserById?.userId;
-  if (userId) {
-    const allFollowersData = await request(
+  try {
+    const getUserData = await request(
       'http://localhost:3000/api/graphql',
-      ALL_FOLLOWERS,
-      { userId }
+      GET_USER_BY_Id,
+      { id: params.id }
     );
+    const userId = getUserData.getUserById?.userId;
+
+    if (userId) {
+      const allFollowersData = await request(
+        'http://localhost:3000/api/graphql',
+        ALL_FOLLOWERS,
+        { userId }
+      );
+      return {
+        props: {
+          user: getUserData.getUserById,
+          myFollowers: allFollowersData.allFollowers,
+        },
+      };
+    }
     return {
       props: {
         user: getUserData.getUserById,
-        myFollowers: allFollowersData.allFollowers,
+      },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      redirect: {
+        destination: '/',
       },
     };
   }
-  return {
-    props: {
-      user: getUserData.getUserById,
-    },
-  };
 }

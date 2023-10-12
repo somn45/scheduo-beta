@@ -17,7 +17,8 @@ import {
 import { useMutation } from '@apollo/client';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import AlertBoxNonLogged from './messageBox/AlertBoxIfNonLogged';
+import AlertBoxNonLogged from './messageBox/ErrorMessageBox';
+import ErrorMessageBox from './messageBox/ErrorMessageBox';
 
 export default function ToDo({
   content,
@@ -26,6 +27,7 @@ export default function ToDo({
   id,
 }: ITodoWithId) {
   const [text, setText] = useState(content);
+  const [errorMsg, setErrorMsg] = useState('');
   const [checked, setChecked] = useState(state === 'willDone' ? true : false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showsAlertBox, setShowsAlertBox] = useState(false);
@@ -45,9 +47,12 @@ export default function ToDo({
     const { data: updateToDoQuery, errors } = await updateToDo({
       variables: { id, content: text, registeredAt },
     });
-    if (errors && errors[0].message === 'User not found')
-      setShowsAlertBox(true);
-    else if (errors && errors[0].message) alert(errors[0].message);
+    if (errors) {
+      if (errors[0].message === '게스트는 접근할 수 없는 기능입니다.')
+        return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+      if (errors[0].message === '권한이 없습니다.')
+        setErrorMsg('권한이 없습니다.');
+    }
     if (!updateToDoQuery) return;
     dispatch(
       updateToDoReducer({ ...updateToDoQuery.updateToDo, state: 'toDo' })
@@ -61,10 +66,11 @@ export default function ToDo({
       await deleteToDo({
         variables: { id, registeredAt },
       });
-    if (deleteToDoErrors && deleteToDoErrors[0].message === 'User not found')
-      setShowsAlertBox(true);
-    else if (deleteToDoErrors && deleteToDoErrors[0].message) {
-      alert(deleteToDoErrors[0].message);
+    if (deleteToDoErrors) {
+      if (deleteToDoErrors[0].message === '게스트는 접근할 수 없는 기능입니다.')
+        return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+      if (deleteToDoErrors[0].message === '권한이 없습니다.')
+        setErrorMsg('권한이 없습니다.');
     }
     if (!deleteToDoQuery) return;
     dispatch(deleteToDoReducer(deleteToDoQuery.deleteToDo));
@@ -76,13 +82,15 @@ export default function ToDo({
         await updateToDoState({
           variables: { hasFinished: true, id, registeredAt },
         });
-      if (
-        updateToDoStateErrors &&
-        updateToDoStateErrors[0].message === 'User not found'
-      )
-        return setShowsAlertBox(true);
-      else if (updateToDoStateErrors && updateToDoStateErrors[0].message)
-        alert(updateToDoStateErrors[0].message);
+      if (updateToDoStateErrors) {
+        if (
+          updateToDoStateErrors[0].message ===
+          '게스트는 접근할 수 없는 기능입니다.'
+        )
+          return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+        if (updateToDoStateErrors[0].message === '권한이 없습니다.')
+          setErrorMsg('권한이 없습니다.');
+      }
       if (!updateToDoStateQuery) return;
       setChecked(true);
       dispatch(updateToDoStateReducer(updateToDoStateQuery.updateToDoState));
@@ -167,7 +175,7 @@ export default function ToDo({
           </div>
         </>
       )}
-      {showsAlertBox && <AlertBoxNonLogged />}
+      {errorMsg && <ErrorMessageBox message={errorMsg} />}
     </li>
   );
 }

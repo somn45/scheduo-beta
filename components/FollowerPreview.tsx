@@ -12,23 +12,26 @@ import {
 } from '@/utils/graphQL/querys/userQuerys';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { Dispatch, SetStateAction, useState } from 'react';
-import AlertBoxNonLogged from './messageBox/AlertBoxIfNonLogged';
+import ErrorMessageBox from './messageBox/ErrorMessageBox';
+import AlertBox from './messageBox/AlertBox';
 
 interface FollowerPreviewProps {
   setShowesFollowModal: Dispatch<SetStateAction<boolean>>;
   followers: FollowerSearchItem[];
+  profileUserId: string;
 }
 
 export default function FollowerPreview({
   setShowesFollowModal,
   followers,
+  profileUserId,
 }: FollowerPreviewProps) {
   const [text, setText] = useState('');
+  const [alertMsg, setAlertMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [searchItems, setSearchItems] = useState<
     IFollowerPreview[] | undefined
   >(undefined);
-  const [showsAlertBox, setShowsAlertBox] = useState(false);
   const dispatch = useAppDispatch();
   const [searchFollowers] = useLazyQuery(SEARCH_FOLLOWERS);
   const [searchFollowersById] = useLazyQuery(SEARCH_FOLLOWERS_BY_ID);
@@ -47,7 +50,9 @@ export default function FollowerPreview({
         name: user.name,
       }));
     } else {
-      const { data } = await searchFollowersById({ variables: { id: text } });
+      const { data } = await searchFollowersById({
+        variables: { id: text },
+      });
       if (!data) return;
       searchFollowersResult = [data.searchFollowersById];
     }
@@ -62,13 +67,17 @@ export default function FollowerPreview({
 
   const handleAddFollower = async (e: buttonClickEvent, userId: string) => {
     e.preventDefault();
-    const { data, errors } = await addFollower({ variables: { userId } });
-    if (errors && errors[0].message === 'User not found')
-      return setShowsAlertBox(true);
-    if (errors && errors[0].message === 'You cannot follow yourself')
-      setErrorMsg('팔로워 대상이 로그인 된 계정입니다.');
-    if (errors && errors[0].message === 'Already followed')
-      setErrorMsg('이미 팔로우된 사용자입니다.');
+    const { data, errors } = await addFollower({
+      variables: { userId, profileUserId },
+    });
+    if (errors && errors[0].message === '게스트로 접근할 수 없는 기능입니다.')
+      return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+    if (errors && errors[0].message === '권한이 없습니다.')
+      return setErrorMsg('권한이 없습니다.');
+    if (errors && errors[0].message === '팔로워 대상이 로그인 된 계정입니다.')
+      setAlertMsg('팔로워 대상이 로그인 된 계정입니다.');
+    if (errors && errors[0].message === '이미 팔로우된 사용자입니다.')
+      setAlertMsg('이미 팔로우된 사용자입니다.');
     if (!data) return;
     const { userId: followerId, name, email, company } = data.addFollower;
     dispatch(
@@ -117,7 +126,7 @@ flex flex-col items-center relavite"
             className="font-semibold absolute right-3 top-1 cursor-pointer"
           />
         </form>
-        <span>{errorMsg}</span>
+        <span>{alertMsg}</span>
         <ul className="w-full">
           {searchItems &&
             searchItems.map((user) => (
@@ -148,7 +157,8 @@ flex flex-col items-center relavite"
             ))}
         </ul>
       </div>
-      {showsAlertBox && <AlertBoxNonLogged />}
+      {alertMsg && <AlertBox message={alertMsg} setAlertMsg={setAlertMsg} />}
+      {errorMsg && <ErrorMessageBox message={errorMsg} />}
     </article>
   );
 }

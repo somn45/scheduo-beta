@@ -59,19 +59,11 @@ export default {
       }
       return followers;
     },
-    searchFollowers: async (
-      _: unknown,
-      { name }: { name: string },
-      { req }: ContextValue
-    ) => {
+    searchFollowers: async (_: unknown, { name }: { name: string }) => {
       const users = await User.find({ name });
       return users;
     },
-    searchFollowersById: async (
-      _: unknown,
-      { id }: { id: string },
-      { req }: ContextValue
-    ) => {
+    searchFollowersById: async (_: unknown, { id }: { id: string }) => {
       const users = await User.findUserById(id);
       return users;
     },

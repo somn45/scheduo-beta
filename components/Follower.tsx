@@ -1,14 +1,20 @@
 import { gql } from '@/generates/type';
 import { deleteFollowerReducer, useAppDispatch } from '@/lib/store/store';
 import { buttonClickEvent } from '@/types/HTMLEvents';
-import { IFollowers, publicUserInfo } from '@/types/interfaces/users.interface';
+import { IFollowers } from '@/types/interfaces/users.interface';
 import { DELETE_FOLLOWER } from '@/utils/graphQL/mutations/usersMutations';
 import { useMutation } from '@apollo/client';
 import React, { useState } from 'react';
-import AlertBoxNonLogged from './messageBox/AlertBoxIfNonLogged';
+import ErrorMessageBox from './messageBox/ErrorMessageBox';
 
-export default function Follower({ follower }: { follower: IFollowers }) {
-  const [showsAlertBox, setShowsAlertBox] = useState(false);
+export default function Follower({
+  follower,
+  profileUserId,
+}: {
+  follower: IFollowers;
+  profileUserId: string;
+}) {
+  const [errorMsg, setErrorMsg] = useState('');
   const [deleteFollower] = useMutation(DELETE_FOLLOWER, {
     errorPolicy: 'all',
   });
@@ -17,10 +23,12 @@ export default function Follower({ follower }: { follower: IFollowers }) {
   const handleDeleteFollower = async (e: buttonClickEvent) => {
     e.preventDefault();
     const { data, errors } = await deleteFollower({
-      variables: { userId: follower.userId },
+      variables: { userId: follower.userId, profileUserId },
     });
-    if (errors && errors[0].message === 'User not found')
-      return setShowsAlertBox(true);
+    if (errors && errors[0].message === '게스트로 접근할 수 없는 기능입니다.')
+      return setErrorMsg('게스트로 접근할 수 없는 기능입니다.');
+    else if (errors && errors[0].message === '권한이 없습니다.')
+      return setErrorMsg('권한이 없습니다.');
     dispatch(deleteFollowerReducer(follower));
   };
 
@@ -35,7 +43,7 @@ export default function Follower({ follower }: { follower: IFollowers }) {
           해제
         </button>
       </li>
-      {showsAlertBox && <AlertBoxNonLogged />}
+      {errorMsg && <ErrorMessageBox message={errorMsg} />}
     </>
   );
 }

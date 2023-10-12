@@ -28,8 +28,8 @@ export default gql`
     ): User
     checkUser(userId: String!, password: String!): User
     logout: User!
-    addFollower(userId: String!): User!
-    deleteFollower(userId: String!): User!
+    addFollower(userId: String!, profileUserId: String!): User!
+    deleteFollower(userId: String!, profileUserId: String!): User!
   }
 `;
 

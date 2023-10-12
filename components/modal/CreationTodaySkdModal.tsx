@@ -10,7 +10,7 @@ import { useState } from 'react';
 import FollowerToShare from '../FollowerToShare';
 import { IFollowers } from '@/types/interfaces/users.interface';
 import { useRouter } from 'next/router';
-import AlertBoxNonLogged from '../messageBox/AlertBoxIfNonLogged';
+import AlertBoxNonLogged from '../messageBox/ErrorMessageBox';
 
 interface CreationTodaySkdModalProps {
   setShowsCreationTodaySkdModal: React.Dispatch<React.SetStateAction<boolean>>;

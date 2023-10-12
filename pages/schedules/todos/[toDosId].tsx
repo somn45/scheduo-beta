@@ -1,6 +1,7 @@
 import FinishToDos from '@/components/FinishedToDo';
 import ToDo from '@/components/ToDo';
-import AlertBoxNonLogged from '@/components/messageBox/AlertBoxIfNonLogged';
+import ErrorMessageBox from '@/components/messageBox/ErrorMessageBox';
+import AlertBoxNonLogged from '@/components/messageBox/ErrorMessageBox';
 import wrapper, {
   RootState,
   addToDoReducer,
@@ -25,8 +26,8 @@ import { useSelector } from 'react-redux';
 
 export default function ToDos({ title, author }: TodaySchedule) {
   const [text, setText] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const [checkedList, setCheckedList] = useState<IToDo[]>([]);
-  const [showsAlertBox, setShowsAlertBox] = useState(false);
   const [addToDo] = useMutation(ADD_TODO, {
     errorPolicy: 'all',
   });
@@ -50,8 +51,12 @@ export default function ToDos({ title, author }: TodaySchedule) {
     const { data: addToDoQuery, errors } = await addToDo({
       variables: { id: toDosId, content: text, registeredAt: regitDate },
     });
-    if (errors && errors[0].message === 'User not found')
-      return setShowsAlertBox(true);
+    if (errors) {
+      if (errors[0].message === '게스트는 접근할 수 없는 기능입니다.')
+        return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+      if (errors[0].message === '권한이 없습니다.')
+        return setErrorMsg('권한이 없습니다.');
+    }
     if (!addToDoQuery) return;
     dispatch(addToDoReducer(addToDoQuery.addToDo));
     setText('');
@@ -122,7 +127,7 @@ export default function ToDos({ title, author }: TodaySchedule) {
               <FinishToDos key={toDo.content} {...toDo} />
             ))}
         </ul>
-        {showsAlertBox && <AlertBoxNonLogged />}
+        {errorMsg && <ErrorMessageBox message={errorMsg} />}
       </article>
     </section>
   );

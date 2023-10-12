@@ -94,16 +94,20 @@ export default {
     },
     addFollower: async (
       _: unknown,
-      { userId }: { userId: string },
+      { userId, profileUserId }: { userId: string; profileUserId: string },
       { req }: ContextValue
     ) => {
       const loggedUserId = req.session.user?.id;
       if (!loggedUserId)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
+        throw new GraphQLError('게스트로 접근할 수 없는 기능입니다.', {
+          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+        });
+      if (profileUserId !== loggedUserId)
+        throw new GraphQLError('권한이 없습니다.', {
+          extensions: { code: 'UNAUTHORIZED' },
         });
       if (userId === loggedUserId)
-        throw new GraphQLError('You cannot follow yourself', {
+        throw new GraphQLError('팔로워 대상이 로그인 된 계정입니다.', {
           extensions: { code: 'BAD_REQUEST' },
         });
       const loggedUser = await (
@@ -116,7 +120,7 @@ export default {
 
       const followerUserIds = followList.map((follower) => follower.userId);
       if (followerUserIds.includes(userId))
-        throw new GraphQLError('Already followed', {
+        throw new GraphQLError('이미 팔로우된 사용자입니다.', {
           extensions: { code: 'BAD_REQUEST' },
         });
       loggedUser.followers = [...followList, newFollower];
@@ -125,23 +129,35 @@ export default {
     },
     deleteFollower: async (
       _: unknown,
-      { userId: followerId }: Pick<BasicUserField, 'userId'>,
+      {
+        userId: followerId,
+        profileUserId,
+      }: { userId: string; profileUserId: string },
       { req }: ContextValue
     ) => {
-      const loggedUser = req.session.user;
-      if (!loggedUser)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError('게스트로 접근할 수 없는 기능입니다.', {
+          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+        });
+      const loggedUser = await User.findUser(storedSessionUser.id);
+      if (profileUserId !== loggedUser._id)
+        throw new GraphQLError('권한이 없습니다.', {
+          extensions: { code: 'UNAUTHORIZED' },
         });
 
-      const user = await User.findUser(loggedUser.id);
+      const user = await User.findUser(storedSessionUser.id);
+      if (!user)
+        throw new GraphQLError('로그인 중인 계정을 찾을 수 없습니다.', {
+          extensions: { code: 'USER_NOT_FOUND' },
+        });
       const follower = await User.findUser(followerId);
-      const followerIds = user?.getFollowerIds();
+      const followerIds = user.getFollowerIds();
       const followedList: ObjectId[] = followerIds.filter((id) => {
         return id.toString() !== follower._id.toString() ? id : null;
       });
       await User.findOneAndUpdate(
-        { userId: loggedUser.id },
+        { userId: storedSessionUser.id },
         { followers: followedList }
       );
       return follower;
