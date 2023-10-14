@@ -2,17 +2,20 @@ import { GraphQLError } from 'graphql';
 import { ContextValue } from '../users/users.mutations';
 import TodaySkd from '@/models/TodaySkd';
 import DocedTodaySkd from '@/models/DocedTodaySkd';
+import { IUser } from '@/types/interfaces/users.interface';
 
 export default {
   Query: {
     allSchedules: async () => {
-      const todaySchedule = await TodaySkd.find().populate('sharingUsers');
+      const todaySchedule = await TodaySkd.find().populate<{
+        sharingUsers: IUser[];
+      }>('sharingUsers');
       return todaySchedule;
     },
     getSchedule: async (_: unknown, { id }: { id: string }) => {
-      const todaySchedule = (await TodaySkd.findByIdTodaySkd(id)).populate(
-        'sharingUsers'
-      );
+      const todaySchedule = (await TodaySkd.findByIdTodaySkd(id)).populate<{
+        sharingUsers: IUser[];
+      }>('sharingUsers');
       return todaySchedule;
     },
     allToDos: async (_: unknown, __: unknown, { cookies }: ContextValue) => {

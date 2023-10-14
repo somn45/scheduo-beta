@@ -1,9 +1,5 @@
 import request from 'graphql-request';
-import {
-  FollowerSearchItem,
-  IFollowers,
-  IUser,
-} from '@/types/interfaces/users.interface';
+import { IFollower, IUser } from '@/types/interfaces/users.interface';
 import {
   ALL_FOLLOWERS,
   GET_USERS,
@@ -24,7 +20,7 @@ import FollowerPreview from '@/components/FollowerPreview';
 
 interface UserProfileProps {
   user: IUser;
-  myFollowers: IFollowers[];
+  myFollowers: IFollower[];
 }
 
 export default function User({ user, myFollowers }: UserProfileProps) {

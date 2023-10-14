@@ -1,7 +1,7 @@
 import { gql } from '@/generates/type';
 import { deleteFollowerReducer, useAppDispatch } from '@/lib/store/store';
 import { buttonClickEvent } from '@/types/HTMLEvents';
-import { IFollowers } from '@/types/interfaces/users.interface';
+import { IFollower } from '@/types/interfaces/users.interface';
 import { DELETE_FOLLOWER } from '@/utils/graphQL/mutations/usersMutations';
 import { useMutation } from '@apollo/client';
 import React, { useState } from 'react';
@@ -11,7 +11,7 @@ export default function Follower({
   follower,
   profileUserId,
 }: {
-  follower: IFollowers;
+  follower: IFollower;
   profileUserId: string;
 }) {
   const [errorMsg, setErrorMsg] = useState('');

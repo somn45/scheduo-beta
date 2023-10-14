@@ -61,7 +61,6 @@ export default {
         title,
         author,
         sharingUsers,
-        createdAt: Date.now(),
       });
       return {
         _id: newTodaySkd._id,
@@ -81,19 +80,24 @@ export default {
         throw new GraphQLError('게스트로 접근할 수 없는 기능입니다.', {
           extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
-      const todaySchedule = await TodaySkd.findByIdTodaySkd(_id);
+
+      const todaySchedule = await (
+        await TodaySkd.findByIdTodaySkd(_id)
+      ).populate<{ sharingUsers: IUser[] }>('sharingUsers');
       if (!todaySchedule)
         throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
           extensions: { code: 'NOT_FOUND' },
         });
 
+      // 하루 일정의 작성자가 로그인된 본인인지 확인하는 boolean 변수
       const hasAccessTodaySkd = todaySchedule.author === storedSessionUser.id;
-      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharingUsers = todaySchedule.sharingUsers;
       const sharedTodaySkd = sharingUsers.filter(
         (follwer) => follwer.userId === storedSessionUser.id
       );
-      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
-      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
+
+      // 위의 조건과 더블어 로그인된 본인이 하루 일정을 공유하고 있는 사용자인지 확인
+      if (!(hasAccessTodaySkd || sharedTodaySkd.length !== 0))
         throw new GraphQLError('권한이 없습니다.', {
           extensions: { code: 'UNAUTHORIZED' },
         });
@@ -113,10 +117,12 @@ export default {
           extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
 
-      const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
+      const todaySchedule = await (
+        await TodaySkd.findByIdTodaySkd(id)
+      ).populate<{ sharingUsers: IUser[] }>('sharingUsers');
 
       const hasAccessTodaySkd = todaySchedule.author === storedSessionUser.id;
-      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharingUsers = todaySchedule.sharingUsers;
       const sharedTodaySkd = sharingUsers.filter(
         (follwer) => follwer.userId === storedSessionUser.id
       );
@@ -143,10 +149,12 @@ export default {
           extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
 
-      const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
+      const todaySchedule = await (
+        await TodaySkd.findByIdTodaySkd(id)
+      ).populate<{ sharingUsers: IUser[] }>('sharingUsers');
 
       const hasAccessTodaySkd = todaySchedule.author === user.id;
-      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharingUsers = todaySchedule.sharingUsers;
       const sharedTodaySkd = sharingUsers.filter(
         (follwer) => follwer.userId === user.id
       );
@@ -180,10 +188,14 @@ export default {
           extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
 
-      const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
+      const todaySchedule = await (
+        await TodaySkd.findByIdTodaySkd(id)
+      ).populate<{
+        sharingUsers: IUser[];
+      }>('sharingUsers');
 
       const hasAccessTodaySkd = todaySchedule.author === user.id;
-      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharingUsers = todaySchedule.sharingUsers;
       const sharedTodaySkd = sharingUsers.filter(
         (follwer) => follwer.userId === user.id
       );
@@ -213,10 +225,14 @@ export default {
           extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
 
-      const todaySchedule = await TodaySkd.findByIdTodaySkd(id);
+      const todaySchedule = await (
+        await TodaySkd.findByIdTodaySkd(id)
+      ).populate<{
+        sharingUsers: IUser[];
+      }>('sharingUsers');
 
       const hasAccessTodaySkd = todaySchedule.author === user.id;
-      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharingUsers = todaySchedule.sharingUsers;
       const sharedTodaySkd = sharingUsers.filter(
         (follwer) => follwer.userId === user.id
       );
@@ -296,22 +312,24 @@ export default {
       const { user } = req.session;
       if (!user) return null;
 
-      const todaySchedules = (await TodaySkd.find({ author: user.id }).populate(
-        'sharingUsers'
-      )) as TodaySkdWithFollowers[];
+      const todaySchedules = await TodaySkd.find()
+        .populate<{ sharingUsers: IUser[] }>('sharingUsers')
+        .where('author')
+        .equals(user.id)
+        .and([
+          { todos: { $ne: { $size: 0 } } },
+          { toDos: { $elemMatch: { state: 'done' } } },
+        ])
+        .exec();
+
       if (!todaySchedules)
         throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
           extensions: { code: 'NOT_FOUND' },
         });
-      const finishedSchedules = todaySchedules.filter(
-        (todaySkd) =>
-          todaySkd.toDos.length !== 0 &&
-          todaySkd.toDos.every((toDo) => toDo.state === 'done')
-      );
 
       let outputDocedSchedule = [];
 
-      for (let schedule of finishedSchedules) {
+      for (let schedule of todaySchedules) {
         const docedScheduleTemplate = {
           title: schedule.title,
           start: schedule.createdAt && new Date(schedule.createdAt),
@@ -342,7 +360,7 @@ export default {
         }
       }
 
-      finishedSchedules.map(
+      todaySchedules.map(
         async (finishedTodaySkd) =>
           await TodaySkd.deleteOne({ title: finishedTodaySkd.title })
       );
@@ -358,15 +376,19 @@ export default {
         throw new GraphQLError('게스트는 접근할 수 없는 기능입니다.', {
           extensions: { code: 'GUEST_UNAUTHENTICATED' },
         });
-      const todaySchedule = await TodaySkd.findById(_id).populate(
-        'sharingUsers'
-      );
+
+      const todaySchedule = await (
+        await TodaySkd.findByIdTodaySkd(_id)
+      ).populate<{
+        sharingUsers: IUser[];
+      }>('sharingUsers');
+
       if (!todaySchedule)
         throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
           extensions: { code: 'NOT_FOUND' },
         });
       const hasAccessTodaySkd = todaySchedule.author === user.id;
-      const sharingUsers = todaySchedule.sharingUsers as IUser[];
+      const sharingUsers = todaySchedule.sharingUsers;
       const sharedTodaySkd = sharingUsers.filter(
         (follwer) => follwer.userId === user.id
       );

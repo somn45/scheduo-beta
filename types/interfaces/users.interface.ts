@@ -35,3 +35,10 @@ export interface IFollowers {
   email: string;
   company: string;
 }
+
+export interface IFollower {
+  userId: string;
+  name: string;
+  email?: string;
+  company?: string;
+}

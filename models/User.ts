@@ -1,17 +1,29 @@
-import { Document, Model, ObjectId, Schema, models } from 'mongoose';
+import {
+  Document,
+  Model,
+  Types,
+  Schema,
+  models,
+  QueryWithHelpers,
+  HydratedDocument,
+} from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import db from '@/pages/api/db';
-import { IUser, IUserWithoutID } from '@/types/interfaces/users.interface';
+import {
+  IFollower,
+  IUser,
+  IUserWithoutID,
+} from '@/types/interfaces/users.interface';
 
 export interface DBUser extends Omit<IUserWithoutID, 'followers'> {
-  followers: ObjectId[] | IUser[];
+  followers: Types.ObjectId[];
 }
 
 interface DBUserDocument extends DBUser, Document {
   getEmail: () => string;
-  getFollowerList: () => IUser[];
-  getFollowerIds: () => ObjectId[];
+  getFollowerList: () => IFollower[];
+  getFollowerIds: () => Types.ObjectId[];
   checkPassword: (password: string) => boolean;
 }
 
@@ -67,7 +79,9 @@ const userSchema: Schema<DBUserDocument> = new Schema(
     expiredAt: Date,
     followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 userSchema.pre('save', async function (next) {

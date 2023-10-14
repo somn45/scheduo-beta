@@ -1,10 +1,9 @@
 import { TodaySchedule } from '@/types/interfaces/todaySkds.interface';
-import { IUser } from '@/types/interfaces/users.interface';
 import { Model, Schema, Document, models, model, Types } from 'mongoose';
 
 interface DBTodaySchedule extends TodaySchedule {
   createdAt: number;
-  sharingUsers: Types.ObjectId[] | IUser[];
+  sharingUsers: Types.ObjectId[];
 }
 
 interface DBTodaySkdDocument extends DBTodaySchedule, Document {}

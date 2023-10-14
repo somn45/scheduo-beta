@@ -6,7 +6,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { ObjectId } from 'mongoose';
 import {
   BasicUserField,
-  IFollowers,
+  IFollower,
   IUser,
 } from '@/types/interfaces/users.interface';
 
@@ -112,9 +112,9 @@ export default {
         });
       const loggedUser = await (
         await User.findUser(loggedUserId)
-      ).populate('followers');
+      ).populate<{ followers: IFollower[] }>('followers');
 
-      const newFollower = (await User.findUser(userId)) as IUser;
+      const newFollower = await User.findUser(userId);
       if (!newFollower) return {};
       const followList = loggedUser.getFollowerList();
 
@@ -123,7 +123,7 @@ export default {
         throw new GraphQLError('이미 팔로우된 사용자입니다.', {
           extensions: { code: 'BAD_REQUEST' },
         });
-      loggedUser.followers = [...followList, newFollower];
+      loggedUser.followers.push(newFollower);
       await loggedUser.save();
       return newFollower;
     },
@@ -153,7 +153,7 @@ export default {
         });
       const follower = await User.findUser(followerId);
       const followerIds = user.getFollowerIds();
-      const followedList: ObjectId[] = followerIds.filter((id) => {
+      const followedList = followerIds.filter((id) => {
         return id.toString() !== follower._id.toString() ? id : null;
       });
       await User.findOneAndUpdate(
