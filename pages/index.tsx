@@ -32,7 +32,8 @@ export default function Home() {
   useEffect(() => {
     handleDocedToDos();
     const handleGetDocedTodaySkds = async () => {
-      const { data: docedTodaySkdsQuery } = await getDocedTodaySkds();
+      const { data: docedTodaySkdsQuery, error } = await getDocedTodaySkds();
+      console.log(error);
       if (docedTodaySkdsQuery && docedTodaySkdsQuery.allDocedTodaySkds) {
         const calendarEvents = docedTodaySkdsQuery.allDocedTodaySkds.map(
           (todaySkd) => ({

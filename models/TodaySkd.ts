@@ -1,4 +1,5 @@
 import { TodaySchedule } from '@/types/interfaces/todaySkds.interface';
+import { HydratedDocument, QueryWithHelpers } from 'mongoose';
 import { Model, Schema, Document, models, model, Types } from 'mongoose';
 
 interface DBTodaySchedule extends TodaySchedule {
@@ -8,11 +9,23 @@ interface DBTodaySchedule extends TodaySchedule {
 
 interface DBTodaySkdDocument extends DBTodaySchedule, Document {}
 
-interface DBTodaySkdModel extends Model<DBTodaySkdDocument> {
+interface TodaySkdQueryHelpers {
+  allStateDone(): QueryWithHelpers<
+    HydratedDocument<DBTodaySchedule>[],
+    HydratedDocument<DBTodaySchedule>,
+    TodaySkdQueryHelpers
+  >;
+}
+
+interface DBTodaySkdModel
+  extends Model<DBTodaySchedule, TodaySkdQueryHelpers, {}> {
   findTodaySkd: (author: string) => Promise<DBTodaySkdDocument>;
   findOneTodaySkd: (author: string) => Promise<DBTodaySkdDocument>;
   findByIdTodaySkd: (id: string) => Promise<DBTodaySkdDocument>;
-  findAllToDos: () => Promise<DBTodaySkdDocument>;
+  findFinishTodaySkd: (
+    author: string,
+    id: string
+  ) => Promise<DBTodaySkdDocument>;
   findToDo: (
     registrant: string,
     registeredAt: number
@@ -23,7 +36,12 @@ interface DBTodaySkdModel extends Model<DBTodaySkdDocument> {
   ) => Promise<DBTodaySkdDocument>;
 }
 
-const todaySkdSchema: Schema<DBTodaySkdDocument> = new Schema({
+const todaySkdSchema: Schema<
+  DBTodaySchedule,
+  DBTodaySkdModel,
+  {},
+  TodaySkdQueryHelpers
+> = new Schema({
   title: { type: String, required: true, maxlength: 80 },
   author: { type: String, required: true },
   sharingUsers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
@@ -68,10 +86,6 @@ todaySkdSchema.statics.findByIdTodaySkd = async function (id: string) {
   return await this.findById(id);
 };
 
-todaySkdSchema.statics.findAllToDos = async function () {
-  return await this.find();
-};
-
 todaySkdSchema.statics.findToDo = async function (author, registeredAt) {
   return await this.findOne({ author, registeredAt });
 };
@@ -82,6 +96,6 @@ todaySkdSchema.statics.deleteToDo = async function (author, registeredAt) {
 
 const TodaySkd =
   (models.TodaySkd as DBTodaySkdModel) ||
-  model<DBTodaySkdDocument, DBTodaySkdModel>('TodaySkd', todaySkdSchema);
+  model<DBTodaySchedule, DBTodaySkdModel>('TodaySkd', todaySkdSchema);
 
 export default TodaySkd;

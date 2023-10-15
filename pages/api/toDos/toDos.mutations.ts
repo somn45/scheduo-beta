@@ -311,25 +311,27 @@ export default {
     documentedToDos: async (_: unknown, __: unknown, { req }: ContextValue) => {
       const { user } = req.session;
       if (!user) return null;
+      const loggedUser = await User.findUser(user.id);
 
       const todaySchedules = await TodaySkd.find()
-        .populate<{ sharingUsers: IUser[] }>('sharingUsers')
-        .where('author')
-        .equals(user.id)
-        .and([
-          { todos: { $ne: { $size: 0 } } },
-          { toDos: { $elemMatch: { state: 'done' } } },
+        .or([
+          { author: loggedUser.userId },
+          { sharingUsers: { $in: [loggedUser._id] } },
         ])
-        .exec();
+        .populate<{ sharingUsers: IUser[] }>('sharingUsers');
 
-      if (!todaySchedules)
+      const finishedTodaySkd = todaySchedules.filter((todaySkd) =>
+        todaySkd.toDos.every((toDo) => toDo.state === 'done')
+      );
+
+      if (!finishedTodaySkd)
         throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
           extensions: { code: 'NOT_FOUND' },
         });
 
       let outputDocedSchedule = [];
 
-      for (let schedule of todaySchedules) {
+      for (let schedule of finishedTodaySkd) {
         const docedScheduleTemplate = {
           title: schedule.title,
           start: schedule.createdAt && new Date(schedule.createdAt),
@@ -360,7 +362,7 @@ export default {
         }
       }
 
-      todaySchedules.map(
+      finishedTodaySkd.map(
         async (finishedTodaySkd) =>
           await TodaySkd.deleteOne({ title: finishedTodaySkd.title })
       );
