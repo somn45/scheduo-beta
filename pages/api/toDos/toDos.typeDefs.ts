@@ -40,7 +40,6 @@ export default gql`
   type Query {
     allSchedules: [TodaySkd!]!
     getSchedule(id: String!): TodaySkd!
-    allToDos: [ToDo]!
     allDocedTodaySkds: [DocedTodaySkd!]
   }
   type Mutation {
@@ -54,7 +53,7 @@ export default gql`
     addToDo(input: AddToDoAndUpdateToDoInput): ToDo!
     updateToDo(input: AddToDoAndUpdateToDoInput): ToDo!
     deleteToDo(input: DeleteToDoInput): [ToDo!]!
-    updateToDoState(input: UpdateToDoStateInput): ToDo!
+    updateToDoState(input: UpdateToDoStateInput): [ToDo!]!
     finishToDos(title: String!): [ToDo!]
     documentedToDos: [DocedTodaySkd!]
   }

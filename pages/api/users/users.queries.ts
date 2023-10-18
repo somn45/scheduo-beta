@@ -2,6 +2,10 @@ import User from '@/models/User';
 import { ContextValue } from './users.mutations';
 import { GraphQLError } from 'graphql';
 import { IFollower } from '@/types/interfaces/users.interface';
+import {
+  GUEST_UNAUTHENTICATED_ERROR,
+  USER_NOT_FOUND_ERROR,
+} from '@/constants/apolloErrorMessages';
 
 export default {
   Query: {
@@ -25,6 +29,12 @@ export default {
       { userId }: { userId: string },
       { req }: ContextValue
     ) => {
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
+        });
+
       const user = await User.findOne({ userId }).populate<{
         followers: IFollower[];
       }>([
@@ -40,12 +50,9 @@ export default {
       ]);
       const followers = user?.followers;
       if (!user) {
-        const loggedUser = req.session.user;
-        if (!loggedUser)
-          throw new GraphQLError('게스트로 접근할 수 없는 기능입니다.', {
-            extensions: { code: 'GUEST_UNAUTHENTICATED' },
-          });
-        const user = await User.findOne({ userId: loggedUser.id }).populate<{
+        const user = await User.findOne({
+          userId: storedSessionUser.id,
+        }).populate<{
           followers: IFollower[];
         }>([
           {
@@ -59,8 +66,8 @@ export default {
           },
         ]);
         if (!user)
-          throw new GraphQLError('계정을 찾을 수 없습니다.', {
-            extensions: { code: 'NOT_FOUND' },
+          throw new GraphQLError(USER_NOT_FOUND_ERROR.message, {
+            extensions: { code: USER_NOT_FOUND_ERROR.code },
           });
         const followers = user.followers;
         return followers;
@@ -74,8 +81,8 @@ export default {
     ) => {
       const storedSessionUser = req.session.user;
       if (!storedSessionUser)
-        throw new GraphQLError('게스트로 접근할 수 없는 기능입니다.', {
-          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
       const loggedUser = await User.findUser(storedSessionUser.id);
       const users = await User.find()
@@ -93,8 +100,8 @@ export default {
     ) => {
       const storedSessionUser = req.session.user;
       if (!storedSessionUser)
-        throw new GraphQLError('게스트로 접근할 수 없는 기능입니다.', {
-          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
 
       const users = await User.find()

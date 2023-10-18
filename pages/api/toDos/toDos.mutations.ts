@@ -4,15 +4,24 @@ import DocedTodaySkd from '@/models/DocedTodaySkd';
 import TodaySkd from '@/models/TodaySkd';
 import {
   IToDo,
-  TodaySchedule,
   todayScheduleWithoutState,
   todaySchedulePreview,
   todayScheduleUniqueField,
   UpdateToDoStateProps,
-  TodaySkdWithFollowers,
 } from '@/types/interfaces/todaySkds.interface';
 import { IFollowers, IUser } from '@/types/interfaces/users.interface';
 import User from '@/models/User';
+import checkAuthorizeTodaySchedule from '@/utils/methods/checkAuthorize';
+import {
+  GUEST_UNAUTHENTICATED_ERROR,
+  TODAY_SCHEDULE_NOT_FOUND_ERROR,
+  UNAUTHORIZED_ERROR,
+} from '@/constants/apolloErrorMessages';
+import setTodayStateWillDone from '@/utils/methods/setTodaySkdState/setTodaySkdStateWillDone';
+import setTodayStateToDo from '@/utils/methods/setTodaySkdState/setTodaySkdStateToDo';
+import getNextDay from '@/utils/methods/getNextDay/getNextDay';
+import findIsCheckedStateNextDay from '@/utils/methods/findIsCheckedStateNextDay/findIsCheckedStateNextDay';
+import createDocumentedTodaySchedule from '@/utils/methods/createDocumentedTodaySchedule/createDocumentedTodaySchedule';
 
 interface props {
   title: string;
@@ -26,12 +35,12 @@ export default {
       { title }: todaySchedulePreview,
       { req }: ContextValue
     ) => {
-      const user = req.session.user;
-      if (!user)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
-      const author = user.id;
+      const author = storedSessionUser.id;
 
       const newTodaySkd = await TodaySkd.create({
         title,
@@ -44,12 +53,12 @@ export default {
       { title, followers }: props,
       { req }: ContextValue
     ) => {
-      const user = req.session.user;
-      if (!user)
-        throw new GraphQLError('User not found', {
-          extensions: { code: 'NOT_FOUND' },
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
-      const author = user.id;
+      const author = storedSessionUser.id;
 
       let sharingUsers = [];
       for (let follower of followers) {
@@ -77,29 +86,25 @@ export default {
     ) => {
       const storedSessionUser = req.session.user;
       if (!storedSessionUser)
-        throw new GraphQLError('게스트로 접근할 수 없는 기능입니다.', {
-          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
 
       const todaySchedule = await (
         await TodaySkd.findByIdTodaySkd(_id)
       ).populate<{ sharingUsers: IUser[] }>('sharingUsers');
       if (!todaySchedule)
-        throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
-          extensions: { code: 'NOT_FOUND' },
+        throw new GraphQLError(TODAY_SCHEDULE_NOT_FOUND_ERROR.message, {
+          extensions: { code: TODAY_SCHEDULE_NOT_FOUND_ERROR.code },
         });
 
-      // 하루 일정의 작성자가 로그인된 본인인지 확인하는 boolean 변수
-      const hasAccessTodaySkd = todaySchedule.author === storedSessionUser.id;
-      const sharingUsers = todaySchedule.sharingUsers;
-      const sharedTodaySkd = sharingUsers.filter(
-        (follwer) => follwer.userId === storedSessionUser.id
+      const hasAccessTodaySkd = checkAuthorizeTodaySchedule(
+        todaySchedule,
+        storedSessionUser
       );
-
-      // 위의 조건과 더블어 로그인된 본인이 하루 일정을 공유하고 있는 사용자인지 확인
-      if (!(hasAccessTodaySkd || sharedTodaySkd.length !== 0))
-        throw new GraphQLError('권한이 없습니다.', {
-          extensions: { code: 'UNAUTHORIZED' },
+      if (!hasAccessTodaySkd)
+        throw new GraphQLError(UNAUTHORIZED_ERROR.message, {
+          extensions: { code: UNAUTHORIZED_ERROR.code },
         });
 
       todaySchedule.deleteOne();
@@ -113,24 +118,21 @@ export default {
       const { id, content, registeredAt } = input;
       const storedSessionUser = req.session.user;
       if (!storedSessionUser)
-        throw new GraphQLError('게스트는 접근할 수 없는 기능입니다.', {
-          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
 
       const todaySchedule = await (
         await TodaySkd.findByIdTodaySkd(id)
       ).populate<{ sharingUsers: IUser[] }>('sharingUsers');
 
-      const hasAccessTodaySkd = todaySchedule.author === storedSessionUser.id;
-      const sharingUsers = todaySchedule.sharingUsers;
-      const sharedTodaySkd = sharingUsers.filter(
-        (follwer) => follwer.userId === storedSessionUser.id
+      const hasAccessTodaySkd = checkAuthorizeTodaySchedule(
+        todaySchedule,
+        storedSessionUser
       );
-
-      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
-      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
-        throw new GraphQLError('권한이 없습니다.', {
-          extensions: { code: 'UNAUTHORIZED' },
+      if (!hasAccessTodaySkd)
+        throw new GraphQLError(UNAUTHORIZED_ERROR.message, {
+          extensions: { code: UNAUTHORIZED_ERROR.code },
         });
 
       todaySchedule.toDos.push({ content, registeredAt, state: 'toDo' });
@@ -143,26 +145,23 @@ export default {
       { req }: ContextValue
     ) => {
       const { id, content, registeredAt } = input;
-      const { user } = req.session;
-      if (!user)
-        throw new GraphQLError('게스트는 접근할 수 없는 기능입니다.', {
-          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
 
       const todaySchedule = await (
         await TodaySkd.findByIdTodaySkd(id)
       ).populate<{ sharingUsers: IUser[] }>('sharingUsers');
 
-      const hasAccessTodaySkd = todaySchedule.author === user.id;
-      const sharingUsers = todaySchedule.sharingUsers;
-      const sharedTodaySkd = sharingUsers.filter(
-        (follwer) => follwer.userId === user.id
+      const hasAccessTodaySkd = checkAuthorizeTodaySchedule(
+        todaySchedule,
+        storedSessionUser
       );
-
-      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
-      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
-        throw new GraphQLError('권한이 없습니다.', {
-          extensions: { code: 'UNAUTHORIZED' },
+      if (!hasAccessTodaySkd)
+        throw new GraphQLError(UNAUTHORIZED_ERROR.message, {
+          extensions: { code: UNAUTHORIZED_ERROR.code },
         });
 
       const { toDos } = todaySchedule;
@@ -182,10 +181,10 @@ export default {
       { req }: ContextValue
     ) => {
       const { id, registeredAt } = input;
-      const { user } = req.session;
-      if (!user)
-        throw new GraphQLError('게스트는 접근할 수 없는 기능입니다.', {
-          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
 
       const todaySchedule = await (
@@ -194,16 +193,13 @@ export default {
         sharingUsers: IUser[];
       }>('sharingUsers');
 
-      const hasAccessTodaySkd = todaySchedule.author === user.id;
-      const sharingUsers = todaySchedule.sharingUsers;
-      const sharedTodaySkd = sharingUsers.filter(
-        (follwer) => follwer.userId === user.id
+      const hasAccessTodaySkd = checkAuthorizeTodaySchedule(
+        todaySchedule,
+        storedSessionUser
       );
-
-      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
-      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
-        throw new GraphQLError('권한이 없습니다.', {
-          extensions: { code: 'UNAUTHORIZED' },
+      if (!hasAccessTodaySkd)
+        throw new GraphQLError(UNAUTHORIZED_ERROR.message, {
+          extensions: { code: UNAUTHORIZED_ERROR.code },
         });
 
       const { toDos } = todaySchedule;
@@ -219,10 +215,10 @@ export default {
       { req }: ContextValue
     ) => {
       const { hasFinished, id, registeredAt } = input;
-      const { user } = req.session;
-      if (!user)
-        throw new GraphQLError('게스트는 접근할 수 없는 기능입니다.', {
-          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
 
       const todaySchedule = await (
@@ -231,88 +227,55 @@ export default {
         sharingUsers: IUser[];
       }>('sharingUsers');
 
-      const hasAccessTodaySkd = todaySchedule.author === user.id;
-      const sharingUsers = todaySchedule.sharingUsers;
-      const sharedTodaySkd = sharingUsers.filter(
-        (follwer) => follwer.userId === user.id
+      const hasAccessTodaySkd = checkAuthorizeTodaySchedule(
+        todaySchedule,
+        storedSessionUser
       );
-
-      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
-      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
-        throw new GraphQLError('권한이 없습니다.', {
-          extensions: { code: 'UNAUTHORIZED' },
+      if (!hasAccessTodaySkd)
+        throw new GraphQLError(UNAUTHORIZED_ERROR.message, {
+          extensions: { code: UNAUTHORIZED_ERROR.code },
         });
-      sharedTodaySkd;
 
-      if (hasFinished) {
-        const finishedToDo = todaySchedule.toDos.filter(
-          (toDo) => toDo.registeredAt === registeredAt
-        );
-        finishedToDo[0].state = 'willDone';
+      const updatedToDos = hasFinished
+        ? setTodayStateWillDone(todaySchedule, registeredAt)
+        : setTodayStateToDo(todaySchedule, registeredAt);
 
-        const updatedToDos = todaySchedule.toDos.map((toDo) =>
-          toDo.registeredAt === registeredAt ? finishedToDo[0] : toDo
-        );
-        todaySchedule.toDos = updatedToDos;
-        await todaySchedule.save();
-        return finishedToDo[0];
-      }
-      const finishedToDo = todaySchedule.toDos.filter(
-        (toDo) => toDo.registeredAt === registeredAt
-      );
-
-      finishedToDo[0].state = 'toDo';
-      const updatedToDos = todaySchedule.toDos.map((toDo) =>
-        toDo.registeredAt === registeredAt ? finishedToDo[0] : toDo
-      );
       todaySchedule.toDos = updatedToDos;
       await todaySchedule.save();
-      return finishedToDo[0];
+      return updatedToDos;
     },
     finishToDos: async (
       _: unknown,
       { title }: todaySchedulePreview,
       { req }: ContextValue
     ) => {
-      const { user } = req.session;
-      if (!user) return;
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser) return;
+
       const todaySkd = await TodaySkd.findOne({ title });
       if (!todaySkd)
-        throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
-          extensions: { code: 'NOT_FOUND' },
+        throw new GraphQLError(TODAY_SCHEDULE_NOT_FOUND_ERROR.message, {
+          extensions: { code: TODAY_SCHEDULE_NOT_FOUND_ERROR.code },
         });
+
       if (todaySkd.toDos.length === 0) return [];
 
-      const { toDos } = todaySkd;
-      const nextDay = new Date(Date.now() + 1000 * 60 * 60 * 24);
-      const nextDaySharp = new Date(
-        nextDay.getFullYear(),
-        nextDay.getMonth(),
-        nextDay.getDate()
+      const nextDaySharp = getNextDay();
+      const partialFinishedToDos = findIsCheckedStateNextDay(
+        todaySkd,
+        nextDaySharp
       );
-      const finishedToDos: IToDo[] = todaySkd.toDos.map((toDo) => {
-        if (
-          new Date(toDo.registeredAt).getDay() !== nextDaySharp.getDay() &&
-          toDo.registeredAt < nextDaySharp.getTime()
-        )
-          if (toDo.state === 'willDone')
-            return {
-              content: toDo.content,
-              registeredAt: toDo.registeredAt,
-              state: 'done',
-            };
-        return toDo;
-      });
-      todaySkd.toDos = finishedToDos;
+
+      todaySkd.toDos = partialFinishedToDos;
       await todaySkd.save();
 
-      return finishedToDos;
+      return partialFinishedToDos;
     },
     documentedToDos: async (_: unknown, __: unknown, { req }: ContextValue) => {
-      const { user } = req.session;
-      if (!user) return null;
-      const loggedUser = await User.findUser(user.id);
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser) return null;
 
+      const loggedUser = await User.findUser(storedSessionUser.id);
       const todaySchedules = await TodaySkd.find()
         .or([
           { author: loggedUser.userId },
@@ -323,49 +286,21 @@ export default {
       const finishedTodaySkd = todaySchedules.filter((todaySkd) =>
         todaySkd.toDos.every((toDo) => toDo.state === 'done')
       );
-
       if (!finishedTodaySkd)
-        throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
-          extensions: { code: 'NOT_FOUND' },
+        throw new GraphQLError(TODAY_SCHEDULE_NOT_FOUND_ERROR.message, {
+          extensions: { code: TODAY_SCHEDULE_NOT_FOUND_ERROR.code },
         });
 
-      let outputDocedSchedule = [];
-
-      for (let schedule of finishedTodaySkd) {
-        const docedScheduleTemplate = {
-          title: schedule.title,
-          start: schedule.createdAt && new Date(schedule.createdAt),
-          end:
-            schedule.createdAt &&
-            new Date(schedule.createdAt + 1000 * 60 * 60 * 24),
-          docedToDos: schedule.toDos,
-        };
-
-        const documentedSchedule = {
-          ...docedScheduleTemplate,
-          author: schedule.author,
-        };
-        const sharingUsers = schedule.sharingUsers;
-        if (sharingUsers && sharingUsers.length > 0) {
-          const docedSchedulesWithSharingUsers = [
-            documentedSchedule,
-            ...sharingUsers.map((user) => ({
-              ...documentedSchedule,
-              author: user.userId,
-            })),
-          ];
-          await DocedTodaySkd.create(docedSchedulesWithSharingUsers);
-          outputDocedSchedule.push(docedSchedulesWithSharingUsers);
-        } else {
-          await DocedTodaySkd.create(documentedSchedule);
-          outputDocedSchedule.push(documentedSchedule);
-        }
-      }
+      const outputDocedSchedule = finishedTodaySkd.map(async (schedule) => {
+        const doumentedSchedule = createDocumentedTodaySchedule(schedule);
+        await DocedTodaySkd.insertMany(doumentedSchedule);
+      });
 
       finishedTodaySkd.map(
         async (finishedTodaySkd) =>
           await TodaySkd.deleteOne({ title: finishedTodaySkd.title })
       );
+
       return outputDocedSchedule;
     },
     updateTitle: async (
@@ -373,10 +308,10 @@ export default {
       { title, _id }: { title: string; _id: string },
       { req }: ContextValue
     ) => {
-      const { user } = req.session;
-      if (!user)
-        throw new GraphQLError('게스트는 접근할 수 없는 기능입니다.', {
-          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
 
       const todaySchedule = await (
@@ -386,19 +321,16 @@ export default {
       }>('sharingUsers');
 
       if (!todaySchedule)
-        throw new GraphQLError('하루 일정을 찾을 수 없습니다.', {
-          extensions: { code: 'NOT_FOUND' },
+        throw new GraphQLError(TODAY_SCHEDULE_NOT_FOUND_ERROR.message, {
+          extensions: { code: TODAY_SCHEDULE_NOT_FOUND_ERROR.code },
         });
-      const hasAccessTodaySkd = todaySchedule.author === user.id;
-      const sharingUsers = todaySchedule.sharingUsers;
-      const sharedTodaySkd = sharingUsers.filter(
-        (follwer) => follwer.userId === user.id
+      const hasAccessTodaySkd = checkAuthorizeTodaySchedule(
+        todaySchedule,
+        storedSessionUser
       );
-
-      const hasSharedTodaySkd = sharedTodaySkd.length !== 0 ? true : false;
-      if (!(hasAccessTodaySkd || hasSharedTodaySkd))
-        throw new GraphQLError('권한이 없습니다.', {
-          extensions: { code: 'UNAUTHORIZED' },
+      if (!hasAccessTodaySkd)
+        throw new GraphQLError(UNAUTHORIZED_ERROR.message, {
+          extensions: { code: UNAUTHORIZED_ERROR.code },
         });
       todaySchedule.title = title;
       await todaySchedule.save();

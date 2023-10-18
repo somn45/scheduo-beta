@@ -1,4 +1,4 @@
-import { IToDo } from '@/models/TodaySkd';
+import { IToDo } from '@/types/interfaces/todaySkds.interface';
 import { PayloadAction, createSlice, current } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
@@ -24,14 +24,8 @@ const toDoSlice = createSlice({
     deleteToDoReducer: (state, action: PayloadAction<IToDo[]>) => {
       return action.payload;
     },
-    updateToDoStateReducer: (state, action: PayloadAction<IToDo>) => {
-      const currentState = current(state);
-      const updatedToDos = currentState.map((toDo) =>
-        toDo.registeredAt === action.payload.registeredAt
-          ? action.payload
-          : toDo
-      );
-      return updatedToDos;
+    updateToDoStateReducer: (state, action: PayloadAction<IToDo[]>) => {
+      return action.payload;
     },
   },
   extraReducers: {

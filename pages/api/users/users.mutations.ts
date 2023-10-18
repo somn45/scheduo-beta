@@ -9,6 +9,10 @@ import {
   IFollower,
   IUser,
 } from '@/types/interfaces/users.interface';
+import {
+  GUEST_UNAUTHENTICATED_ERROR,
+  UNAUTHORIZED_ERROR,
+} from '@/constants/apolloErrorMessages';
 
 export interface ContextValue {
   req: NextApiRequest;
@@ -99,12 +103,12 @@ export default {
     ) => {
       const loggedUserId = req.session.user?.id;
       if (!loggedUserId)
-        throw new GraphQLError('게스트로 접근할 수 없는 기능입니다.', {
-          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
       if (profileUserId !== loggedUserId)
-        throw new GraphQLError('권한이 없습니다.', {
-          extensions: { code: 'UNAUTHORIZED' },
+        throw new GraphQLError(UNAUTHORIZED_ERROR.message, {
+          extensions: { code: UNAUTHORIZED_ERROR.code },
         });
       if (userId === loggedUserId)
         throw new GraphQLError('팔로워 대상이 로그인 된 계정입니다.', {
@@ -137,13 +141,13 @@ export default {
     ) => {
       const storedSessionUser = req.session.user;
       if (!storedSessionUser)
-        throw new GraphQLError('게스트로 접근할 수 없는 기능입니다.', {
-          extensions: { code: 'GUEST_UNAUTHENTICATED' },
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
       const loggedUser = await User.findUser(storedSessionUser.id);
       if (profileUserId !== loggedUser._id)
-        throw new GraphQLError('권한이 없습니다.', {
-          extensions: { code: 'UNAUTHORIZED' },
+        throw new GraphQLError(UNAUTHORIZED_ERROR.message, {
+          extensions: { code: UNAUTHORIZED_ERROR.code },
         });
 
       const user = await User.findUser(storedSessionUser.id);

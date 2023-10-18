@@ -3,6 +3,7 @@ import { ContextValue } from '../users/users.mutations';
 import TodaySkd from '@/models/TodaySkd';
 import DocedTodaySkd from '@/models/DocedTodaySkd';
 import { IUser } from '@/types/interfaces/users.interface';
+import { GUEST_UNAUTHENTICATED_ERROR } from '@/constants/apolloErrorMessages';
 
 export default {
   Query: {
@@ -18,24 +19,20 @@ export default {
       }>('sharingUsers');
       return todaySchedule;
     },
-    allToDos: async (_: unknown, __: unknown, { cookies }: ContextValue) => {
-      const author = cookies.get('uid');
-      if (!author)
-        throw new GraphQLError('인증된 유저 없음', {
-          extensions: { code: 'UNAUTHORIZED' },
-        });
-      const todaySchedule = await TodaySkd.findTodaySkd(author);
-      if (!todaySchedule.toDos) return [];
-      return todaySchedule.toDos;
-    },
     allDocedTodaySkds: async (
       _: unknown,
       __: unknown,
       { req }: ContextValue
     ) => {
-      const { user } = req.session;
-      if (!user) return;
-      const docedTodaySkds = await DocedTodaySkd.find({ author: user.id });
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
+        });
+
+      const docedTodaySkds = await DocedTodaySkd.find({
+        author: storedSessionUser.id,
+      });
       return docedTodaySkds;
     },
   },
