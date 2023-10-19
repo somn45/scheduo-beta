@@ -11,14 +11,21 @@ const findIsCheckedStateNextDay = (
         registeredAt: toDo.registeredAt,
         state: 'done',
       };
-
-    return toDo;
+    else if (isRegisteredAtNotToday(toDo, nextDaySharp))
+      return {
+        ...toDo,
+        registeredAt: toDo.registeredAt + 1000 * 60 * 60 * 24,
+      };
+    else return toDo;
   });
   return partialFinishedToDos;
 };
 
-const isRegisteredAtNotToday = (toDo: IToDo, nextDaySharp: Date) =>
-  new Date(toDo.registeredAt).getDay() !== nextDaySharp.getDay() &&
-  toDo.registeredAt < nextDaySharp.getTime();
+const isRegisteredAtNotToday = (toDo: IToDo, nextDaySharp: Date) => {
+  return (
+    new Date(toDo.registeredAt + 1000 * 60 * 60 * 24).getDate() <
+      nextDaySharp.getDate() && toDo.registeredAt < nextDaySharp.getTime()
+  );
+};
 
 export default findIsCheckedStateNextDay;

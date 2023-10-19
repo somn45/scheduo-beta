@@ -110,7 +110,6 @@ export default {
         .where('userId')
         .ne(storedSessionUser.id)
         .exec();
-      console.log(users);
       return users;
     },
   },

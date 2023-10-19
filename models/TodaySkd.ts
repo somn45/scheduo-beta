@@ -64,16 +64,6 @@ todaySkdSchema.pre('save', async function (next) {
   next();
 });
 
-todaySkdSchema.pre('save', async function (next) {
-  this.toDos = this.toDos.map((toDo) => {
-    if (toDo.state === 'willDone' && toDo.registeredAt < Date.now() + 60000) {
-      return { ...toDo, state: 'done' };
-    }
-    return { ...toDo };
-  });
-  next();
-});
-
 todaySkdSchema.statics.findTodaySkd = async function (author: string) {
   return await this.find({ author });
 };

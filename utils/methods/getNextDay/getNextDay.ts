@@ -3,7 +3,8 @@ const getNextDay = () => {
   const nextDaySharp = new Date(
     nextDay.getFullYear(),
     nextDay.getMonth(),
-    nextDay.getDate()
+    nextDay.getDate(),
+    9
   );
   return nextDaySharp;
 };

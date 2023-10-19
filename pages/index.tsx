@@ -33,7 +33,6 @@ export default function Home() {
     handleDocedToDos();
     const handleGetDocedTodaySkds = async () => {
       const { data: docedTodaySkdsQuery, error } = await getDocedTodaySkds();
-      console.log(error);
       if (docedTodaySkdsQuery && docedTodaySkdsQuery.allDocedTodaySkds) {
         const calendarEvents = docedTodaySkdsQuery.allDocedTodaySkds.map(
           (todaySkd) => ({
