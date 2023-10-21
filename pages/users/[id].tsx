@@ -17,6 +17,7 @@ import wrapper, {
 import Follower from '@/components/Follower';
 import { useEffect, useState } from 'react';
 import FollowerPreview from '@/components/FollowerPreview';
+import UserProfileItem from '@/components/layout/list/UserProfileItem';
 
 interface UserProfileProps {
   user: IUser;
@@ -40,22 +41,15 @@ export default function User({ user, myFollowers }: UserProfileProps) {
           <span className="text-sm text-slate-400">{user._id}</span>
         </div>
         <ul className="w-1/2 flex flex-col">
-          <li className="w-full mb-8 flex flex-row justify-between">
-            <h5 className="text-lg">아이디 : </h5>
-            <span className="text-lgtext-slate-500">{user.userId}</span>
-          </li>
-          <li className="w-full mb-8 flex flex-row justify-between">
-            <h5 className="text-lg">이메일 : </h5>
-            <span className="text-lgtext-slate-500">
-              {user.email ? user.email : '미등록'}
-            </span>
-          </li>
-          <li className="w-full mb-8 flex flex-row justify-between">
-            <h5 className="text-lg">소속 기업 : </h5>
-            <span className="text-lgtext-slate-500">
-              {user.company ? user.company : '미등록'}
-            </span>
-          </li>
+          <UserProfileItem caption="아이디" value={user.userId} />
+          <UserProfileItem
+            caption="이메일"
+            value={user.email ? user.email : '미등록'}
+          />
+          <UserProfileItem
+            caption="소속 기업"
+            value={user.company ? user.company : '미등록'}
+          />
         </ul>
       </article>
       <article className="w-1/2 flex flex-col items-center">

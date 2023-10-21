@@ -54,7 +54,7 @@ export default gql`
     updateToDo(input: AddToDoAndUpdateToDoInput): ToDo!
     deleteToDo(input: DeleteToDoInput): [ToDo!]!
     updateToDoState(input: UpdateToDoStateInput): [ToDo!]!
-    finishToDos(title: String!): [ToDo!]
+    finishToDos(title: String!): [ToDo]!
     documentedToDos: [DocedTodaySkd!]
   }
   input AddToDoAndUpdateToDoInput {

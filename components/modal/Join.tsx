@@ -5,6 +5,10 @@ import { useMutation } from '@apollo/client';
 import React, { useEffect, useState } from 'react';
 import { inputClickEvent } from '@/types/HTMLEvents';
 import { useRouter } from 'next/router';
+import AccountInput from '../layout/input/AccountInput';
+import AccountLabel from '../layout/label/AccountLabel';
+import AccountSubmit from '../layout/input/AccountSubmit';
+import AccountLinkButton from '../layout/button/AccountLinkButton';
 
 const USER_EXISTS_ERROR_MSG = 'User already exists';
 const DEFAULT_ERROR_MSG = {
@@ -70,7 +74,7 @@ export default function Join({ showLogin, closeAuth }: ModalEventProps) {
     return setIsDisabledSubmit(false);
   }, [userId, password, confirmPassword, name, email]);
 
-  const handleLogin = async (e: inputClickEvent) => {
+  const handleJoin = async (e: inputClickEvent) => {
     e.preventDefault();
     const { errors } = await join({
       variables: { userId, password, name, email, company },
@@ -98,100 +102,61 @@ export default function Join({ showLogin, closeAuth }: ModalEventProps) {
         </div>
         <span>*는 필수 문항입니다</span>
         <form className="flex flex-col">
-          <label className="ml-2 mb-1 text-xs font-semibold">
-            *아이디(6자 이상 ~ 20자 이하)
-          </label>
-          <input
-            type="text"
+          <AccountLabel caption="*아이디(6자 이상 ~ 24자 이하)" />
+          <AccountInput
+            name="userId"
             value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            placeholder="아이디"
-            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
-              errorMsg.userId && 'border-red-300'
-            }`}
+            onChange={setUserId}
+            errorMsg={errorMsg.userId}
           />
-          <span className="ml-2 mb-5 text-red-500">{errorMsg.userId}</span>
 
-          <label className="ml-2 mb-1 text-xs font-semibold">
-            *비밀번호(6자 이상 ~ 24자 이하)
-          </label>
-          <input
-            type="password"
+          <AccountLabel caption=" *비밀번호(6자 이상 ~ 24자 이하)" />
+          <AccountInput
+            name="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호"
-            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
-              errorMsg.password && 'border-red-300'
-            }`}
+            onChange={setPassword}
+            errorMsg={errorMsg.password}
           />
-          <span className="ml-2 mb-5 text-red-500">{errorMsg.password}</span>
 
-          <label className="ml-2 mb-1 text-xs font-semibold">
-            *비밀번호 확인
-          </label>
-          <input
-            type="password"
+          <AccountLabel caption=" *비밀번호 확인" />
+          <AccountInput
+            name="confirmPassword"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="비밀번호 확인"
-            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
-              errorMsg.confirmPassword && 'border-red-300'
-            }`}
+            onChange={setConfirmPassword}
+            errorMsg={errorMsg.confirmPassword}
           />
-          <span className="ml-2 mb-5 text-red-500">
-            {errorMsg.confirmPassword}
-          </span>
 
-          <label className="ml-2 mb-1 text-xs font-semibold">*이름</label>
-          <input
-            type="text"
+          <AccountLabel caption=" *이름" />
+          <AccountInput
+            name="name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="이름"
-            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
-              errorMsg.name && 'border-red-300'
-            }`}
+            onChange={setName}
+            errorMsg={errorMsg.name}
           />
-          <span className="ml-2 mb-5 text-red-500">{errorMsg.name}</span>
 
-          <label className="ml-2 mb-1 text-xs font-semibold">이메일</label>
-          <input
-            type="text"
+          <AccountLabel caption=" *이메일" />
+          <AccountInput
+            name="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="이메일"
-            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
-              errorMsg.email && 'border-red-300'
-            }`}
+            onChange={setEmail}
+            errorMsg={errorMsg.email}
           />
-          <span className="ml-2 mb-5 text-red-500">{errorMsg.email}</span>
 
-          <label className="ml-2 mb-1 text-xs font-semibold">직장</label>
-          <input
-            type="text"
+          <AccountLabel caption="직장" />
+          <AccountInput
+            name="company"
             value={company}
-            onChange={(e) => setCompany(e.target.value)}
-            placeholder="직장"
-            className="h-8 mb-5 p-2 outline-none rounded-[3px] text-sm focus:outline-black"
+            onChange={setCompany}
+            errorMsg={''}
           />
-          <input
-            type="submit"
+
+          <AccountSubmit
             value="회원가입"
-            onClick={handleLogin}
-            disabled={isDisabledSubmit}
-            className={`h-8 mb-3 p-1 bg-blue-400 border-none outline-none rounded-[3px] text-white font-semibold ease-out duration-200 ${
-              isDisabledSubmit
-                ? 'opacity-20'
-                : 'opacity-100 cursor-pointer hover:bg-blue-600'
-            }`}
+            onClick={handleJoin}
+            isDisabledSubmit={isDisabledSubmit}
           />
         </form>
-        <button
-          onClick={showLogin}
-          className="text-center font-semibold ease-out duration-100 hover:text-light-pink"
-        >
-          기존 계정으로 로그인
-        </button>
+        <AccountLinkButton value="기존 계정으로 로그인" onClick={showLogin} />
       </div>
     </section>
   );

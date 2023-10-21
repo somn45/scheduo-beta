@@ -27,7 +27,6 @@ import { useSelector } from 'react-redux';
 export default function ToDos({ title, author }: TodaySchedule) {
   const [text, setText] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [checkedList, setCheckedList] = useState<IToDo[]>([]);
   const [addToDo] = useMutation(ADD_TODO, {
     errorPolicy: 'all',
   });
@@ -110,8 +109,6 @@ export default function ToDos({ title, author }: TodaySchedule) {
                 key={toDo.content}
                 {...toDo}
                 id={typeof query.toDosId === 'string' ? query.toDosId : ''}
-                checkedList={checkedList}
-                setCheckedList={setCheckedList}
               />
             ))}
         </ul>

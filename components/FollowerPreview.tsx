@@ -14,6 +14,7 @@ import { useLazyQuery, useMutation } from '@apollo/client';
 import { Dispatch, SetStateAction, useState } from 'react';
 import ErrorMessageBox from './messageBox/ErrorMessageBox';
 import AlertBox from './messageBox/AlertBox';
+import SearchedFollowerItem from './SearchedFollowerItem';
 
 interface FollowerPreviewProps {
   setShowesFollowModal: Dispatch<SetStateAction<boolean>>;
@@ -39,6 +40,31 @@ export default function FollowerPreview({
     errorPolicy: 'all',
   });
 
+  const handleAddFollower = async (e: buttonClickEvent, userId: string) => {
+    e.preventDefault();
+    const { data, errors } = await addFollower({
+      variables: { userId, profileUserId },
+    });
+    if (errors && errors[0].message === '게스트로 접근할 수 없는 기능입니다.')
+      return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+    if (errors && errors[0].message === '권한이 없습니다.')
+      return setErrorMsg('권한이 없습니다.');
+    if (errors && errors[0].message === '팔로워 대상이 로그인 된 계정입니다.')
+      setAlertMsg('팔로워 대상이 로그인 된 계정입니다.');
+    if (errors && errors[0].message === '이미 팔로우된 사용자입니다.')
+      setAlertMsg('이미 팔로우된 사용자입니다.');
+    if (!data) return;
+    const { userId: followerId, name, email, company } = data.addFollower;
+    dispatch(
+      addFollowerReducer({
+        userId: followerId,
+        name,
+        email: email ? email : '',
+        company: company ? company : '',
+      })
+    );
+  };
+
   const handleSearchFollowers = async (e: inputClickEvent) => {
     e.preventDefault();
     let searchFollowersResult: FollowerSearchItem[];
@@ -63,31 +89,6 @@ export default function FollowerPreview({
     });
     setSearchItems(followerPreview);
     setText('');
-  };
-
-  const handleAddFollower = async (e: buttonClickEvent, userId: string) => {
-    e.preventDefault();
-    const { data, errors } = await addFollower({
-      variables: { userId, profileUserId },
-    });
-    if (errors && errors[0].message === '게스트로 접근할 수 없는 기능입니다.')
-      return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
-    if (errors && errors[0].message === '권한이 없습니다.')
-      return setErrorMsg('권한이 없습니다.');
-    if (errors && errors[0].message === '팔로워 대상이 로그인 된 계정입니다.')
-      setAlertMsg('팔로워 대상이 로그인 된 계정입니다.');
-    if (errors && errors[0].message === '이미 팔로우된 사용자입니다.')
-      setAlertMsg('이미 팔로우된 사용자입니다.');
-    if (!data) return;
-    const { userId: followerId, name, email, company } = data.addFollower;
-    dispatch(
-      addFollowerReducer({
-        userId: followerId,
-        name,
-        email: email ? email : '',
-        company: company ? company : '',
-      })
-    );
   };
 
   return (
@@ -130,30 +131,11 @@ flex flex-col items-center relavite"
         <ul className="w-full">
           {searchItems &&
             searchItems.map((user) => (
-              <li
+              <SearchedFollowerItem
                 key={user.userId}
-                className="w-1/4 p-1 border-2 rounded-md flex flex-row justify-between"
-              >
-                <div className="flex flex-col">
-                  <span className="mr-2 font-semibold">{user.name}</span>
-                  <span className="text-xs text-slate-500">{user.userId}</span>
-                </div>
-                {user.follow ? (
-                  <button
-                    disabled
-                    className="px-2 py-1 bg-blue-300 rounded-xl ease-out duration-75 text-white"
-                  >
-                    팔로우됨
-                  </button>
-                ) : (
-                  <button
-                    onClick={(e) => handleAddFollower(e, user.userId)}
-                    className="px-2 py-1 bg-blue-300 rounded-xl ease-out duration-75 text-white hover:bg-blue-500"
-                  >
-                    팔로우
-                  </button>
-                )}
-              </li>
+                user={user}
+                handleAddFollower={handleAddFollower}
+              />
             ))}
         </ul>
       </div>

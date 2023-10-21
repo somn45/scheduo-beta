@@ -1,4 +1,3 @@
-import { gql } from '@/generates/type';
 import { ModalEventProps } from '../layout/Header';
 import vaildateForm from '@/utils/validateForm';
 import { useMutation } from '@apollo/client';
@@ -8,6 +7,9 @@ import { CHECK_USER } from '@/utils/graphQL/mutations/usersMutations';
 import { inputClickEvent } from '@/types/HTMLEvents';
 import { useRouter } from 'next/router';
 import AlertBox from '../messageBox/AlertBox';
+import AccountInput from '../layout/input/AccountInput';
+import AccountSubmit from '../layout/input/AccountSubmit';
+import AccountLinkButton from '../layout/button/AccountLinkButton';
 
 const USER_NOT_FOUND = 'User not found';
 const PASSWORD_NOT_MATCH = 'Password not match';
@@ -21,7 +23,7 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
   const [password, setPassword] = useState('');
   const [isDisabledSubmit, setIsDisabledSubmit] = useState(false);
   const [errorMsg, setErrorMsg] = useState(DEFAULT_ERROR_MSG);
-  const [showsAlertBox, setShowsAlertBox] = useState(false);
+  const [alertMsg, setAlertMsg] = useState('');
   const [login] = useMutation(CHECK_USER, {
     errorPolicy: 'all',
   });
@@ -48,7 +50,8 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
 
   const handleLogin = async (e: inputClickEvent) => {
     e.preventDefault();
-    const { data, errors: loginErrors } = await login({
+    console.log(userId, password);
+    const { errors: loginErrors } = await login({
       variables: { userId, password },
     });
     if (loginErrors && loginErrors[0].message === USER_NOT_FOUND)
@@ -65,7 +68,7 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
       loginErrors &&
       loginErrors[0].message === '이미 로그인 된 사용자입니다.'
     )
-      return setShowsAlertBox(true);
+      return setAlertMsg('이미 로그인 된 사용자입니다.');
     setCookie('uid', userId);
     window.location.href;
   };
@@ -83,48 +86,32 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
         </div>
         <h2 className="mb-8 text-center text-3xl font-semibold">Scheduo</h2>
         <form className="flex flex-col">
-          <input
-            type="text"
+          <AccountInput
+            name="userId"
             value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            placeholder="아이디"
-            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
-              errorMsg.userId && 'border-red-300'
-            }`}
+            onChange={setUserId}
+            errorMsg={errorMsg.userId}
           />
-          <span className="ml-2 mb-5 text-red-600">{errorMsg.userId}</span>
-
-          <input
-            type="password"
+          <AccountInput
+            name="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호"
-            className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
-              errorMsg.password && 'border-red-300'
-            }`}
+            onChange={setPassword}
+            errorMsg={errorMsg.password}
           />
-          <span className="ml-2 mb-5 text-red-600">{errorMsg.password}</span>
-
-          <input
-            type="submit"
+          <AccountSubmit
             value="로그인"
             onClick={handleLogin}
-            disabled={isDisabledSubmit}
-            className={`h-8 mb-3 p-1 bg-blue-400 border-none outline-none rounded-[3px] text-white font-semibold ease-out duration-200 ${
-              isDisabledSubmit
-                ? 'opacity-20'
-                : 'opacity-100 cursor-pointer hover:bg-blue-600'
-            }`}
+            isDisabledSubmit={isDisabledSubmit}
           />
         </form>
-        <button
-          onClick={showJoin}
-          className="text-center font-semibold ease-out duration-100 hover:text-light-pink"
-        >
-          Scheduo 회원가입하기
-        </button>
+        <AccountLinkButton value="Scheduo 회원가입하기" onClick={showJoin} />
       </div>
-      {showsAlertBox && <AlertBox message="이미 로그인 된 계정입니다." />}
+      {alertMsg && (
+        <AlertBox
+          message="이미 로그인 된 계정입니다."
+          setAlertMsg={setAlertMsg}
+        />
+      )}
     </section>
   );
 }
