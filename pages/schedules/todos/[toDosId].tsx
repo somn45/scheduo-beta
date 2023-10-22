@@ -6,6 +6,7 @@ import wrapper, {
   RootState,
   addToDoReducer,
   initToDosReducer,
+  setErrorMessageReducer,
   useAppDispatch,
 } from '@/lib/store/store';
 import { inputClickEvent } from '@/types/HTMLEvents';
@@ -26,7 +27,6 @@ import { useSelector } from 'react-redux';
 
 export default function ToDos({ title, author }: TodaySchedule) {
   const [text, setText] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
   const [addToDo] = useMutation(ADD_TODO, {
     errorPolicy: 'all',
   });
@@ -52,9 +52,9 @@ export default function ToDos({ title, author }: TodaySchedule) {
     });
     if (errors) {
       if (errors[0].message === '게스트는 접근할 수 없는 기능입니다.')
-        return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+        dispatch(setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.'));
       if (errors[0].message === '권한이 없습니다.')
-        return setErrorMsg('권한이 없습니다.');
+        dispatch(setErrorMessageReducer('권한이 없습니다.'));
     }
     if (!addToDoQuery) return;
     dispatch(addToDoReducer(addToDoQuery.addToDo));
@@ -124,7 +124,6 @@ export default function ToDos({ title, author }: TodaySchedule) {
               <FinishToDos key={toDo.content} {...toDo} />
             ))}
         </ul>
-        {errorMsg && <ErrorMessageBox message={errorMsg} />}
       </article>
     </section>
   );

@@ -4,12 +4,15 @@ import { faClipboard } from '@fortawesome/free-solid-svg-icons';
 import { TodayScheduleWithID } from '@/types/interfaces/todaySkds.interface';
 import TitleChangeModal from './modal/TitleChangeModal';
 import { buttonClickEvent } from '@/types/HTMLEvents';
-import { deleteScheduleReducer, useAppDispatch } from '@/lib/store/store';
+import {
+  deleteScheduleReducer,
+  setAlertMessageReducer,
+  setErrorMessageReducer,
+  useAppDispatch,
+} from '@/lib/store/store';
 import { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { DELETE_SCHEDULE } from '@/utils/graphQL/mutations/todaySkdMutations';
-import AlertBox from './messageBox/AlertBox';
-import ErrorMessageBox from './messageBox/ErrorMessageBox';
 import ToDoPreview from './layout/list/ToDoPreview';
 
 interface TodayScheduleProps {
@@ -23,8 +26,6 @@ export default function TodayScheduleItem({
   showsTitleChangeModel,
   setShowsTitleChangeModel,
 }: TodayScheduleProps) {
-  const [alertMsg, setAlertMsg] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
   const [deleteSchedule] = useMutation(DELETE_SCHEDULE, { errorPolicy: 'all' });
   const dispatch = useAppDispatch();
 
@@ -34,11 +35,15 @@ export default function TodayScheduleItem({
     const { errors } = await deleteSchedule({ variables: { _id } });
     if (errors) {
       if (errors[0].message === '게스트로 접근할 수 없는 기능입니다.')
-        return setErrorMsg('게스트로 접근할 수 없는 기능입니다.');
+        return dispatch(
+          setErrorMessageReducer('게스트로 접근할 수 없는 기능입니다.')
+        );
       if (errors[0].message === '권한이 없습니다.')
-        setErrorMsg('권한이 없습니다.');
+        return dispatch(setErrorMessageReducer('권한이 없습니다.'));
       if (errors[0].message === '하루 일정을 찾을 수 없습니다.')
-        setAlertMsg('하루 일정을 찾을 수 없습니다.');
+        return dispatch(
+          setAlertMessageReducer('하루 일정을 찾을 수 없습니다.')
+        );
     }
     dispatch(deleteScheduleReducer({ _id }));
   };
@@ -85,8 +90,6 @@ export default function TodayScheduleItem({
           setShowsTitleChangeModel={setShowsTitleChangeModel}
         />
       )}
-      {alertMsg && <AlertBox message={alertMsg} setAlertMsg={setAlertMsg} />}
-      {errorMsg && <ErrorMessageBox message={errorMsg} />}
     </>
   );
 }

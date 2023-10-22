@@ -1,4 +1,9 @@
-import { addFollowerReducer, useAppDispatch } from '@/lib/store/store';
+import {
+  addFollowerReducer,
+  setAlertMessageReducer,
+  setErrorMessageReducer,
+  useAppDispatch,
+} from '@/lib/store/store';
 import { buttonClickEvent, inputClickEvent } from '@/types/HTMLEvents';
 import {
   IFollowerPreview,
@@ -12,7 +17,6 @@ import {
 } from '@/utils/graphQL/querys/userQuerys';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { Dispatch, SetStateAction, useState } from 'react';
-import ErrorMessageBox from './messageBox/ErrorMessageBox';
 import AlertBox from './messageBox/AlertBox';
 import SearchedFollowerItem from './SearchedFollowerItem';
 
@@ -28,8 +32,6 @@ export default function FollowerPreview({
   profileUserId,
 }: FollowerPreviewProps) {
   const [text, setText] = useState('');
-  const [alertMsg, setAlertMsg] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
   const [searchItems, setSearchItems] = useState<
     IFollowerPreview[] | undefined
   >(undefined);
@@ -46,13 +48,17 @@ export default function FollowerPreview({
       variables: { userId, profileUserId },
     });
     if (errors && errors[0].message === '게스트로 접근할 수 없는 기능입니다.')
-      return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+      return dispatch(
+        setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.')
+      );
     if (errors && errors[0].message === '권한이 없습니다.')
-      return setErrorMsg('권한이 없습니다.');
+      return dispatch(setErrorMessageReducer('권한이 없습니다.'));
     if (errors && errors[0].message === '팔로워 대상이 로그인 된 계정입니다.')
-      setAlertMsg('팔로워 대상이 로그인 된 계정입니다.');
+      return dispatch(
+        setAlertMessageReducer('팔로워 대상이 로그인 된 계정입니다.')
+      );
     if (errors && errors[0].message === '이미 팔로우된 사용자입니다.')
-      setAlertMsg('이미 팔로우된 사용자입니다.');
+      return dispatch(setAlertMessageReducer('이미 팔로우된 사용자입니다.'));
     if (!data) return;
     const { userId: followerId, name, email, company } = data.addFollower;
     dispatch(
@@ -127,7 +133,6 @@ flex flex-col items-center relavite"
             className="font-semibold absolute right-3 top-1 cursor-pointer"
           />
         </form>
-        <span>{alertMsg}</span>
         <ul className="w-full">
           {searchItems &&
             searchItems.map((user) => (
@@ -139,8 +144,6 @@ flex flex-col items-center relavite"
             ))}
         </ul>
       </div>
-      {alertMsg && <AlertBox message={alertMsg} setAlertMsg={setAlertMsg} />}
-      {errorMsg && <ErrorMessageBox message={errorMsg} />}
     </article>
   );
 }

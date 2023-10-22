@@ -9,6 +9,7 @@ import AccountInput from '../layout/input/AccountInput';
 import AccountLabel from '../layout/label/AccountLabel';
 import AccountSubmit from '../layout/input/AccountSubmit';
 import AccountLinkButton from '../layout/button/AccountLinkButton';
+import { useAppDispatch } from '@/lib/store/store';
 
 const USER_EXISTS_ERROR_MSG = 'User already exists';
 const DEFAULT_ERROR_MSG = {

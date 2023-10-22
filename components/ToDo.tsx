@@ -1,5 +1,6 @@
 import {
   deleteToDoReducer,
+  setErrorMessageReducer,
   updateToDoReducer,
   updateToDoStateReducer,
 } from '@/lib/store/store';
@@ -17,8 +18,6 @@ import {
 import { useMutation } from '@apollo/client';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import AlertBoxNonLogged from './messageBox/ErrorMessageBox';
-import ErrorMessageBox from './messageBox/ErrorMessageBox';
 
 export default function ToDo({
   content,
@@ -27,7 +26,6 @@ export default function ToDo({
   id,
 }: ITodoWithId) {
   const [text, setText] = useState(content);
-  const [errorMsg, setErrorMsg] = useState('');
   const [checked, setChecked] = useState(state === 'willDone' ? true : false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showsAlertBox, setShowsAlertBox] = useState(false);
@@ -49,9 +47,11 @@ export default function ToDo({
     });
     if (errors) {
       if (errors[0].message === '게스트는 접근할 수 없는 기능입니다.')
-        return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+        return dispatch(
+          setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.')
+        );
       if (errors[0].message === '권한이 없습니다.')
-        setErrorMsg('권한이 없습니다.');
+        return dispatch(setErrorMessageReducer('권한이 없습니다.'));
     }
     if (!updateToDoQuery) return;
     dispatch(
@@ -68,9 +68,11 @@ export default function ToDo({
       });
     if (deleteToDoErrors) {
       if (deleteToDoErrors[0].message === '게스트는 접근할 수 없는 기능입니다.')
-        return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+        return dispatch(
+          setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.')
+        );
       if (deleteToDoErrors[0].message === '권한이 없습니다.')
-        setErrorMsg('권한이 없습니다.');
+        return dispatch(setErrorMessageReducer('권한이 없습니다.'));
     }
     if (!deleteToDoQuery) return;
     dispatch(deleteToDoReducer(deleteToDoQuery.deleteToDo));
@@ -87,9 +89,11 @@ export default function ToDo({
           updateToDoStateErrors[0].message ===
           '게스트는 접근할 수 없는 기능입니다.'
         )
-          return setErrorMsg('게스트는 접근할 수 없는 기능입니다.');
+          return dispatch(
+            setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.')
+          );
         if (updateToDoStateErrors[0].message === '권한이 없습니다.')
-          setErrorMsg('권한이 없습니다.');
+          return dispatch(setErrorMessageReducer('권한이 없습니다.'));
       }
       if (!updateToDoStateQuery) return;
       setChecked(true);
@@ -175,7 +179,6 @@ export default function ToDo({
           </div>
         </>
       )}
-      {errorMsg && <ErrorMessageBox message={errorMsg} />}
     </li>
   );
 }

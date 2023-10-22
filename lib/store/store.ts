@@ -4,11 +4,15 @@ import { useDispatch } from 'react-redux';
 import followerSlice from './followers';
 import todaySkdSlice from './todaySchedules';
 import toDoSlice from './toDos';
+import errorMessagesSlice from './ErrorMessages';
+import alertMessagesSlice from './AlertMessages';
 
 const reducer = combineReducers({
   todaySchedules: todaySkdSlice.reducer,
   toDos: toDoSlice.reducer,
   followers: followerSlice.reducer,
+  alertMessages: alertMessagesSlice.reducer,
+  errorMessages: errorMessagesSlice.reducer,
 });
 
 export const {
@@ -29,7 +33,8 @@ export const {
   addFollowerReducer,
   deleteFollowerReducer,
 } = followerSlice.actions;
-
+export const { setErrorMessageReducer } = errorMessagesSlice.actions;
+export const { setAlertMessageReducer } = alertMessagesSlice.actions;
 let store: Store;
 
 const makeStore = () => {

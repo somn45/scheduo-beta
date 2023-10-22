@@ -21,7 +21,6 @@ export default {
       }
     },
     getUserById: async (_: unknown, { id }: { id: string }) => {
-      console.log('getUserById', id);
       const user = await User.findUserById(id);
       return user;
     },

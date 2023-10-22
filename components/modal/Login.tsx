@@ -6,10 +6,11 @@ import { setCookie } from 'cookies-next';
 import { CHECK_USER } from '@/utils/graphQL/mutations/usersMutations';
 import { inputClickEvent } from '@/types/HTMLEvents';
 import { useRouter } from 'next/router';
-import AlertBox from '../messageBox/AlertBox';
 import AccountInput from '../layout/input/AccountInput';
 import AccountSubmit from '../layout/input/AccountSubmit';
 import AccountLinkButton from '../layout/button/AccountLinkButton';
+import { useDispatch } from 'react-redux';
+import { setAlertMessageReducer } from '@/lib/store/store';
 
 const USER_NOT_FOUND = 'User not found';
 const PASSWORD_NOT_MATCH = 'Password not match';
@@ -23,11 +24,11 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
   const [password, setPassword] = useState('');
   const [isDisabledSubmit, setIsDisabledSubmit] = useState(false);
   const [errorMsg, setErrorMsg] = useState(DEFAULT_ERROR_MSG);
-  const [alertMsg, setAlertMsg] = useState('');
   const [login] = useMutation(CHECK_USER, {
     errorPolicy: 'all',
   });
   const router = useRouter();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const validateResponse = vaildateForm({ userId, password });
@@ -68,7 +69,7 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
       loginErrors &&
       loginErrors[0].message === '이미 로그인 된 사용자입니다.'
     )
-      return setAlertMsg('이미 로그인 된 사용자입니다.');
+      return dispatch(setAlertMessageReducer('이미 로그인 된 사용자입니다.'));
     setCookie('uid', userId);
     window.location.href;
   };
@@ -106,12 +107,6 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
         </form>
         <AccountLinkButton value="Scheduo 회원가입하기" onClick={showJoin} />
       </div>
-      {alertMsg && (
-        <AlertBox
-          message="이미 로그인 된 계정입니다."
-          setAlertMsg={setAlertMsg}
-        />
-      )}
     </section>
   );
 }
