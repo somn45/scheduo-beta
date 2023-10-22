@@ -7,7 +7,7 @@ const setTodayStateToDo = (
   registeredAt: number
 ) => {
   const finishedToDo = getFinishedToDo(todaySchedule, registeredAt)[0];
-  finishedToDo.state = 'willDone';
+  finishedToDo.state = 'toDo';
 
   const updatedToDos = includeUpdatedToDo({
     todaySchedule,

@@ -30,10 +30,6 @@ export default {
       { req }: ContextValue
     ) => {
       const storedSessionUser = req.session.user;
-      if (!storedSessionUser)
-        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
-          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
-        });
 
       const user = await User.findOne({ userId }).populate<{
         followers: IFollower[];
@@ -51,7 +47,7 @@ export default {
       const followers = user?.followers;
       if (!user) {
         const user = await User.findOne({
-          userId: storedSessionUser.id,
+          userId: storedSessionUser ? storedSessionUser.id : '',
         }).populate<{
           followers: IFollower[];
         }>([

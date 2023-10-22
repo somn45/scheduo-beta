@@ -252,22 +252,23 @@ export default {
       const storedSessionUser = req.session.user;
       if (!storedSessionUser) return;
 
-      const todaySkd = await TodaySkd.findOne({ title });
-      if (!todaySkd)
+      const todayScheduleDocument = await TodaySkd.findOne({ title });
+      if (!todayScheduleDocument)
         throw new GraphQLError(TODAY_SCHEDULE_NOT_FOUND_ERROR.message, {
           extensions: { code: TODAY_SCHEDULE_NOT_FOUND_ERROR.code },
         });
+      if (todayScheduleDocument.toDos.length === 0) return [];
 
-      if (todaySkd.toDos.length === 0) return [];
+      const toDos = todayScheduleDocument.toDos;
 
       const nextDaySharp = getNextDay();
       const partialFinishedToDos = findIsCheckedStateNextDay(
-        todaySkd,
+        toDos,
         nextDaySharp
       );
 
-      todaySkd.toDos = partialFinishedToDos;
-      await todaySkd.save();
+      todayScheduleDocument.toDos = [...partialFinishedToDos];
+      await todayScheduleDocument.save();
 
       return partialFinishedToDos;
     },

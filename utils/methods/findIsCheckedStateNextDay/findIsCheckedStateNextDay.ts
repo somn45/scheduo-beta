@@ -1,14 +1,10 @@
-import { IToDo, TodaySchedule } from '@/types/interfaces/todaySkds.interface';
+import { IToDo } from '@/types/interfaces/todaySkds.interface';
 
-const findIsCheckedStateNextDay = (
-  todaySchedule: TodaySchedule,
-  nextDaySharp: Date
-) => {
-  const partialFinishedToDos: IToDo[] = todaySchedule.toDos.map((toDo) => {
+const findIsCheckedStateNextDay = (toDos: IToDo[], nextDaySharp: Date) => {
+  const partialFinishedToDos: IToDo[] = toDos.map((toDo) => {
     if (isRegisteredAtNotToday(toDo, nextDaySharp) && toDo.state === 'willDone')
       return {
-        content: toDo.content,
-        registeredAt: toDo.registeredAt,
+        ...toDo,
         state: 'done',
       };
     else if (isRegisteredAtNotToday(toDo, nextDaySharp))
