@@ -1,27 +1,26 @@
-import { addTodaySkdReducer, useAppDispatch } from '@/lib/store/store';
-import { buttonClickEvent, inputClickEvent } from '@/types/HTMLEvents';
 import {
-  CREATE_SCHEDULE,
-  CREATE_SCHEDULE_WITH_FOLLOWERS,
-} from '@/utils/graphQL/mutations/todaySkdMutations';
+  addTodaySkdReducer,
+  setAlertMessageReducer,
+  useAppDispatch,
+} from '@/lib/store/store';
+import { inputClickEvent } from '@/types/HTMLEvents';
+import { CREATE_SCHEDULE_WITH_FOLLOWERS } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { ALL_FOLLOWERS } from '@/utils/graphQL/querys/userQuerys';
 import { useMutation, useQuery } from '@apollo/client';
 import { useState } from 'react';
-import FollowerToShare from '../FollowerToShare';
 import { IFollowers } from '@/types/interfaces/users.interface';
 import { useRouter } from 'next/router';
-import AlertBoxNonLogged from '../messageBox/ErrorMessageBox';
+import SharedFollower from './today-schedule/shared-follower';
 
-interface CreationTodaySkdModalProps {
+interface CreateScheduleModelProps {
   setShowsCreationTodaySkdModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function CreationTodaySkdModal({
+export default function CreateScheduleModel({
   setShowsCreationTodaySkdModal,
-}: CreationTodaySkdModalProps) {
+}: CreateScheduleModelProps) {
   const [title, setTitle] = useState('');
   const [sharingFollowers, setSharingFollowers] = useState<IFollowers[]>([]);
-  const [showsAlertBox, setShowsAlertBox] = useState(false);
   const { data: followersQuery } = useQuery(ALL_FOLLOWERS);
   const [createScheduleWithFollowers] = useMutation(
     CREATE_SCHEDULE_WITH_FOLLOWERS,
@@ -44,11 +43,11 @@ export default function CreationTodaySkdModal({
       variables: { title, followers },
     });
     if (errors && errors[0].message === 'User not found')
-      return setShowsAlertBox(true);
+      return dispatch(setAlertMessageReducer('유저 없음'));
     if (data && data.createScheduleWithFollowers)
       addTodaySkdReducer(data.createScheduleWithFollowers);
     setShowsCreationTodaySkdModal(false);
-    router.push('/schedules/todolist');
+    router.push('/schedules/today');
   };
 
   return (
@@ -89,7 +88,7 @@ export default function CreationTodaySkdModal({
               {followersQuery &&
                 followersQuery.allFollowers &&
                 followersQuery.allFollowers.map((follower) => (
-                  <FollowerToShare
+                  <SharedFollower
                     key={follower.userId}
                     follower={{
                       ...follower,
@@ -107,7 +106,6 @@ export default function CreationTodaySkdModal({
             onClick={handleCreateTodaySkd}
           />
         </form>
-        {showsAlertBox && <AlertBoxNonLogged />}
       </div>
     </article>
   );

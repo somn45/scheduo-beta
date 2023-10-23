@@ -1,5 +1,5 @@
-import TodayScheduleItem from '@/components/TodayScheduleItem';
-import CreationTodaySkdModal from '@/components/modal/CreationTodaySkdModal';
+import CreateScheduleModel from '@/components/schedules/today/create-schedule.model';
+import TodayScheduleList from '@/components/schedules/today/today-schedule-list';
 import wrapper, {
   RootState,
   initTodaySchedulesReducer,
@@ -10,10 +10,9 @@ import { withIronSessionSsr } from 'iron-session/next';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 
-export default function ToDoList() {
+export default function TodayScheduleMain() {
   const [showsCreationTodaySkdModal, setShowsCreationTodaySkdModal] =
     useState(false);
-  const [showsTitleChangeModel, setShowsTitleChangeModel] = useState(false);
   const todaySchedules = useSelector(
     (state: RootState) => state.todaySchedules
   );
@@ -30,19 +29,10 @@ export default function ToDoList() {
       <p className="w-screen border border-input-color border-dashed fixed left-0 top-44"></p>
       {todaySchedules.length === 0 && <span>오늘의 일정을 등록하세요</span>}
       {todaySchedules.length !== 0 && (
-        <article className="w-full h-full px-72 pt-[15px] grid gap-4 grid-cols-4">
-          {todaySchedules.map((schedule) => (
-            <TodayScheduleItem
-              key={schedule._id}
-              schedule={schedule}
-              showsTitleChangeModel={showsTitleChangeModel}
-              setShowsTitleChangeModel={setShowsTitleChangeModel}
-            />
-          ))}
-        </article>
+        <TodayScheduleList todaySchedules={todaySchedules} />
       )}
       {showsCreationTodaySkdModal && (
-        <CreationTodaySkdModal
+        <CreateScheduleModel
           setShowsCreationTodaySkdModal={setShowsCreationTodaySkdModal}
         />
       )}

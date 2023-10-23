@@ -145,7 +145,7 @@ export default {
           extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
         });
       const loggedUser = await User.findUser(storedSessionUser.id);
-      if (profileUserId !== loggedUser._id)
+      if (profileUserId !== loggedUser._id.toString())
         throw new GraphQLError(UNAUTHORIZED_ERROR.message, {
           extensions: { code: UNAUTHORIZED_ERROR.code },
         });

@@ -1,6 +1,6 @@
 import { IToDo } from '@/types/interfaces/todaySkds.interface';
 
-export default function FinishToDos({ content }: IToDo) {
+export default function FinishToDo({ content }: IToDo) {
   return (
     <li>
       <div>

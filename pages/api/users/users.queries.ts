@@ -6,6 +6,7 @@ import {
   GUEST_UNAUTHENTICATED_ERROR,
   USER_NOT_FOUND_ERROR,
 } from '@/constants/apolloErrorMessages';
+import { Types } from 'mongoose';
 
 export default {
   Query: {
@@ -91,7 +92,7 @@ export default {
     },
     searchFollowersById: async (
       _: unknown,
-      { id }: { id: string },
+      { id }: { id: Types.ObjectId },
       { req }: ContextValue
     ) => {
       const storedSessionUser = req.session.user;

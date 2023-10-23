@@ -11,7 +11,7 @@ import { DELETE_FOLLOWER } from '@/utils/graphQL/mutations/usersMutations';
 import { useMutation } from '@apollo/client';
 import React, { useState } from 'react';
 
-export default function Follower({
+export default function MyFollowerItem({
   follower,
   profileUserId,
 }: {

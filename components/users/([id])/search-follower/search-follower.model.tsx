@@ -17,17 +17,17 @@ import {
 } from '@/utils/graphQL/querys/userQuerys';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { Dispatch, SetStateAction, useState } from 'react';
-import AlertBox from './messageBox/AlertBox';
-import SearchedFollowerItem from './SearchedFollowerItem';
+import SearchedFollowerItem from './search-follower-item';
+import SearchFollowerForm from './search-follower-form';
 
 interface FollowerPreviewProps {
-  setShowesFollowModal: Dispatch<SetStateAction<boolean>>;
+  setShowsFollowModal: Dispatch<SetStateAction<boolean>>;
   followers: FollowerSearchItem[];
   profileUserId: string;
 }
 
-export default function FollowerPreview({
-  setShowesFollowModal,
+export default function SearchFollowerModel({
+  setShowsFollowModal,
   followers,
   profileUserId,
 }: FollowerPreviewProps) {
@@ -35,45 +35,13 @@ export default function FollowerPreview({
   const [searchItems, setSearchItems] = useState<
     IFollowerPreview[] | undefined
   >(undefined);
-  const dispatch = useAppDispatch();
   const [searchFollowers] = useLazyQuery(SEARCH_FOLLOWERS);
   const [searchFollowersById] = useLazyQuery(SEARCH_FOLLOWERS_BY_ID);
-  const [addFollower] = useMutation(ADD_FOLLOWER, {
-    errorPolicy: 'all',
-  });
-
-  const handleAddFollower = async (e: buttonClickEvent, userId: string) => {
-    e.preventDefault();
-    const { data, errors } = await addFollower({
-      variables: { userId, profileUserId },
-    });
-    if (errors && errors[0].message === '게스트로 접근할 수 없는 기능입니다.')
-      return dispatch(
-        setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.')
-      );
-    if (errors && errors[0].message === '권한이 없습니다.')
-      return dispatch(setErrorMessageReducer('권한이 없습니다.'));
-    if (errors && errors[0].message === '팔로워 대상이 로그인 된 계정입니다.')
-      return dispatch(
-        setAlertMessageReducer('팔로워 대상이 로그인 된 계정입니다.')
-      );
-    if (errors && errors[0].message === '이미 팔로우된 사용자입니다.')
-      return dispatch(setAlertMessageReducer('이미 팔로우된 사용자입니다.'));
-    if (!data) return;
-    const { userId: followerId, name, email, company } = data.addFollower;
-    dispatch(
-      addFollowerReducer({
-        userId: followerId,
-        name,
-        email: email ? email : '',
-        company: company ? company : '',
-      })
-    );
-  };
 
   const handleSearchFollowers = async (e: inputClickEvent) => {
     e.preventDefault();
     let searchFollowersResult: FollowerSearchItem[];
+    console.log(text);
     if (text.length >= 3 && text.length <= 5) {
       const { data } = await searchFollowers({ variables: { name: text } });
       if (!data) return;
@@ -105,7 +73,7 @@ flex flex-col items-center relavite"
       >
         <div className="w-full flex justify-end">
           <button
-            onClick={() => setShowesFollowModal(false)}
+            onClick={() => setShowsFollowModal(false)}
             className="text-xl font-semibold"
           >
             X
@@ -118,28 +86,18 @@ flex flex-col items-center relavite"
           팔로우의 ID를 검색하여 등록할 수 있습니다.
         </p>
 
-        <form className="w-80 mb-6 relative">
-          <input
-            type="text"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="팔로우 검색"
-            className="w-80 h-8 px-2 border-2 border-input-color rounded-md"
-          />
-          <input
-            type="submit"
-            value="검색"
-            onClick={handleSearchFollowers}
-            className="font-semibold absolute right-3 top-1 cursor-pointer"
-          />
-        </form>
+        <SearchFollowerForm
+          text={text}
+          setText={setText}
+          handleSearchFollowers={handleSearchFollowers}
+        />
         <ul className="w-full">
           {searchItems &&
             searchItems.map((user) => (
               <SearchedFollowerItem
                 key={user.userId}
                 user={user}
-                handleAddFollower={handleAddFollower}
+                profileUserId={profileUserId}
               />
             ))}
         </ul>

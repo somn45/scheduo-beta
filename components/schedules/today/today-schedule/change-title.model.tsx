@@ -4,7 +4,7 @@ import {
   updateTitleTodaySkdReducer,
   useAppDispatch,
 } from '@/lib/store/store';
-import { buttonClickEvent, inputClickEvent } from '@/types/HTMLEvents';
+import { inputClickEvent } from '@/types/HTMLEvents';
 import { UPDATE_TODAY_SKD_TITLE } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { useMutation } from '@apollo/client';
 import { useState } from 'react';

@@ -4,15 +4,7 @@ import Link from 'next/link';
 import { gql } from '@/generates/type';
 import { buttonClickEvent } from '@/types/HTMLEvents';
 import { useRouter } from 'next/router';
-import AlertBox from '../messageBox/AlertBox';
-
-export interface ModelEventList {
-  showLogin: () => void;
-  showJoin: () => void;
-  closeAuth: () => void;
-}
-
-export type ModalEventProps = Partial<ModelEventList>;
+import AlertBox from '../common/messageBox/AlertBox';
 
 const GET_USER = gql(`
   query GetUser {
@@ -30,7 +22,7 @@ const LOGOUT = gql(`
   }
 `);
 
-export default function Header({ showLogin }: ModalEventProps) {
+export default function Header() {
   const [showsAlertBox, setShowsAlertBox] = useState(false);
   const { data: getUserQuery } = useQuery(GET_USER);
   const [logOut] = useMutation(LOGOUT);
@@ -48,7 +40,7 @@ export default function Header({ showLogin }: ModalEventProps) {
   };
 
   return (
-    <header className="w-full h-header px-desktop-white-space pt-[15px] bg-white border-b-2 border-slate-200 fixed">
+    <header className="w-full h-header px-desktop-white-space pt-[15px] bg-white border-b-2 border-slate-200">
       <nav className="flex justify-between">
         <ul className="text-sm font-semibold flex justify-between">
           <li className="h-header-nav mr-8">
@@ -66,7 +58,7 @@ export default function Header({ showLogin }: ModalEventProps) {
             }`}
           >
             <Link
-              href="/schedules/todolist"
+              href="/schedules/today"
               className="pb-3 text-base ease-out duration-150 
               hover:text-light-pink"
             >
@@ -122,12 +114,24 @@ export default function Header({ showLogin }: ModalEventProps) {
               </li>
             </>
           ) : (
-            <button
-              onClick={showLogin}
-              className="text-sm pb-3 ease-out duration-150 hover:text-light-pink"
-            >
-              로그인/회원가입
-            </button>
+            <>
+              <li className="mr-8">
+                <Link
+                  href="/login"
+                  className="text-sm pb-3 ease-out duration-150 hover:text-light-pink"
+                >
+                  로그인
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/join"
+                  className="text-sm pb-3 ease-out duration-150 hover:text-light-pink"
+                >
+                  회원가입
+                </Link>
+              </li>
+            </>
           )}
         </ul>
       </nav>

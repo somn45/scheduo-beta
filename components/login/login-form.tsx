@@ -1,16 +1,12 @@
-import { ModalEventProps } from '../layout/Header';
+import { useEffect, useState } from 'react';
+import AccountInput from '../common/Input/AccountInput';
 import vaildateForm from '@/utils/validateForm';
-import { useMutation } from '@apollo/client';
-import React, { useEffect, useState } from 'react';
-import { setCookie } from 'cookies-next';
-import { CHECK_USER } from '@/utils/graphQL/mutations/usersMutations';
+import AccountSubmit from '../common/Input/AccountSubmit';
 import { inputClickEvent } from '@/types/HTMLEvents';
-import { useRouter } from 'next/router';
-import AccountInput from '../layout/input/AccountInput';
-import AccountSubmit from '../layout/input/AccountSubmit';
-import AccountLinkButton from '../layout/button/AccountLinkButton';
-import { useDispatch } from 'react-redux';
-import { setAlertMessageReducer } from '@/lib/store/store';
+import { CHECK_USER } from '@/utils/graphQL/mutations/usersMutations';
+import { useMutation } from '@apollo/client';
+import { setAlertMessageReducer, useAppDispatch } from '@/lib/store/store';
+import { setCookie } from 'cookies-next';
 
 const USER_NOT_FOUND = 'User not found';
 const PASSWORD_NOT_MATCH = 'Password not match';
@@ -19,7 +15,7 @@ const DEFAULT_ERROR_MSG = {
   password: '',
 };
 
-export default function Login({ showJoin, closeAuth }: ModalEventProps) {
+export default function LoginForm() {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [isDisabledSubmit, setIsDisabledSubmit] = useState(false);
@@ -27,8 +23,7 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
   const [login] = useMutation(CHECK_USER, {
     errorPolicy: 'all',
   });
-  const router = useRouter();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const validateResponse = vaildateForm({ userId, password });
@@ -75,38 +70,24 @@ export default function Login({ showJoin, closeAuth }: ModalEventProps) {
   };
 
   return (
-    <section className="w-full h-screen z-20 fixed bg-black/60 flex justify-center items-center">
-      <div className="w-1/5 px-8 py-5 rounded-[5px] text-sm bg-slate-50">
-        <div className="mb-5 flex justify-end">
-          <button
-            onClick={closeAuth}
-            className="text-xl text-right font-semibold"
-          >
-            X
-          </button>
-        </div>
-        <h2 className="mb-8 text-center text-3xl font-semibold">Scheduo</h2>
-        <form className="flex flex-col">
-          <AccountInput
-            name="userId"
-            value={userId}
-            onChange={setUserId}
-            errorMsg={errorMsg.userId}
-          />
-          <AccountInput
-            name="password"
-            value={password}
-            onChange={setPassword}
-            errorMsg={errorMsg.password}
-          />
-          <AccountSubmit
-            value="로그인"
-            onClick={handleLogin}
-            isDisabledSubmit={isDisabledSubmit}
-          />
-        </form>
-        <AccountLinkButton value="Scheduo 회원가입하기" onClick={showJoin} />
-      </div>
-    </section>
+    <form className="flex flex-col">
+      <AccountInput
+        name="userId"
+        value={userId}
+        onChange={setUserId}
+        errorMsg={errorMsg.userId}
+      />
+      <AccountInput
+        name="password"
+        value={password}
+        onChange={setPassword}
+        errorMsg={errorMsg.password}
+      />
+      <AccountSubmit
+        value="로그인"
+        onClick={handleLogin}
+        isDisabledSubmit={isDisabledSubmit}
+      />
+    </form>
   );
 }

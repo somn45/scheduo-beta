@@ -7,7 +7,7 @@ interface FollowerToShareProps {
   setSharingFollowers: React.Dispatch<SetStateAction<IFollowers[]>>;
 }
 
-export default function FollowerToShare({
+export default function SharedFollower({
   follower,
   setSharingFollowers,
 }: FollowerToShareProps) {
