@@ -19,8 +19,8 @@ export default function Home(props: { children: React.ReactNode }) {
       <main className="px-desktop-white-space mt-10 text-sm">
         {props.children}
       </main>
-      {alertMessage && <AlertBox message={alertMessage} />}
-      {errorMessage && <ErrorMessageBox message={errorMessage} />}
+      {alertMessage.value && <AlertBox message={alertMessage.value} />}
+      {errorMessage.value && <ErrorMessageBox message={errorMessage.value} />}
     </>
   );
 }

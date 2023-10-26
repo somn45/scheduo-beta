@@ -3,10 +3,10 @@ import { HYDRATE } from 'next-redux-wrapper';
 
 const alertMessagesSlice = createSlice({
   name: 'alertMessages',
-  initialState: '',
+  initialState: { value: '' },
   reducers: {
     setAlertMessageReducer: (state, action: PayloadAction<string>) => {
-      return action.payload;
+      return { value: action.payload };
     },
   },
   extraReducers: {

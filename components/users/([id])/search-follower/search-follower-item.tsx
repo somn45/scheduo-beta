@@ -29,25 +29,13 @@ export default function SearchedFollowerItem({
     const { data, errors } = await addFollower({
       variables: { userId, profileUserId },
     });
-    /*
-    if (errors && errors[0].message === '게스트로 접근할 수 없는 기능입니다.')
-      return dispatch(
-        setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.')
-      );
-    if (errors && errors[0].message === '권한이 없습니다.')
-      return dispatch(setErrorMessageReducer('권한이 없습니다.'));
-    if (errors && errors[0].message === '팔로워 대상이 로그인 된 계정입니다.')
-      return dispatch(
-        setAlertMessageReducer('팔로워 대상이 로그인 된 계정입니다.')
-      );
-    if (errors && errors[0].message === '이미 팔로우된 사용자입니다.')
-      return dispatch(setAlertMessageReducer('이미 팔로우된 사용자입니다.'));
-    */
+
     if (errors) {
       return dispatch(
         setAlertMessageReducer(GRAPHQL_ERROR_MESSAGE_LIST[errors[0].message])
       );
     }
+
     if (!data) return;
     const { userId: followerId, name, email, company } = data.addFollower;
     dispatch(

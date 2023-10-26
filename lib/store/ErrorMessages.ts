@@ -3,10 +3,10 @@ import { HYDRATE } from 'next-redux-wrapper';
 
 const errorMessagesSlice = createSlice({
   name: 'errorMessages',
-  initialState: '',
+  initialState: { value: '' },
   reducers: {
     setErrorMessageReducer: (state, action: PayloadAction<string>) => {
-      return action.payload;
+      return { value: action.payload };
     },
   },
   extraReducers: {

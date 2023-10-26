@@ -8,6 +8,7 @@ import { setAlertMessageReducer, useAppDispatch } from '@/lib/store/store';
 import { setCookie } from 'cookies-next';
 import useInputValidate, { Form } from '@/hooks/useInputValidate';
 import { INITIAL_LOGIN_FORM, VALIDATION_FORM } from './constants/constants';
+import { useRouter } from 'next/router';
 
 const USER_NOT_FOUND = 'User not found';
 const PASSWORD_NOT_MATCH = 'Password not match';
@@ -21,6 +22,7 @@ export default function LoginForm() {
   const [login] = useMutation(CHECK_USER, {
     errorPolicy: 'all',
   });
+  const router = useRouter();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export default function LoginForm() {
       }
     }
     setCookie('uid', input.userId);
-    window.location.href;
+    router.push('/');
   };
 
   return (
