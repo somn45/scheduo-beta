@@ -2,7 +2,10 @@ import { inputClickEvent } from '@/types/HTMLEvents';
 
 interface AccountSubmitProps {
   value: string;
-  onClick: (e: inputClickEvent) => Promise<void>;
+  onClick: (e: inputClickEvent) => Promise<void | {
+    payload: string;
+    type: 'alertMessages/setAlertMessageReducer';
+  }>;
   isDisabledSubmit: boolean;
 }
 

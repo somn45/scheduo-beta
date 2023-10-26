@@ -6,6 +6,7 @@ import {
 } from '@/lib/store/store';
 import { buttonClickEvent } from '@/types/HTMLEvents';
 import { IFollowerPreview } from '@/types/interfaces/users.interface';
+import { GRAPHQL_ERROR_MESSAGE_LIST } from '@/utils/constants/constants';
 import { ADD_FOLLOWER } from '@/utils/graphQL/mutations/usersMutations';
 import { useMutation } from '@apollo/client';
 
@@ -28,6 +29,7 @@ export default function SearchedFollowerItem({
     const { data, errors } = await addFollower({
       variables: { userId, profileUserId },
     });
+    /*
     if (errors && errors[0].message === '게스트로 접근할 수 없는 기능입니다.')
       return dispatch(
         setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.')
@@ -40,6 +42,12 @@ export default function SearchedFollowerItem({
       );
     if (errors && errors[0].message === '이미 팔로우된 사용자입니다.')
       return dispatch(setAlertMessageReducer('이미 팔로우된 사용자입니다.'));
+    */
+    if (errors) {
+      return dispatch(
+        setAlertMessageReducer(GRAPHQL_ERROR_MESSAGE_LIST[errors[0].message])
+      );
+    }
     if (!data) return;
     const { userId: followerId, name, email, company } = data.addFollower;
     dispatch(

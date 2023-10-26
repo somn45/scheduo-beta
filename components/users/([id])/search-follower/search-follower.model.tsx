@@ -1,24 +1,18 @@
-import {
-  addFollowerReducer,
-  setAlertMessageReducer,
-  setErrorMessageReducer,
-  useAppDispatch,
-} from '@/lib/store/store';
-import { buttonClickEvent, inputClickEvent } from '@/types/HTMLEvents';
+import { inputClickEvent } from '@/types/HTMLEvents';
 import {
   IFollowerPreview,
   FollowerSearchItem,
   IFollowers,
 } from '@/types/interfaces/users.interface';
-import { ADD_FOLLOWER } from '@/utils/graphQL/mutations/usersMutations';
 import {
   SEARCH_FOLLOWERS,
   SEARCH_FOLLOWERS_BY_ID,
 } from '@/utils/graphQL/querys/userQuerys';
-import { useLazyQuery, useMutation } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
 import { Dispatch, SetStateAction, useState } from 'react';
 import SearchedFollowerItem from './search-follower-item';
 import SearchFollowerForm from './search-follower-form';
+import useInput from '@/hooks/useInput';
 
 interface FollowerPreviewProps {
   setShowsFollowModal: Dispatch<SetStateAction<boolean>>;
@@ -31,38 +25,62 @@ export default function SearchFollowerModel({
   followers,
   profileUserId,
 }: FollowerPreviewProps) {
-  const [text, setText] = useState('');
+  const [text, setText, reset] = useInput('');
   const [searchItems, setSearchItems] = useState<
     IFollowerPreview[] | undefined
   >(undefined);
-  const [searchFollowers] = useLazyQuery(SEARCH_FOLLOWERS);
-  const [searchFollowersById] = useLazyQuery(SEARCH_FOLLOWERS_BY_ID);
+  const [searchFollowersQuery] = useLazyQuery(SEARCH_FOLLOWERS);
+  const [searchFollowersByIdQuery] = useLazyQuery(SEARCH_FOLLOWERS_BY_ID);
 
   const handleSearchFollowers = async (e: inputClickEvent) => {
     e.preventDefault();
-    let searchFollowersResult: FollowerSearchItem[];
-    console.log(text);
-    if (text.length >= 3 && text.length <= 5) {
-      const { data } = await searchFollowers({ variables: { name: text } });
-      if (!data) return;
-      searchFollowersResult = data.searchFollowers.map((user) => ({
+    const searchFollowersResult =
+      text.length >= 3 && text.length <= 5
+        ? searchFollowersByName()
+        : searchFollowersById();
+
+    searchFollowersResult.then((searchedFollowers) => {
+      if (!searchedFollowers) return setSearchItems(undefined);
+
+      const followerPreview = classifyFollowStatus(searchedFollowers);
+      setSearchItems(followerPreview);
+      reset();
+    });
+  };
+
+  const searchFollowersByName = async () => {
+    const { data: searchFollowersByNameResult } = await searchFollowersQuery({
+      variables: { name: text },
+    });
+    if (!searchFollowersByNameResult) return;
+    const searchFollowersResult =
+      searchFollowersByNameResult.searchFollowers.map((user) => ({
         userId: user.userId,
         name: user.name,
       }));
-    } else {
-      const { data } = await searchFollowersById({
-        variables: { id: text },
-      });
-      if (!data) return;
-      searchFollowersResult = [data.searchFollowersById];
-    }
+    return searchFollowersResult;
+  };
+
+  const searchFollowersById = async () => {
+    const { data: searchFollowersByIdResult } = await searchFollowersByIdQuery({
+      variables: { id: text },
+    });
+    if (!searchFollowersByIdResult) return;
+    const searchFollowersResult = [
+      searchFollowersByIdResult.searchFollowersById,
+    ];
+    return searchFollowersResult;
+  };
+
+  const classifyFollowStatus = (
+    searchedFollowers: Array<FollowerSearchItem>
+  ) => {
     const followerIds = followers.map((follower) => follower.userId);
-    const followerPreview = searchFollowersResult.map((user) => {
+    const followerPreview = searchedFollowers.map((user) => {
       if (followerIds.includes(user.userId)) return { ...user, follow: true };
       return { ...user, follow: false };
     });
-    setSearchItems(followerPreview);
-    setText('');
+    return followerPreview;
   };
 
   return (

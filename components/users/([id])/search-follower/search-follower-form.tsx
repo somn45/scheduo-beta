@@ -1,9 +1,9 @@
 import { inputClickEvent } from '@/types/HTMLEvents';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { ChangeEvent } from 'react';
 
 interface SearchFollowerFormProps {
   text: string;
-  setText: Dispatch<SetStateAction<string>>;
+  setText: (e: ChangeEvent<HTMLInputElement>) => void;
   handleSearchFollowers: (e: inputClickEvent) => Promise<void>;
 }
 
@@ -17,7 +17,7 @@ export default function SearchFollowerForm({
       <input
         type="text"
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={setText}
         placeholder="팔로우 검색"
         className="w-80 h-8 px-2 border-2 border-input-color rounded-md"
       />
