@@ -1,4 +1,4 @@
-import { FollowerSearchItem, IFollowers } from './users.interface';
+import { FollowerSearchItem } from './users.interface';
 
 interface BasicTodayScheduleInfo {
   title: string;

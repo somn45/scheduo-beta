@@ -86,7 +86,6 @@ export const VALIDATION_JOIN_FORM = new Map<
     (accountForm) => {
       const { fullname } = accountForm;
       if (fullname) {
-        console.log('fullname', fullname);
         if (fullname.length <= 2 && fullname.length >= 6) return false;
         else return true;
       }

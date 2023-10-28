@@ -9,7 +9,7 @@ import {
   todayScheduleUniqueField,
   UpdateToDoStateProps,
 } from '@/types/interfaces/todaySkds.interface';
-import { IFollowers, IUser } from '@/types/interfaces/users.interface';
+import { IFollower, IUser } from '@/types/interfaces/users.interface';
 import User from '@/models/User';
 import checkAuthorizeTodaySchedule from '@/utils/methods/checkAuthorize';
 import {
@@ -23,9 +23,9 @@ import getNextDay from '@/utils/methods/getNextDay/getNextDay';
 import findIsCheckedStateNextDay from '@/utils/methods/findIsCheckedStateNextDay/findIsCheckedStateNextDay';
 import createDocumentedTodaySchedule from '@/utils/methods/createDocumentedTodaySchedule/createDocumentedTodaySchedule';
 
-interface props {
+interface CreateScheduleWithSharingUsersProps {
   title: string;
-  followers: IFollowers[];
+  followers: IFollower[];
 }
 
 export default {
@@ -50,7 +50,7 @@ export default {
     },
     createScheduleWithFollowers: async (
       _: unknown,
-      { title, followers }: props,
+      { title, followers }: CreateScheduleWithSharingUsersProps,
       { req }: ContextValue
     ) => {
       const storedSessionUser = req.session.user;

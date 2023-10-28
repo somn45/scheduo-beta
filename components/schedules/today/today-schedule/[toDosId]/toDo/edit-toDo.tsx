@@ -4,7 +4,7 @@ import {
   useAppDispatch,
 } from '@/lib/store/store';
 import { inputClickEvent } from '@/types/HTMLEvents';
-import { ITodoWithId } from '@/types/interfaces/todaySkds.interface';
+import { GRAPHQL_ERROR_MESSAGE_LIST } from '@/utils/constants/constants';
 import { UPDATE_TODO } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { useMutation } from '@apollo/client';
 import { Dispatch, SetStateAction, useState } from 'react';
@@ -30,17 +30,19 @@ export default function EditToDo({
 
   const handleUpdateToDo = async (e: inputClickEvent) => {
     e.preventDefault();
-    const { data: updateToDoQuery, errors } = await updateToDo({
-      variables: { id, content: text, registeredAt },
-    });
-    if (errors) {
-      if (errors[0].message === '게스트는 접근할 수 없는 기능입니다.')
-        return dispatch(
-          setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.')
-        );
-      if (errors[0].message === '권한이 없습니다.')
-        return dispatch(setErrorMessageReducer('권한이 없습니다.'));
+    const { data: updateToDoQuery, errors: updateToDoErrors } =
+      await updateToDo({
+        variables: { id, content: text, registeredAt },
+      });
+
+    if (updateToDoErrors) {
+      dispatch(
+        setErrorMessageReducer(
+          GRAPHQL_ERROR_MESSAGE_LIST[updateToDoErrors[0].message]
+        )
+      );
     }
+
     if (!updateToDoQuery) return;
     dispatch(
       updateToDoReducer({ ...updateToDoQuery.updateToDo, state: 'toDo' })

@@ -1,4 +1,4 @@
-import CreateScheduleModel from '@/components/schedules/today/create-schedule.model';
+import CreateScheduleModal from '@/components/schedules/today/create-schedule.modal';
 import TodayScheduleList from '@/components/schedules/today/today-schedule-list';
 import wrapper, {
   RootState,
@@ -9,6 +9,11 @@ import request from 'graphql-request';
 import { withIronSessionSsr } from 'iron-session/next';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import {
+  filterMyTodaySchedules,
+  filterTodayScheduleIncludeSharingUsers,
+} from '../../../utils/methods/filteringMethods';
+import removeGraphQLTypename from '@/components/schedules/today/create-schedule.modal/utils/removeGraphQLTypename';
 
 export default function TodayScheduleMain() {
   const [showsCreationTodaySkdModal, setShowsCreationTodaySkdModal] =
@@ -32,7 +37,7 @@ export default function TodayScheduleMain() {
         <TodayScheduleList todaySchedules={todaySchedules} />
       )}
       {showsCreationTodaySkdModal && (
-        <CreateScheduleModel
+        <CreateScheduleModal
           setShowsCreationTodaySkdModal={setShowsCreationTodaySkdModal}
         />
       )}
@@ -53,17 +58,14 @@ export const getServerSideProps = withIronSessionSsr(
       };
 
     const allTodaySkds = allTodaySkdQuery.allSchedules.map((todaySkd) => {
-      delete todaySkd.__typename;
-      return todaySkd;
+      return removeGraphQLTypename(todaySkd);
     });
-    const myTodaySkds = allTodaySkds.filter(
-      (todaySkd) => todaySkd.author === user.id
+    const myTodaySkds = filterMyTodaySchedules(allTodaySkds, user);
+    const sharedTodaySkds = filterTodayScheduleIncludeSharingUsers(
+      allTodaySkds,
+      user
     );
-    const sharedTodaySkds = allTodaySkds.filter((todaySkd) =>
-      todaySkd.sharingUsers.some(
-        (sharingUser) => sharingUser.userId === user.id
-      )
-    );
+
     store.dispatch(
       initTodaySchedulesReducer([...myTodaySkds, ...sharedTodaySkds])
     );

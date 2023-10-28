@@ -28,17 +28,17 @@ export interface IFollowerPreview extends FollowerSearchItem {
   follow: boolean;
 }
 
-export interface IFollowers {
-  __typename?: string;
-  userId: string;
-  name: string;
-  email: string;
-  company: string;
-}
-
 export interface IFollower {
   userId: string;
   name: string;
-  email?: string;
-  company?: string;
+  email: string | null;
+  company: string | null;
+}
+
+export interface FollowerGraphQLQuery extends IFollower {
+  __typename?: string;
+}
+
+export interface FollowerGraphQLQueryWithChecked extends FollowerGraphQLQuery {
+  checked: boolean;
 }

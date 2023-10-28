@@ -5,6 +5,7 @@ import {
   useAppDispatch,
 } from '@/lib/store/store';
 import { inputClickEvent } from '@/types/HTMLEvents';
+import { GRAPHQL_ERROR_MESSAGE_LIST } from '@/utils/constants/constants';
 import { UPDATE_TODAY_SKD_TITLE } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { useMutation } from '@apollo/client';
 import { useState } from 'react';
@@ -26,25 +27,30 @@ export default function TitleChangeModal({
 
   const handleUpdateTitle = async (e: inputClickEvent) => {
     e.preventDefault();
-    const { data, errors } = await updateTodaySkdTitle({
+    const {
+      data: updateTodayScheduleTitleQuery,
+      errors: updateTodayScheduleTiTleErrors,
+    } = await updateTodaySkdTitle({
       variables: { title: changedTitle, _id: todaySkdId ? todaySkdId : '' },
     });
-    if (errors) {
-      if (errors[0].message === '하루 일정을 찾을 수 없습니다.')
+    if (updateTodayScheduleTiTleErrors) {
+      if (
+        updateTodayScheduleTiTleErrors[0].message ===
+        '하루 일정을 찾을 수 없습니다.'
+      )
         dispatch(setAlertMessageReducer('하루 일정을 찾을 수 없습니다.'));
-      if (errors[0].message === '게스트는 접근할 수 없는 기능입니다.')
-        return dispatch(
-          setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.')
-        );
-      if (errors[0].message === '권한이 없습니다.')
-        return dispatch(setErrorMessageReducer('권한이 없습니다.'));
+      return dispatch(
+        setErrorMessageReducer(
+          GRAPHQL_ERROR_MESSAGE_LIST[updateTodayScheduleTiTleErrors[0].message]
+        )
+      );
     }
-    if (!data) return;
+    if (!updateTodayScheduleTitleQuery) return;
 
     dispatch(
       updateTitleTodaySkdReducer({
-        title: data.updateTitle.title,
-        _id: data.updateTitle._id,
+        title: updateTodayScheduleTitleQuery.updateTitle.title,
+        _id: updateTodayScheduleTitleQuery.updateTitle._id,
       })
     );
   };

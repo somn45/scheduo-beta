@@ -5,6 +5,7 @@ import {
 } from '@/lib/store/store';
 import { buttonClickEvent } from '@/types/HTMLEvents';
 import { ITodoWithId } from '@/types/interfaces/todaySkds.interface';
+import { GRAPHQL_ERROR_MESSAGE_LIST } from '@/utils/constants/constants';
 import { DELETE_TODO } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { useMutation } from '@apollo/client';
 
@@ -23,14 +24,15 @@ export default function DeleteToDoButton({
       await deleteToDo({
         variables: { id, registeredAt },
       });
+
     if (deleteToDoErrors) {
-      if (deleteToDoErrors[0].message === '게스트는 접근할 수 없는 기능입니다.')
-        return dispatch(
-          setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.')
-        );
-      if (deleteToDoErrors[0].message === '권한이 없습니다.')
-        return dispatch(setErrorMessageReducer('권한이 없습니다.'));
+      dispatch(
+        setErrorMessageReducer(
+          GRAPHQL_ERROR_MESSAGE_LIST[deleteToDoErrors[0].message]
+        )
+      );
     }
+
     if (!deleteToDoQuery) return;
     dispatch(deleteToDoReducer(deleteToDoQuery.deleteToDo));
   };

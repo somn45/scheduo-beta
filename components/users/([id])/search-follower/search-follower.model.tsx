@@ -2,7 +2,6 @@ import { inputClickEvent } from '@/types/HTMLEvents';
 import {
   IFollowerPreview,
   FollowerSearchItem,
-  IFollowers,
 } from '@/types/interfaces/users.interface';
 import {
   SEARCH_FOLLOWERS,

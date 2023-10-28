@@ -1,26 +1,23 @@
-import {
-  addTodaySkdReducer,
-  setAlertMessageReducer,
-  useAppDispatch,
-} from '@/lib/store/store';
+import { addTodaySkdReducer } from '@/lib/store/store';
 import { inputClickEvent } from '@/types/HTMLEvents';
 import { CREATE_SCHEDULE_WITH_FOLLOWERS } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { ALL_FOLLOWERS } from '@/utils/graphQL/querys/userQuerys';
 import { useMutation, useQuery } from '@apollo/client';
-import { useState } from 'react';
-import { IFollowers } from '@/types/interfaces/users.interface';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import SharedFollower from './today-schedule/shared-follower';
+import CreateScheduleFollowers from './create-schedule-followers';
+import useCheckBoxWithSharingUser from '@/hooks/useCheckBoxWithSharingUser';
+import { IFollower } from '@/types/interfaces/users.interface';
 
-interface CreateScheduleModelProps {
+interface CreateScheduleModalProps {
   setShowsCreationTodaySkdModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function CreateScheduleModel({
+export default function CreateScheduleModal({
   setShowsCreationTodaySkdModal,
-}: CreateScheduleModelProps) {
+}: CreateScheduleModalProps) {
   const [title, setTitle] = useState('');
-  const [sharingFollowers, setSharingFollowers] = useState<IFollowers[]>([]);
+  const [sharingUsers, setSharingUsers] = useState<IFollower[]>([]);
   const { data: followersQuery } = useQuery(ALL_FOLLOWERS);
   const [createScheduleWithFollowers] = useMutation(
     CREATE_SCHEDULE_WITH_FOLLOWERS,
@@ -28,24 +25,40 @@ export default function CreateScheduleModel({
       errorPolicy: 'all',
     }
   );
-  const dispatch = useAppDispatch();
+
+  const [followersWithChecked, onChange] = useCheckBoxWithSharingUser({
+    followers:
+      !followersQuery || !followersQuery.allFollowers
+        ? null
+        : followersQuery.allFollowers,
+  });
   const router = useRouter();
+
+  useEffect(() => {
+    if (!followersWithChecked) return;
+    setSharingUsers(
+      followersWithChecked
+        .filter((follower) => follower.checked)
+        .map((follower) => {
+          const { checked, ...followerInfo } = follower;
+          return followerInfo;
+        })
+    );
+  }, [followersWithChecked]);
 
   const handleCreateTodaySkd = async (e: inputClickEvent) => {
     e.preventDefault();
-    const followers = sharingFollowers.map((follower) => {
-      {
-        delete follower.__typename;
-        return follower;
-      }
-    });
-    const { data, errors } = await createScheduleWithFollowers({
-      variables: { title, followers },
-    });
-    if (errors && errors[0].message === 'User not found')
-      return dispatch(setAlertMessageReducer('유저 없음'));
-    if (data && data.createScheduleWithFollowers)
-      addTodaySkdReducer(data.createScheduleWithFollowers);
+    const { data: createScheduleWithFollowersQuery } =
+      await createScheduleWithFollowers({
+        variables: { title, followers: sharingUsers },
+      });
+    if (
+      createScheduleWithFollowersQuery &&
+      createScheduleWithFollowersQuery.createScheduleWithFollowers
+    )
+      addTodaySkdReducer(
+        createScheduleWithFollowersQuery.createScheduleWithFollowers
+      );
     setShowsCreationTodaySkdModal(false);
     router.push('/schedules/today');
   };
@@ -84,20 +97,10 @@ export default function CreateScheduleModel({
           <button className="mb-2">팔로워 공유</button>
           <div className="w-64 h-56 mb-3 border-4 border-slate-400 rounded-lg">
             <ul className="w-full h-full p-2">
-              {!followersQuery && <li>팔로워가 없습니다.</li>}
-              {followersQuery &&
-                followersQuery.allFollowers &&
-                followersQuery.allFollowers.map((follower) => (
-                  <SharedFollower
-                    key={follower.userId}
-                    follower={{
-                      ...follower,
-                      email: follower.email ? follower.email : '',
-                      company: follower.company ? follower.company : '',
-                    }}
-                    setSharingFollowers={setSharingFollowers}
-                  />
-                ))}
+              <CreateScheduleFollowers
+                followers={followersWithChecked}
+                onChange={onChange}
+              />
             </ul>
           </div>
           <input

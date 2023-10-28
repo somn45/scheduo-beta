@@ -6,8 +6,10 @@ import {
 } from '@/lib/store/store';
 import { checkboxEvent } from '@/types/HTMLEvents';
 import { ITodoWithId } from '@/types/interfaces/todaySkds.interface';
+import { GRAPHQL_ERROR_MESSAGE_LIST } from '@/utils/constants/constants';
 import { UPDATE_TODO_STATE } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { useMutation } from '@apollo/client';
+import { GraphQLError } from 'graphql';
 import { Dispatch, SetStateAction, useState } from 'react';
 
 interface SetStateCheckboxProps {
@@ -30,42 +32,51 @@ export default function SetStateCheckbox({
   });
   const dispatch = useAppDispatch();
 
-  const setToDoStateFinish = async (e: checkboxEvent) => {
-    if (e.target.checked) {
-      const { data: updateToDoStateQuery, errors: updateToDoStateErrors } =
-        await updateToDoState({
-          variables: { hasFinished: true, id, registeredAt },
-        });
-      if (updateToDoStateErrors) {
-        if (
-          updateToDoStateErrors[0].message ===
-          '게스트는 접근할 수 없는 기능입니다.'
-        )
-          return dispatch(
-            setErrorMessageReducer('게스트는 접근할 수 없는 기능입니다.')
-          );
-        if (updateToDoStateErrors[0].message === '권한이 없습니다.')
-          return dispatch(setErrorMessageReducer('권한이 없습니다.'));
-      }
-      if (!updateToDoStateQuery) return;
-      setChecked(true);
-      dispatch(updateToDoStateReducer(updateToDoStateQuery.updateToDoState));
-    } else {
-      const { data: updateToDoStateQuery, errors: updateToDoStateErrors } =
-        await updateToDoState({
-          variables: { hasFinished: false, id, registeredAt },
-        });
-      if (
-        updateToDoStateErrors &&
-        updateToDoStateErrors[0].message === 'User not found'
-      )
-        return dispatch(setAlertMessageReducer('유저 없음'));
-      else if (updateToDoStateErrors && updateToDoStateErrors[0].message)
-        alert(updateToDoStateErrors[0].message);
-      if (!updateToDoStateQuery) return;
-      setChecked(false);
-      dispatch(updateToDoStateReducer(updateToDoStateQuery.updateToDoState));
+  const setToDoState = async (e: checkboxEvent) => {
+    const updatedstateSchedule = e.target.checked
+      ? await setToDoStateWillDone()
+      : await setToDoStateToDo();
+
+    if (!updatedstateSchedule) return;
+    const { data: updateToDoStateQuery, errors: updateToDoStateErrors } =
+      updatedstateSchedule;
+    if (updateToDoStateErrors) {
+      handleSetStateErrors(updateToDoStateErrors);
     }
+    if (!updateToDoStateQuery) return;
+    dispatch(updateToDoStateReducer(updateToDoStateQuery.updateToDoState));
+  };
+
+  const setToDoStateWillDone = async () => {
+    const {
+      data: setToDoStateWillDoneQuery,
+      errors: setToDoStateWillDoneErrors,
+    } = await updateToDoState({
+      variables: { hasFinished: true, id, registeredAt },
+    });
+    setChecked(true);
+    return {
+      data: setToDoStateWillDoneQuery,
+      errors: setToDoStateWillDoneErrors,
+    };
+  };
+
+  const setToDoStateToDo = async () => {
+    const { data: setToDoStateToDoQuery, errors: setToDoStateToDoErrors } =
+      await updateToDoState({
+        variables: { hasFinished: false, id, registeredAt },
+      });
+    setChecked(false);
+    return { data: setToDoStateToDoQuery, errors: setToDoStateToDoErrors };
+  };
+
+  const handleSetStateErrors = (errors: readonly GraphQLError[]) => {
+    if (errors[0].message === 'User not found') {
+      return dispatch(setAlertMessageReducer('유저 없음'));
+    }
+    return dispatch(
+      setErrorMessageReducer(GRAPHQL_ERROR_MESSAGE_LIST[errors[0].message])
+    );
   };
 
   return (
@@ -74,7 +85,7 @@ export default function SetStateCheckbox({
         id={content}
         type="checkbox"
         checked={checked}
-        onChange={setToDoStateFinish}
+        onChange={setToDoState}
         className="w-4 h-4 mr-2 text-blue-900 bg-gray-900 cursor-pointer"
       />
     </>

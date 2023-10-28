@@ -26,18 +26,26 @@ export default function SearchedFollowerItem({
 
   const handleAddFollower = async (e: buttonClickEvent, userId: string) => {
     e.preventDefault();
-    const { data, errors } = await addFollower({
-      variables: { userId, profileUserId },
-    });
+    const { data: addFollowerQuery, errors: addFollowerErrors } =
+      await addFollower({
+        variables: { userId, profileUserId },
+      });
 
-    if (errors) {
+    if (addFollowerErrors) {
       return dispatch(
-        setAlertMessageReducer(GRAPHQL_ERROR_MESSAGE_LIST[errors[0].message])
+        setAlertMessageReducer(
+          GRAPHQL_ERROR_MESSAGE_LIST[addFollowerErrors[0].message]
+        )
       );
     }
 
-    if (!data) return;
-    const { userId: followerId, name, email, company } = data.addFollower;
+    if (!addFollowerQuery) return;
+    const {
+      userId: followerId,
+      name,
+      email,
+      company,
+    } = addFollowerQuery.addFollower;
     dispatch(
       addFollowerReducer({
         userId: followerId,
