@@ -2,17 +2,12 @@ import { IToDo } from '@/types/interfaces/todaySkds.interface';
 
 const findIsCheckedStateNextDay = (toDos: IToDo[], nextDaySharp: Date) => {
   const partialFinishedToDos: IToDo[] = toDos.map((toDo) => {
-    if (isRegisteredAtNotToday(toDo, nextDaySharp) && toDo.state === 'willDone')
-      return {
-        ...toDo,
-        state: 'done',
-      };
-    else if (isRegisteredAtNotToday(toDo, nextDaySharp))
-      return {
-        ...toDo,
-        registeredAt: toDo.registeredAt + 1000 * 60 * 60 * 24,
-      };
-    else return toDo;
+    if (isRegisteredAtNotToday(toDo, nextDaySharp)) {
+      if (toDo.state === 'willDone') {
+        toDo.state = 'done';
+      } else toDo.registeredAt += 1000 * 60 * 60 * 24;
+    }
+    return toDo;
   });
   return partialFinishedToDos;
 };
