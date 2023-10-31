@@ -25,7 +25,12 @@ export default function ToDoForm() {
     if (typeof toDosId !== 'string') return;
     const regitDate = Date.now();
     const { data: addToDoQuery, errors } = await addToDo({
-      variables: { id: toDosId, content, registeredAt: regitDate },
+      variables: {
+        id: toDosId,
+        content,
+        registeredAt: regitDate,
+        updatedAt: regitDate,
+      },
     });
     if (errors) {
       return dispatch(

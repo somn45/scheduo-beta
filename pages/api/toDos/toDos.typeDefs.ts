@@ -35,6 +35,7 @@ export default gql`
   type ToDo {
     content: String!
     registeredAt: Float!
+    updatedAt: Float!
     state: State!
   }
   type Query {
@@ -59,8 +60,9 @@ export default gql`
   }
   input AddToDoAndUpdateToDoInput {
     id: String!
-    content: String!
     registeredAt: Float!
+    updatedAt: Float!
+    content: String!
   }
   input DeleteToDoInput {
     id: String!

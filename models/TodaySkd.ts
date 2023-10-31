@@ -50,6 +50,7 @@ const todaySkdSchema: Schema<
     {
       content: { type: String, required: true },
       registeredAt: { type: Number, required: true },
+      updatedAt: { type: Number, required: true },
       state: {
         type: String,
         required: true,

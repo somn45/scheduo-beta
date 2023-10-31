@@ -12,6 +12,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 interface EditToDoProps {
   content: string;
   registeredAt: number;
+  updatedAt: number;
   id: string;
   setIsEditMode: Dispatch<SetStateAction<boolean>>;
 }
@@ -19,6 +20,7 @@ interface EditToDoProps {
 export default function EditToDo({
   content,
   registeredAt,
+  updatedAt,
   id,
   setIsEditMode,
 }: EditToDoProps) {
@@ -32,7 +34,7 @@ export default function EditToDo({
     e.preventDefault();
     const { data: updateToDoQuery, errors: updateToDoErrors } =
       await updateToDo({
-        variables: { id, content: text, registeredAt },
+        variables: { id, content: text, registeredAt, updatedAt },
       });
 
     if (updateToDoErrors) {

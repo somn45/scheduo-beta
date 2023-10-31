@@ -27,6 +27,7 @@ const TODAY_SCHEDULE_TODOS = gql(`
   fragment CoreToDosField on ToDo {
     content
     registeredAt
+    updatedAt
   }
 `);
 

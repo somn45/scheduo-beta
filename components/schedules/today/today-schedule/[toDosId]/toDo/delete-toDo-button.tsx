@@ -12,7 +12,7 @@ import { useMutation } from '@apollo/client';
 export default function DeleteToDoButton({
   id,
   registeredAt,
-}: Omit<ITodoWithId, 'content' | 'state'>) {
+}: Omit<ITodoWithId, 'content' | 'updatedAt' | 'state'>) {
   const [deleteToDo] = useMutation(DELETE_TODO, {
     errorPolicy: 'all',
   });

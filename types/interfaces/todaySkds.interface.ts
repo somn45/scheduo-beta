@@ -21,6 +21,7 @@ export interface TodayScheduleWithID extends TodaySkdWithFollowers {
 export interface IToDo {
   content: string;
   registeredAt: number;
+  updatedAt: number;
   state: 'toDo' | 'willDone' | 'done';
 }
 

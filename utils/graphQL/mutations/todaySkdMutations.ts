@@ -37,8 +37,8 @@ export const DELETE_SCHEDULE = gql(`
 `);
 
 export const ADD_TODO = gql(`
-  mutation AddToDo($id: String!, $content: String!, $registeredAt: Float!) {
-    addToDo(input: {id: $id, content: $content, registeredAt: $registeredAt}) {
+  mutation AddToDo($id: String!, $content: String!, $registeredAt: Float!, $updatedAt: Float!) {
+    addToDo(input: {id: $id, content: $content, registeredAt: $registeredAt, updatedAt: $updatedAt}) {
       ...ToDosIncludesStateField
     }
   }
@@ -53,10 +53,11 @@ mutation FinishToDos($title: String!) {
 `);
 
 export const UPDATE_TODO = gql(`
-  mutation UpdateToDo($id: String!, $content: String!, $registeredAt: Float!) {
-    updateToDo(input: {id: $id, content: $content, registeredAt: $registeredAt}) {
+  mutation UpdateToDo($id: String!, $content: String!, $registeredAt: Float!, $updatedAt: Float!) {
+    updateToDo(input: {id: $id, content: $content, registeredAt: $registeredAt, updatedAt: $updatedAt}) {
       content
       registeredAt
+      updatedAt
     }
   }
 `);

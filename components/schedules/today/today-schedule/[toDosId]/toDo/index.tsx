@@ -11,7 +11,7 @@ interface ToDoProps {
 }
 
 export default function ToDo({
-  toDo: { content, registeredAt, state },
+  toDo: { content, registeredAt, updatedAt, state },
   id,
 }: ToDoProps) {
   const [checked, setChecked] = useState(state === 'willDone' ? true : false);
@@ -23,6 +23,7 @@ export default function ToDo({
         <EditToDo
           content={content}
           registeredAt={registeredAt}
+          updatedAt={updatedAt}
           id={id}
           setIsEditMode={setIsEditMode}
         />

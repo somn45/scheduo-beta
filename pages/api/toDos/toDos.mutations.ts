@@ -19,9 +19,9 @@ import {
 } from '@/constants/apolloErrorMessages';
 import setTodayStateWillDone from '@/utils/methods/setTodaySkdState/setTodaySkdStateWillDone';
 import setTodayStateToDo from '@/utils/methods/setTodaySkdState/setTodaySkdStateToDo';
-import getNextDay from '@/utils/methods/getNextDay/getNextDay';
 import findIsCheckedStateNextDay from '@/utils/methods/findIsCheckedStateNextDay/findIsCheckedStateNextDay';
 import createDocumentedTodaySchedule from '@/utils/methods/createDocumentedTodaySchedule/createDocumentedTodaySchedule';
+import getCurrentDay from '@/utils/methods/getDate/getCurrentDay';
 
 interface CreateScheduleWithSharingUsersProps {
   title: string;
@@ -115,7 +115,7 @@ export default {
       { input }: { input: todayScheduleWithoutState },
       { req }: ContextValue
     ) => {
-      const { id, content, registeredAt } = input;
+      const { id, content, updatedAt, registeredAt } = input;
       const storedSessionUser = req.session.user;
       if (!storedSessionUser)
         throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
@@ -135,16 +135,21 @@ export default {
           extensions: { code: UNAUTHORIZED_ERROR.code },
         });
 
-      todaySchedule.toDos.push({ content, registeredAt, state: 'toDo' });
+      todaySchedule.toDos.push({
+        content,
+        registeredAt,
+        updatedAt,
+        state: 'toDo',
+      });
       await todaySchedule.save();
-      return { content, registeredAt, state: 'toDo' };
+      return { content, registeredAt, updatedAt, state: 'toDo' };
     },
     updateToDo: async (
       _: unknown,
       { input }: { input: todayScheduleWithoutState },
       { req }: ContextValue
     ) => {
-      const { id, content, registeredAt } = input;
+      const { id, content, registeredAt, updatedAt } = input;
       const storedSessionUser = req.session.user;
       if (!storedSessionUser)
         throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
@@ -166,7 +171,12 @@ export default {
 
       const { toDos } = todaySchedule;
 
-      const updateToDo: IToDo = { content, registeredAt, state: 'toDo' };
+      const updateToDo: IToDo = {
+        content,
+        registeredAt,
+        updatedAt,
+        state: 'toDo',
+      };
       const updatedToDos = toDos.map((toDo) => {
         if (toDo.registeredAt === registeredAt) return updateToDo;
         return { ...toDo };
@@ -261,10 +271,10 @@ export default {
 
       const toDos = todayScheduleDocument.toDos;
 
-      const nextDaySharp = getNextDay();
+      const currentDaysharp = getCurrentDay();
       const partialFinishedToDos = findIsCheckedStateNextDay(
         toDos,
-        nextDaySharp
+        currentDaysharp
       );
 
       todayScheduleDocument.toDos = [...partialFinishedToDos];
