@@ -282,7 +282,11 @@ export default {
 
       return partialFinishedToDos;
     },
-    documentedToDos: async (_: unknown, __: unknown, { req }: ContextValue) => {
+    documentedToDos: async (
+      _: unknown,
+      { userId }: { userId: string },
+      { req }: ContextValue
+    ) => {
       const storedSessionUser = req.session.user;
       if (!storedSessionUser) return null;
 
@@ -305,6 +309,7 @@ export default {
       const outputDocedSchedule = finishedTodaySkd.map(async (schedule) => {
         const doumentedSchedule = createDocumentedTodaySchedule(schedule);
         await DocedTodaySkd.insertMany(doumentedSchedule);
+        return doumentedSchedule;
       });
 
       finishedTodaySkd.map(

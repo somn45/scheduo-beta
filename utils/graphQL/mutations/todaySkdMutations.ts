@@ -88,16 +88,16 @@ mutation UpdateToDoState(
 `);
 
 export const ALL_DOCUMENTED_TODAY_SKDS = gql(`
-  query AllDocedTodaySkds {
-    allDocedTodaySkds {
+  query AllDocedTodaySkds($userId: String) {
+    allDocedTodaySkds(userId: $userId) {
       ...DocumentedTodaySkdField
     }
   }
 `);
 
 export const DOCUMENTED_TODOS = gql(`
-mutation DocumentedToDos {
-  documentedToDos {
+mutation DocumentedToDos($userId: String) {
+  documentedToDos(userId: $userId) {
     ...DocumentedTodaySkdField
   }
 }

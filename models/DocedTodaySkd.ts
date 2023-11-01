@@ -1,7 +1,9 @@
-import { IDocedTodaySkd } from '@/types/interfaces/todaySkds.interface';
 import { Document, Model, Schema, model, models } from 'mongoose';
+import { EventWithAuthor } from '@/types/interfaces/documentedTodaySchedules.interface';
 
-interface DBDocedTodaySkd extends IDocedTodaySkd {}
+type IDocumentedTodaySchedule = EventWithAuthor;
+
+interface DBDocedTodaySkd extends IDocumentedTodaySchedule {}
 
 interface DBDocedTodaySkdDocument extends DBDocedTodaySkd, Document {}
 

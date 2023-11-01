@@ -25,16 +25,6 @@ export interface IToDo {
   state: 'toDo' | 'willDone' | 'done';
 }
 
-export interface IDocedTodaySkd extends BasicTodayScheduleInfo {
-  start: number;
-  end: number;
-  docedToDos: Array<IDocedToDo>;
-}
-
-export interface IDocedToDo {
-  content: string;
-}
-
 export interface ITodoWithId extends IToDo {
   id: string;
 }

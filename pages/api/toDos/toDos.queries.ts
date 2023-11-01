@@ -21,17 +21,13 @@ export default {
     },
     allDocedTodaySkds: async (
       _: unknown,
-      __: unknown,
+      { userId }: { userId: string },
       { req }: ContextValue
     ) => {
       const storedSessionUser = req.session.user;
-      if (!storedSessionUser)
-        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
-          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
-        });
-
+      const loggedUserId = storedSessionUser ? storedSessionUser.id : userId;
       const docedTodaySkds = await DocedTodaySkd.find({
-        author: storedSessionUser.id,
+        author: loggedUserId,
       });
       return docedTodaySkds;
     },

@@ -9,68 +9,22 @@ import {
   ALL_DOCUMENTED_TODAY_SKDS,
   DOCUMENTED_TODOS,
 } from '@/utils/graphQL/mutations/todaySkdMutations';
+import { withIronSessionSsr } from 'iron-session/next';
+import request from 'graphql-request';
+import { EventWithAuthor } from '@/types/interfaces/documentedTodaySchedules.interface';
 
-interface Events {
-  title: string;
-  start: Date;
-  end: Date;
-  docedToDos: Array<DocedToDos>;
-}
-
-interface DocedToDos {
-  content: string;
-}
-
-export default function Home() {
-  const [documentedTodaySkds, setDocumentedTodaySkds] = useState<Events[]>([]);
+export default function Home({ events }: { events: EventWithAuthor[] }) {
   const [showsScheduleDetail, setShowsScheduleDetail] = useState(false);
   const calendarRef = useRef();
-  const [getDocedTodaySkds] = useLazyQuery(ALL_DOCUMENTED_TODAY_SKDS);
-  const [documentToDos] = useMutation(DOCUMENTED_TODOS, {
-    errorPolicy: 'all',
-  });
-  useEffect(() => {
-    handleDocedToDos();
-    const handleGetDocedTodaySkds = async () => {
-      const { data: docedTodaySkdsQuery, error } = await getDocedTodaySkds();
-      if (docedTodaySkdsQuery && docedTodaySkdsQuery.allDocedTodaySkds) {
-        const calendarEvents = docedTodaySkdsQuery.allDocedTodaySkds.map(
-          (todaySkd) => ({
-            title: todaySkd.title,
-            start: new Date(todaySkd.start),
-            end: new Date(todaySkd.end),
-            docedToDos: todaySkd.docedToDos,
-          })
-        );
-        setDocumentedTodaySkds(calendarEvents);
-      }
-    };
-    handleGetDocedTodaySkds();
-  }, []);
-
-  const handleDocedToDos = async () => {
-    const { data: documentToDosQuery } = await documentToDos();
-    if (documentToDosQuery && documentToDosQuery.documentedToDos) {
-      const calendarEvents = documentToDosQuery.documentedToDos.map(
-        (todaySkd) => ({
-          title: todaySkd.title,
-          start: new Date(todaySkd.start),
-          end: new Date(todaySkd.end),
-          docedToDos: todaySkd.docedToDos,
-        })
-      );
-      setDocumentedTodaySkds(calendarEvents);
-    }
-  };
 
   return (
     <main className="pt-10">
       <div className="w-1/2">
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}
-          aspectRatio={4}
+          aspectRatio={2}
           ref={calendarRef.current}
-          events={documentedTodaySkds}
+          events={events}
           eventMouseEnter={() => setShowsScheduleDetail(true)}
           eventMouseLeave={() => setShowsScheduleDetail(false)}
           eventContent={(eventInfo: EventContentArg) => (
@@ -85,7 +39,7 @@ export default function Home() {
                   after:border-b-white after:border-l-transparent after:border-r-transparent
                 "
                 >
-                  {documentedTodaySkds
+                  {events
                     .filter(
                       (docedTodaySkds) =>
                         docedTodaySkds.title === eventInfo.event.title
@@ -104,3 +58,56 @@ export default function Home() {
     </main>
   );
 }
+
+export const getServerSideProps = withIronSessionSsr(
+  async function getServerSideProps({ req }) {
+    const storedSessionUser = req.session.user;
+    if (!storedSessionUser) {
+      return {
+        props: { events: [] },
+      };
+    }
+    const documentToDosQuery = await request(
+      'http://localhost:3000/api/graphql',
+      DOCUMENTED_TODOS,
+      { userId: storedSessionUser.id }
+    );
+
+    const getDocumentTodayScheduleQuery = await request(
+      'http://localhost:3000/api/graphql',
+      ALL_DOCUMENTED_TODAY_SKDS,
+      { userId: storedSessionUser.id }
+    );
+    if (!getDocumentTodayScheduleQuery.allDocedTodaySkds) {
+      return {
+        props: { events: [] },
+      };
+    }
+
+    const calendarEvents = getDocumentTodayScheduleQuery.allDocedTodaySkds.map(
+      (todaySkd) => ({
+        title: todaySkd.title,
+        author: todaySkd.author,
+        start: todaySkd.start,
+        end: todaySkd.end,
+        docedToDos: todaySkd.docedToDos,
+      })
+    );
+
+    if (documentToDosQuery.documentedToDos) {
+      return {
+        props: {
+          events: [...calendarEvents, ...documentToDosQuery.documentedToDos],
+        },
+      };
+    }
+
+    return {
+      props: { events: calendarEvents },
+    };
+  },
+  {
+    cookieName: 'uid',
+    password: process.env.SESSION_PASSWORD ? process.env.SESSION_PASSWORD : '',
+  }
+);
