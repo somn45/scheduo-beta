@@ -1,16 +1,19 @@
-import { TodaySkdWithFollowers } from '@/types/interfaces/todaySkds.interface';
+import {
+  TodayScheduleWithID,
+  TodaySkdWithFollowers,
+} from '@/types/interfaces/todaySkds.interface';
 import getCurrentDay from '../getDate/getCurrentDay';
 import {
-  Event,
-  EventWithAuthor,
+  DocumentedTodaySchedule,
+  DocumentedTodayScheduleWithAuthor,
 } from '@/types/interfaces/documentedTodaySchedules.interface';
 
 const createDocumentedTodaySchedule = (
   schedule: TodaySkdWithFollowers
-): Array<EventWithAuthor> => {
+): Array<DocumentedTodayScheduleWithAuthor> => {
   const docedScheduleTemplate = getDocedScheduleTemplate(schedule);
 
-  const documentedSchedule: EventWithAuthor[] = [
+  const documentedSchedule: DocumentedTodayScheduleWithAuthor[] = [
     {
       ...docedScheduleTemplate,
       author: schedule.author,
@@ -18,7 +21,7 @@ const createDocumentedTodaySchedule = (
   ];
   const sharingUsers = schedule.sharingUsers;
   if (sharingUsers && sharingUsers.length > 0) {
-    const documentedSchedules: EventWithAuthor[] = [
+    const documentedSchedules: DocumentedTodayScheduleWithAuthor[] = [
       ...documentedSchedule,
       ...sharingUsers.map((user) => ({
         ...docedScheduleTemplate,
@@ -30,10 +33,19 @@ const createDocumentedTodaySchedule = (
   return documentedSchedule;
 };
 
-const getDocedScheduleTemplate = (schedule: TodaySkdWithFollowers): Event => ({
+const getDocedScheduleTemplate = (
+  schedule: TodayScheduleWithID
+): DocumentedTodaySchedule => ({
+  _id: schedule._id ? schedule._id : '',
   title: schedule.title,
   start: schedule.createdAt ? schedule.createdAt : Date.now(),
   end: getCurrentDay().getTime(),
+  sharingUsers: schedule.sharingUsers
+    ? schedule.sharingUsers.map((user) => ({
+        userId: user.userId,
+        name: user.name,
+      }))
+    : [],
   docedToDos: schedule.toDos,
 });
 

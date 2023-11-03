@@ -1,9 +1,8 @@
 import { Document, Model, Schema, model, models } from 'mongoose';
-import { EventWithAuthor } from '@/types/interfaces/documentedTodaySchedules.interface';
+import { DocumentedTodayScheduleWithAuthor } from '@/types/interfaces/documentedTodaySchedules.interface';
 
-type IDocumentedTodaySchedule = EventWithAuthor;
-
-interface DBDocedTodaySkd extends IDocumentedTodaySchedule {}
+interface DBDocedTodaySkd
+  extends Omit<DocumentedTodayScheduleWithAuthor, '_id'> {}
 
 interface DBDocedTodaySkdDocument extends DBDocedTodaySkd, Document {}
 
@@ -14,6 +13,12 @@ const docedTodaySkdSchema: Schema<DBDocedTodaySkdDocument> = new Schema({
   author: { type: String, required: true },
   start: Date,
   end: Date,
+  sharingUsers: [
+    {
+      userId: { type: String, required: true },
+      name: { type: String, required: true },
+    },
+  ],
   docedToDos: [
     {
       content: String,

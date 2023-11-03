@@ -40,10 +40,15 @@ fragment ToDosIncludesStateField on ToDo {
 
 const DOCUMENTED_TODAY_SCHEDULE_LIST = gql(`
   fragment DocumentedTodaySkdField on DocedTodaySkd {
+    _id
     title
     author
     start
     end
+    sharingUsers {
+      userId
+      name
+    }
     docedToDos {
       content
     }

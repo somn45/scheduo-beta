@@ -288,9 +288,9 @@ export default {
       { req }: ContextValue
     ) => {
       const storedSessionUser = req.session.user;
-      if (!storedSessionUser) return null;
+      const loggedUserId = storedSessionUser ? storedSessionUser.id : userId;
 
-      const loggedUser = await User.findUser(storedSessionUser.id);
+      const loggedUser = await User.findUser(loggedUserId);
       const todaySchedules = await TodaySkd.find()
         .or([
           { author: loggedUser.userId },

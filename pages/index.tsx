@@ -11,10 +11,11 @@ import {
 } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { withIronSessionSsr } from 'iron-session/next';
 import request from 'graphql-request';
-import { EventWithAuthor } from '@/types/interfaces/documentedTodaySchedules.interface';
+import { Event } from '@/types/interfaces/documentedTodaySchedules.interface';
+import EventDetail from '@/components/calendar/event-detail';
 
-export default function Home({ events }: { events: EventWithAuthor[] }) {
-  const [showsScheduleDetail, setShowsScheduleDetail] = useState(false);
+export default function Home({ events }: { events: Event[] }) {
+  const [eventDetail, setEventDetail] = useState<Event | null>(null);
   const calendarRef = useRef();
 
   return (
@@ -25,36 +26,23 @@ export default function Home({ events }: { events: EventWithAuthor[] }) {
           aspectRatio={2}
           ref={calendarRef.current}
           events={events}
-          eventMouseEnter={() => setShowsScheduleDetail(true)}
-          eventMouseLeave={() => setShowsScheduleDetail(false)}
+          eventClick={(info) => {
+            const eventDetail = events.filter(
+              (event) => event.id === info.event.id
+            );
+            setEventDetail(eventDetail[0]);
+          }}
           eventContent={(eventInfo: EventContentArg) => (
             <div className="flex flex-row relative cursor-pointer">
               <span className="mr-1">{eventInfo.timeText}</span>
               <h5>{eventInfo.event.title}</h5>
-              {showsScheduleDetail && (
-                <ul
-                  className="w-28 h-20 p-2 bg-white border-none rounded-md absolute left-2 bottom-[-90px]
-                  after:content-[''] after:absolute after:top-[-15px] after:left-5
-                  after:border-l-[10px] after:border-r-[10px] after:border-b-[20px] 
-                  after:border-b-white after:border-l-transparent after:border-r-transparent
-                "
-                >
-                  {events
-                    .filter(
-                      (docedTodaySkds) =>
-                        docedTodaySkds.title === eventInfo.event.title
-                    )[0]
-                    .docedToDos.map((docedToDo) => (
-                      <li key={docedToDo.content} className="text-black">
-                        {docedToDo.content}
-                      </li>
-                    ))}
-                </ul>
-              )}
             </div>
           )}
         />
       </div>
+      {eventDetail && (
+        <EventDetail event={eventDetail} setEventDetail={setEventDetail} />
+      )}
     </main>
   );
 }
@@ -86,10 +74,12 @@ export const getServerSideProps = withIronSessionSsr(
 
     const calendarEvents = getDocumentTodayScheduleQuery.allDocedTodaySkds.map(
       (todaySkd) => ({
+        id: todaySkd._id,
         title: todaySkd.title,
         author: todaySkd.author,
         start: todaySkd.start,
         end: todaySkd.end,
+        sharingUsers: todaySkd.sharingUsers ? todaySkd.sharingUsers : [],
         docedToDos: todaySkd.docedToDos,
       })
     );

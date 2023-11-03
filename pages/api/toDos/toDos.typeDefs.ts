@@ -30,6 +30,7 @@ export default gql`
     author: String!
     start: Float!
     end: Float!
+    sharingUsers: [Follower]
     docedToDos: [ToDo!]!
   }
   type ToDo {
