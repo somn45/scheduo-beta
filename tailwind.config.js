@@ -10,12 +10,20 @@ module.exports = {
       height: {
         header: '60px',
         'header-nav': '45px',
+        calendar: '400px',
+        'desktop-modal': '500px',
         '10px': '10px',
       },
       padding: {
-        'desktop-white-space': '300px',
+        'desktop-white-space': '100px',
+        'tablet-white-space': '40px',
+        'mobile-white-space': '20px',
+        header: '60px',
         '2px': '2px',
         '15px': '15px',
+      },
+      margin: {
+        header: '60px',
       },
       spacing: {
         '-5px': '-5px',

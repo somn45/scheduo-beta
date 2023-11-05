@@ -14,10 +14,10 @@ export default function MyFollowerList({
   setShowsFollowModal,
 }: MyFollowerListProps) {
   return (
-    <article className="w-1/2 flex flex-col items-center">
+    <article className="w-full lg:w-1/2 flex flex-col items-center">
       <div className="w-full flex justify-between">
         <p className="w-1/3"></p>
-        <h3 className="w-1/3 mb-3 text-lg font-semibold text-center">
+        <h3 className="w-1/3 mb-3 text-sm md:text-lg font-semibold text-center">
           팔로워 목록
         </h3>
         <div className="w-1/3 flex justify-center items-center">
@@ -29,8 +29,12 @@ export default function MyFollowerList({
           </button>
         </div>
       </div>
-      <div className="w-full px-20 grid gap-4 grid-cols-4">
-        <ul>
+      <div className="w-full px-10">
+        <ul
+          className="w-full mt-5 grid gap-4 
+        grid-cols-2 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 
+        place-items-center"
+        >
           {myFollowers &&
             myFollowers.map((follower) => (
               <MyFollowerItem

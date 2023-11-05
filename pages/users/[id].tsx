@@ -31,7 +31,7 @@ export default function User({ user, myFollowers }: UserProfileProps) {
   }, []);
 
   return (
-    <section className="mt-10 flex">
+    <section className="mt-10 flex flex-col lg:flex-row">
       <UserProfile user={user} />
       <MyFollowerList
         user={user}

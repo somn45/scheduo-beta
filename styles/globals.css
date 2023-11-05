@@ -6,4 +6,8 @@
   src: url('../public/fonts/SangSangAnt.otf');
 }
 
+* {
+  box-sizing: border-box;
+}
+
 @tailwind utilities;

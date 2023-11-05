@@ -59,9 +59,10 @@ export default function SearchedFollowerItem({
   return (
     <li
       key={user.userId}
-      className="w-1/4 p-1 border-2 rounded-md flex flex-row justify-between"
+      className="w-1/2 2xl:w-2/3 py-1 mb-2 border-b-2 md:border-b-0 
+      flex flex-row justify-center"
     >
-      <div className="flex flex-col">
+      <div className="flex flex-col ">
         <span className="mr-2 font-semibold">{user.name}</span>
         <span className="text-xs text-slate-500">{user.userId}</span>
       </div>

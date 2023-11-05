@@ -1,5 +1,3 @@
-import { gql } from '@/generates/type';
-import { useLazyQuery, useMutation } from '@apollo/client';
 import { useEffect, useRef, useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -13,17 +11,34 @@ import { withIronSessionSsr } from 'iron-session/next';
 import request from 'graphql-request';
 import { Event } from '@/types/interfaces/documentedTodaySchedules.interface';
 import EventDetail from '@/components/calendar/event-detail';
+import { useMediaQuery } from 'react-responsive';
+import MobileCalendar from '@/components/dashBoard/mobile-calendar';
 
 export default function Home({ events }: { events: Event[] }) {
   const [eventDetail, setEventDetail] = useState<Event | null>(null);
+  const [isMobileSize, setIsMobileSize] = useState(true);
+  const [isTabletSize, setIsTabletSize] = useState(false);
+  const [showsMobileCalendar, setShowsMobileCalendar] = useState(false);
   const calendarRef = useRef();
+  const isMobile = useMediaQuery({
+    query: '(max-width: 639px)',
+  });
+
+  const isTablet = useMediaQuery({
+    query: '(max-width: 1023px)',
+  });
+
+  useEffect(() => {
+    isMobile ? setIsMobileSize(true) : setIsMobileSize(false);
+    isTablet ? setIsTabletSize(true) : setIsTabletSize(false);
+  }, [isMobile, isTablet]);
 
   return (
-    <main className="pt-10">
-      <div className="w-1/2">
+    <section className="mt-10">
+      <article className="w-full lg:w-1/2 h-calendar hidden sm:block">
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}
-          aspectRatio={2}
+          aspectRatio={isMobileSize ? 0.5 : isTabletSize ? 1.3 : 1.5}
           ref={calendarRef.current}
           events={events}
           eventClick={(info) => {
@@ -39,11 +54,26 @@ export default function Home({ events }: { events: Event[] }) {
             </div>
           )}
         />
-      </div>
+      </article>
+      <article className="h-10 flex sm:hidden justify-center">
+        <button
+          onClick={() => setShowsMobileCalendar(true)}
+          className="px-5 border-2 rounded-md font-solmee text-lg cursor-pointer
+          hover:bg-slate-300"
+        >
+          일정 달력 열기
+        </button>
+      </article>
+      {showsMobileCalendar && (
+        <MobileCalendar
+          events={events}
+          setShowsMobileCalendar={setShowsMobileCalendar}
+        />
+      )}
       {eventDetail && (
         <EventDetail event={eventDetail} setEventDetail={setEventDetail} />
       )}
-    </main>
+    </section>
   );
 }
 

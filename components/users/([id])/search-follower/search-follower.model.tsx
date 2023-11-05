@@ -83,12 +83,14 @@ export default function SearchFollowerModel({
   };
 
   return (
-    <article className="w-full h-screen z-20 fixed left-0 top-0 bg-black/60 flex justify-center items-center">
+    <article className="w-full h-screen z-30 fixed left-0 top-0 bg-black/60 flex justify-center items-center">
       <div
-        className="w-1/3 h-96 px-10 py-5 rounded-[5px] text-sm bg-slate-50 
-flex flex-col items-center relavite"
+        className="w-full sm:w-3/4 xl:w-1/2 
+        h-screen sm:h-1/2 xl:h-desktop-modal px-5 md:px-10 py-5 rounded-[5px] 
+        text-sm bg-slate-50 
+        flex flex-col items-center relavite"
       >
-        <div className="w-full flex justify-end">
+        <div className="w-full h-10 flex justify-end">
           <button
             onClick={() => setShowsFollowModal(false)}
             className="text-xl font-semibold"
@@ -97,8 +99,9 @@ flex flex-col items-center relavite"
           </button>
         </div>
         <p
-          className="w-80 h-12 my-3 px-6 bg-blue-400 rounded-full font-semibold 
-  flex justify-center items-center"
+          className="w-80 h-12 my-3 px-6 
+          bg-blue-400 rounded-full font-semibold 
+          flex justify-center items-center"
         >
           팔로우의 ID를 검색하여 등록할 수 있습니다.
         </p>
@@ -108,7 +111,11 @@ flex flex-col items-center relavite"
           setText={setText}
           handleSearchFollowers={handleSearchFollowers}
         />
-        <ul className="w-full">
+        <ul
+          className="w-full flex flex-col items-center 
+          md:grid md:grid-cols-2 md:place-items-center
+          2xl:grid-cols-3"
+        >
           {searchItems &&
             searchItems.map((user) => (
               <SearchedFollowerItem

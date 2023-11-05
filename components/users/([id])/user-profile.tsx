@@ -3,12 +3,12 @@ import { IUser } from '@/types/interfaces/users.interface';
 
 export default function UserProfile({ user }: { user: IUser }) {
   return (
-    <article className="w-1/2 h-80 mb-5 px-3 border-dotted border-r-2 flex flex-col items-center">
-      <div className="mb-5 flex flex-col items-center">
+    <article className="w-full lg:w-1/2 h-60 lg:h-80 mb-5 px-3 border-b-2 lg:border-b-0 lg:border-r-2 border-dotted flex flex-col items-center">
+      <div className="w-full mb-5 flex flex-col items-center">
         <h1 className="text-xl font-semibold">{user.name}</h1>
         <span className="text-sm text-slate-400">{user._id}</span>
       </div>
-      <ul className="w-1/2 flex flex-col">
+      <ul className="w-full lg:w-1/2 flex flex-col">
         <UserProfileItem caption="아이디" value={user.userId} />
         <UserProfileItem
           caption="이메일"

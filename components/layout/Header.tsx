@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import Link from 'next/link';
 import { gql } from '@/generates/type';
 import { buttonClickEvent } from '@/types/HTMLEvents';
 import { useRouter } from 'next/router';
 import AlertBox from '../common/messageBox/AlertBox';
+import NavItem from '../common/list-item/nav-item';
+import Title from './Title';
 
 const GET_USER = gql(`
   query GetUser {
@@ -40,61 +42,28 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full h-header px-desktop-white-space pt-[15px] bg-white border-b-2 border-slate-200">
-      <nav className="flex justify-between">
-        <ul className="text-sm font-semibold flex justify-between">
-          <li className="h-header-nav mr-8">
-            <Link
-              href="/"
-              className="text-2xl font-solmee ease-out duration-150 hover:text-light-pink"
-            >
-              Scheduo
-            </Link>
-          </li>
-          <li
-            className={`mr-8      ${
-              router.asPath === '/schedules/todolist' &&
-              'border-b-4 border-black'
-            }`}
-          >
-            <Link
-              href="/schedules/today"
-              className="pb-3 text-base ease-out duration-150 
-              hover:text-light-pink"
-            >
-              오늘의 일정
-            </Link>
-          </li>
-          <li
-            className={`mr-8 ${
-              router.asPath === '/schedules/weekly' && 'border-b-4 border-black'
-            }`}
-          >
-            <Link
-              href="/schedules/weekly"
-              className="text-base pb-3 ease-out duration-150 hover:text-light-pink"
-            >
-              주간 일정
-            </Link>
-          </li>
-          <li
-            className={`mr-8 ${
-              router.asPath === '/schedules/monthly' &&
-              'border-b-4 border-black'
-            }`}
-          >
-            <Link
-              href="/schedules/monthly"
-              className="text-base pb-3 ease-out duration-150 hover:text-light-pink"
-            >
-              한달 일정
-            </Link>
-          </li>
+    <header
+      className="w-screen h-header
+    bg-white border-b-2 border-slate-200 fixed top-0 left-0 z-30"
+    >
+      <nav
+        className="w-full h-header 
+      px-mobile-white-space md:px-tablet-white-space xl:px-desktop-white-space 
+      flex justify-end sm:justify-between"
+      >
+        <ul
+          className="w-2/3 text-sm font-semibold 
+        hidden sm:flex justify-start"
+        >
+          <Title />
+          <NavItem linkHref="/schedules/today" text="오늘의 일정" />
+          <NavItem linkHref="/schedules/weekly" text="주간 일정" />
+          <NavItem linkHref="/schedules/monthly" text="한달 일정" />
         </ul>
-        <ul className=" text-sm flex justify-between">
+        <ul className="w-1/2 sm:w-1/3 md:pr-2 lg:pr-5 text-sm flex justify-end">
           {getUserQuery !== undefined && getUserQuery.getUser !== null ? (
             <>
-              <li className="mr-8">
+              <li className="h-header pt-3 mr-8 flex justfiy-center items-center">
                 <Link
                   href={`/users/${getUserQuery.getUser._id}`}
                   className="text-sm pb-3"
@@ -104,7 +73,7 @@ export default function Header() {
                   </span>
                 </Link>
               </li>
-              <li>
+              <li className='"h-header pt-3 flex justfiy-center items-center'>
                 <button
                   onClick={handleLogout}
                   className="text-sm pb-3 ease-out duration-150 hover:text-light-pink"
@@ -115,7 +84,7 @@ export default function Header() {
             </>
           ) : (
             <>
-              <li className="mr-8">
+              <li className="h-header pt-3 mr-8 flex justfiy-center items-center">
                 <Link
                   href="/login"
                   className="text-sm pb-3 ease-out duration-150 hover:text-light-pink"
@@ -123,7 +92,7 @@ export default function Header() {
                   로그인
                 </Link>
               </li>
-              <li>
+              <li className="h-header pt-3 flex justfiy-center items-center">
                 <Link
                   href="/join"
                   className="text-sm pb-3 ease-out duration-150 hover:text-light-pink"
