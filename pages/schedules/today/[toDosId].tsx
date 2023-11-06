@@ -1,7 +1,11 @@
+import MemberListModal from '@/components/schedules/today/today-schedule/[toDosId]/member-list';
 import ToDoForm from '@/components/schedules/today/today-schedule/[toDosId]/toDo-form';
 import ToDos from '@/components/schedules/today/today-schedule/[toDosId]/toDo-list';
 import wrapper, { RootState, initToDosReducer } from '@/lib/store/store';
-import { TodaySchedule } from '@/types/interfaces/todaySkds.interface';
+import {
+  TodaySchedule,
+  TodaySkdWithFollowers,
+} from '@/types/interfaces/todaySkds.interface';
 import { FINISH_TODOS } from '@/utils/graphQL/mutations/todaySkdMutations';
 import {
   ALL_SCHEDULES,
@@ -9,10 +13,15 @@ import {
 } from '@/utils/graphQL/querys/TodaySkdQuerys';
 import { useMutation } from '@apollo/client';
 import { request } from 'graphql-request';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-export default function TodayScheduleToDos({ title, author }: TodaySchedule) {
+export default function TodayScheduleToDos({
+  title,
+  author,
+  sharingUsers,
+}: TodaySkdWithFollowers) {
+  const [showsMemberList, setShowsMemberList] = useState(false);
   const [finishToDos] = useMutation(FINISH_TODOS);
   const toDos = useSelector((state: RootState) => state.toDos);
   useEffect(() => {
@@ -28,8 +37,14 @@ export default function TodayScheduleToDos({ title, author }: TodaySchedule) {
         <div></div>
         <h1 className="text-2xl font-semibold">{title}</h1>
         <span className="text-xl text-slate-600">{`${author}님이 등록함`}</span>
+        <button
+          onClick={() => setShowsMemberList(true)}
+          className="border-2 text-xl"
+        >
+          멤버 목록
+        </button>
       </article>
-      <article className="flex flex-col items-center">
+      <article className="mt-10 flex flex-col items-center">
         <ToDoForm />
         <h5
           className="w-96 h-12 px-16 my-5 
@@ -39,8 +54,13 @@ export default function TodayScheduleToDos({ title, author }: TodaySchedule) {
           체크박스에 체크 되어있는 일정은 다음 날이 되면 완료 처리가 됩니다.
         </h5>
       </article>
-
       <ToDos toDos={toDos} />
+      {showsMemberList && (
+        <MemberListModal
+          members={sharingUsers}
+          setShowsMemberList={setShowsMemberList}
+        />
+      )}
     </section>
   );
 }
@@ -73,10 +93,11 @@ export const getStaticProps = wrapper.getStaticProps(
         GET_SCHEDULE,
         { id: params.toDosId }
       );
-      const { title, author, toDos } = getTodaySkdQuery.getSchedule;
+      const { title, author, sharingUsers, toDos } =
+        getTodaySkdQuery.getSchedule;
       store.dispatch(initToDosReducer(toDos));
       return {
-        props: { title, author },
+        props: { title, author, sharingUsers },
       };
     }
 );

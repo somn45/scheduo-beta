@@ -44,15 +44,25 @@ export default function TodayScheduleUtilButtons({
   };
 
   return (
-    <ul>
+    <ul className="w-schedule-viewer flex justify-between">
       <li>
-        <button onClick={() => setShowsTitleChangeModel(true)}>
-          제목 수정
+        <button
+          onClick={() => setShowsTitleChangeModel(true)}
+          className="px-2 py-1 border-2 border-slate-600 rounded-md
+          bg-slate-500 text-xs text-white font-semibold
+          hover:bg-slate-800 ease-out duration-500"
+        >
+          제목 변경
         </button>
       </li>
       <li>
-        <button onClick={(e) => handleDeleteTodaySkd(e, schedule._id)}>
-          스케줄 삭제
+        <button
+          onClick={(e) => handleDeleteTodaySkd(e, schedule._id)}
+          className="px-2 py-1 border-2 border-slate-600 rounded-md
+        bg-red-600 text-xs text-white font-semibold
+        hover:bg-red-700 ease-out duration-500"
+        >
+          삭제
         </button>
       </li>
     </ul>

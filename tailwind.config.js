@@ -7,11 +7,15 @@ module.exports = {
   ],
   theme: {
     extend: {
+      width: {
+        'schedule-viewer': '214px',
+      },
       height: {
         header: '60px',
         'header-nav': '45px',
         calendar: '400px',
         'desktop-modal': '500px',
+        'schedule-viewer': '280px',
         '10px': '10px',
       },
       padding: {
@@ -41,7 +45,7 @@ module.exports = {
       borderColor: {
         'main-color': '#B9E2FA',
         'input-color': '#5a5a5a',
-        'schedule-board-color': '#7FB3D5',
+        'schedule-board-color': '#87CEFA',
         'schedule-content-color': '#D4E6F1',
       },
       fontFamily: {

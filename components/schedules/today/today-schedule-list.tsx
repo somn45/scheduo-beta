@@ -10,7 +10,10 @@ export default function TodayScheduleList({
   const [showsTitleChangeModel, setShowsTitleChangeModel] = useState(false);
 
   return (
-    <article className="w-full h-full px-72 pt-[15px] grid gap-4 grid-cols-4">
+    <article
+      className="w-full h-full px-mobile-white-space pt-[15px]
+    overflow-auto grid gap-4 grid-cols-4"
+    >
       {todaySchedules.map((schedule) => (
         <TodayScheduleViewer
           key={schedule._id}

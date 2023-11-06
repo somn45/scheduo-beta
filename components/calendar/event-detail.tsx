@@ -27,8 +27,41 @@ export default function EventDetail({
             X
           </button>
         </div>
-
-        {event.title}
+        <ul>
+          <li>
+            <h4>제목 : </h4>
+            <p>{event.title}</p>
+          </li>
+          <li>
+            <h4>만든이</h4>
+            <p>{event.author}</p>
+          </li>
+          <li>
+            <h4>할일 수행 시작일</h4>
+            <p>{event.start}</p>
+          </li>
+          <li>
+            <h4>할일 수행 종료일</h4>
+            <p>{event.end}</p>
+          </li>
+          <li>
+            <h4>함께한 멤버 리스트</h4>
+            <ul>
+              {event.sharingUsers &&
+                event.sharingUsers.map((user) => (
+                  <li key={user.userId}>{user.name}</li>
+                ))}
+            </ul>
+          </li>
+          <li>
+            <h4>진행했던 일정</h4>
+            <ul>
+              {event.docedToDos.map((toDo) => (
+                <li key={toDo.content}>{toDo.content}</li>
+              ))}
+            </ul>
+          </li>
+        </ul>
       </div>
     </article>
   );
