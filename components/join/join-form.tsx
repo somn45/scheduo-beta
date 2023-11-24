@@ -55,71 +55,66 @@ export default function JoinForm() {
   };
 
   return (
-    <>
-      <span>*는 필수 문항입니다</span>
-      <form className="flex flex-col">
-        <AccountLabel caption="*아이디(6자 이상 ~ 24자 이하)" />
-        <AccountInput
-          name="userId"
-          value={input.userId}
-          onChange={setInput}
-          errorMsg={validateErrorMessage.userId}
-        />
+    <form className="w-full flex flex-col items-center">
+      <AccountLabel caption="*아이디(6자 이상 ~ 24자 이하)" />
+      <AccountInput
+        name="userId"
+        value={input.userId}
+        onChange={setInput}
+        errorMsg={validateErrorMessage.userId}
+      />
 
-        <AccountLabel caption=" *비밀번호(6자 이상 ~ 24자 이하)" />
-        <AccountInput
-          name="password"
-          value={input.password}
-          onChange={setInput}
-          errorMsg={validateErrorMessage.password}
-        />
+      <AccountLabel caption=" *비밀번호(6자 이상 ~ 24자 이하)" />
+      <AccountInput
+        name="password"
+        value={input.password}
+        onChange={setInput}
+        errorMsg={validateErrorMessage.password}
+      />
 
-        <AccountLabel caption=" *비밀번호 확인" />
-        <AccountInput
-          name="confirmPassword"
-          value={input.confirmPassword ? input.confirmPassword : ''}
-          onChange={setInput}
-          errorMsg={
-            validateErrorMessage.confirmPassword
-              ? validateErrorMessage.confirmPassword
-              : ''
-          }
-        />
+      <AccountLabel caption=" *비밀번호 확인" />
+      <AccountInput
+        name="confirmPassword"
+        value={input.confirmPassword ? input.confirmPassword : ''}
+        onChange={setInput}
+        errorMsg={
+          validateErrorMessage.confirmPassword
+            ? validateErrorMessage.confirmPassword
+            : ''
+        }
+      />
 
-        <AccountLabel caption=" *이름" />
-        <AccountInput
-          name="fullname"
-          value={input.fullname ? input.fullname : ''}
-          onChange={setInput}
-          errorMsg={
-            validateErrorMessage.fullname ? validateErrorMessage.fullname : ''
-          }
-        />
+      <AccountLabel caption=" *이름" />
+      <AccountInput
+        name="fullname"
+        value={input.fullname ? input.fullname : ''}
+        onChange={setInput}
+        errorMsg={
+          validateErrorMessage.fullname ? validateErrorMessage.fullname : ''
+        }
+      />
 
-        <AccountLabel caption=" *이메일" />
-        <AccountInput
-          name="email"
-          value={input.email ? input.email : ''}
-          onChange={setInput}
-          errorMsg={
-            validateErrorMessage.email ? validateErrorMessage.email : ''
-          }
-        />
+      <AccountLabel caption=" *이메일" />
+      <AccountInput
+        name="email"
+        value={input.email ? input.email : ''}
+        onChange={setInput}
+        errorMsg={validateErrorMessage.email ? validateErrorMessage.email : ''}
+      />
 
-        <AccountLabel caption="직장" />
-        <AccountInput
-          name="company"
-          value={input.company ? input.company : ''}
-          onChange={setInput}
-          errorMsg={''}
-        />
+      <AccountLabel caption="직장" />
+      <AccountInput
+        name="company"
+        value={input.company ? input.company : ''}
+        onChange={setInput}
+        errorMsg={''}
+      />
 
-        <AccountSubmit
-          value="회원가입"
-          onClick={handleJoin}
-          isDisabledSubmit={isDisabledSubmit}
-        />
-      </form>
-    </>
+      <AccountSubmit
+        value="회원가입"
+        onClick={handleJoin}
+        isDisabledSubmit={isDisabledSubmit}
+      />
+    </form>
   );
 }

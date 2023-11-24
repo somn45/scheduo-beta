@@ -15,6 +15,9 @@ export const CREATE_SCHEDULE_WITH_FOLLOWERS = gql(`
   mutation CreateScheduleWithFollowers($title: String!, $followers: [followersInput]) {
     createScheduleWithFollowers(title: $title, followers: $followers) {
       ...TodayScheduleField
+      toDos {
+        ...ToDosIncludesStateField
+      }
     }
   }
 `);

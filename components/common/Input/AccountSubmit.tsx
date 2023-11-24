@@ -21,7 +21,7 @@ export default function AccountSubmit({
         value={value}
         onClick={onClick}
         disabled={isDisabledSubmit}
-        className={`h-8 mb-3 p-1 bg-blue-400 border-none outline-none rounded-[3px] text-white font-semibold ease-out duration-200 ${
+        className={`w-full max-w-md h-8 mb-3 p-1 bg-blue-400 border-none outline-none rounded-[3px] text-white font-semibold ease-out duration-200 ${
           isDisabledSubmit
             ? 'opacity-20'
             : 'opacity-100 cursor-pointer hover:bg-blue-600'

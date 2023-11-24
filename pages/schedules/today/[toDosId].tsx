@@ -32,7 +32,7 @@ export default function TodayScheduleToDos({
   }, []);
 
   return (
-    <section className="mt-10 px-72 font-solmee">
+    <section className="mt-10 lg:px-20 xl:px-40 font-solmee">
       <article className="w-full h-20 px-10 flex flex-col items-center">
         <div></div>
         <h1 className="text-2xl font-semibold">{title}</h1>
@@ -47,7 +47,7 @@ export default function TodayScheduleToDos({
       <article className="mt-10 flex flex-col items-center">
         <ToDoForm />
         <h5
-          className="w-96 h-12 px-16 my-5 
+          className="w-80 md:w-96 h-16 md:h-12 px-16 my-5 
         bg-blue-400 font-sans text-sm font-semibold text-slate-700 rounded-full 
         flex items-center"
         >

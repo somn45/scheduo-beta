@@ -58,7 +58,7 @@ export default function LoginForm() {
   };
 
   return (
-    <form className="flex flex-col">
+    <form className="flex flex-col items-center">
       <AccountInput
         name="userId"
         value={input.userId}

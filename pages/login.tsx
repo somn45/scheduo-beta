@@ -6,7 +6,10 @@ export default function Login() {
   const router = useRouter();
   return (
     <section className="w-full h-full flex flex-col items-center">
-      <article className="w-1/3 px-8 py-5 rounded-[5px] text-sm">
+      <article
+        className="w-full lg:w-1/2 2xl:w-1/3 px-8 py-5 rounded-[5px] text-sm 
+          flex flex-col"
+      >
         <h2 className="mb-8 text-center text-3xl font-semibold">Scheduo</h2>
         <LoginForm />
         <AccountLinkButton

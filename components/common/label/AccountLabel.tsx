@@ -3,5 +3,9 @@ interface AccountLabelProps {
 }
 
 export default function AccountLabel({ caption }: AccountLabelProps) {
-  return <label className="ml-2 mb-1 text-xs font-semibold">{caption}</label>;
+  return (
+    <label className="w-full max-w-md ml-2 mb-1 text-xs text-left font-semibold">
+      <span>{caption}</span>
+    </label>
+  );
 }

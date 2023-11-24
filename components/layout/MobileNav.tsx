@@ -17,9 +17,9 @@ export default function MobileNav({
   return (
     <footer
       className="w-full h-header border-t-2
-      fixed bottom-0 left-0 sm:hidden"
+      fixed bottom-0 left-0 sm:hidden z-30"
     >
-      <nav className="h-full">
+      <nav className="h-full bg-white">
         <ul className="h-full flex justify-between">
           <MobileNavItem linkHref="/" icon={homeIcon} />
           <MobileNavItem linkHref="/schedules/today" icon={todayIcon} />

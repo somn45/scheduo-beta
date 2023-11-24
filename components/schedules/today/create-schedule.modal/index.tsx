@@ -69,8 +69,9 @@ export default function CreateScheduleModal({
     flex justify-center items-center z-20 fixed top-0 left-0"
     >
       <div
-        className="w-1/4 px-8 py-5 rounded-[5px] text-sm bg-slate-50 
-      flex flex-col items-center"
+        className="w-full sm:w-3/4 lg:w-1/2 max-w-screen-sm h-3/4
+        px-8 py-5 rounded-[5px] text-sm bg-slate-50 
+        flex flex-col items-center"
       >
         <div className="w-full flex justify-end">
           <button

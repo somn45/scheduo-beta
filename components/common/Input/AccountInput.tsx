@@ -21,7 +21,7 @@ export default function AccountInput({
         value={value}
         onChange={onChange}
         placeholder={name}
-        className={`h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
+        className={`w-full max-w-md h-8 mb-1 p-2 border-b-2 outline-none rounded-[3px] text-sm focus:outline-black ${
           errorMsg && 'border-red-300'
         }`}
       />

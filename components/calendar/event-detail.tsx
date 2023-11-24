@@ -1,5 +1,6 @@
 import { Event } from '@/types/interfaces/documentedTodaySchedules.interface';
 import { Dispatch, SetStateAction } from 'react';
+import EventMembers from './event-members';
 
 interface EventDetailProps {
   event: Event;
@@ -13,10 +14,10 @@ export default function EventDetail({
   return (
     <article
       className="w-full h-screen  bg-black/60 
-  flex justify-center items-center z-20 fixed top-0 left-0"
+  flex justify-center items-center z-50 fixed top-0 left-0"
     >
       <div
-        className="w-1/4 px-8 py-5 rounded-[5px] text-sm bg-slate-50 
+        className="w-full sm:w-3/4 max-w-screen-md h-[600px] px-8 py-5 rounded-[5px] text-sm bg-slate-50 
       flex flex-col items-center"
       >
         <div className="w-full flex justify-end">
@@ -27,35 +28,35 @@ export default function EventDetail({
             X
           </button>
         </div>
-        <ul>
-          <li>
-            <h4>제목 : </h4>
+        <ul className="w-full mt-5 flex flex-col items-center">
+          <li className="w-full mb-3 flex justify-between">
+            <h4 className="font-semibold">제목</h4>
             <p>{event.title}</p>
           </li>
-          <li>
-            <h4>만든이</h4>
+          <li className="w-full mb-3 flex justify-between">
+            <h4 className="font-semibold">만든이</h4>
             <p>{event.author}</p>
           </li>
-          <li>
-            <h4>할일 수행 시작일</h4>
+          <li className="w-full mb-3 flex justify-between">
+            <h4 className="font-semibold">할일 수행 시작일</h4>
             <p>{event.start}</p>
           </li>
-          <li>
-            <h4>할일 수행 종료일</h4>
+          <li className="w-full mb-3 flex justify-between">
+            <h4 className="font-semibold">할일 수행 종료일</h4>
             <p>{event.end}</p>
           </li>
-          <li>
-            <h4>함께한 멤버 리스트</h4>
-            <ul>
+          <li className="w-full mb-3 flex flex-col items-center">
+            <h4 className="mb-2 font-semibold">함께한 멤버 리스트</h4>
+            <ul className="w-full grid grid-cols-2 place-items-center">
               {event.sharingUsers &&
                 event.sharingUsers.map((user) => (
-                  <li key={user.userId}>{user.name}</li>
+                  <EventMembers key={user.userId} user={user} />
                 ))}
             </ul>
           </li>
-          <li>
-            <h4>진행했던 일정</h4>
-            <ul>
+          <li className="w-full mb-3 flex flex-col items-center">
+            <h4 className="mb-2 font-semibold">진행했던 일정</h4>
+            <ul className="list-disc">
               {event.docedToDos.map((toDo) => (
                 <li key={toDo.content}>{toDo.content}</li>
               ))}

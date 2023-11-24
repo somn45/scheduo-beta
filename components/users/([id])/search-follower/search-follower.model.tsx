@@ -112,7 +112,7 @@ export default function SearchFollowerModel({
           handleSearchFollowers={handleSearchFollowers}
         />
         <ul
-          className="w-full flex flex-col items-center 
+          className="w-full flex flex-col  
           md:grid md:grid-cols-2 md:place-items-center
           2xl:grid-cols-3"
         >

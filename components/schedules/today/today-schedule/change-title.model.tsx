@@ -61,25 +61,31 @@ export default function TitleChangeModal({
   flex justify-center items-center z-20 fixed top-0 left-0"
     >
       <div
-        className="w-1/4 px-8 py-5 rounded-[5px] text-sm bg-slate-50 
-      flex flex-col items-center"
+        className="w-full sm:w-1/2 lg:w-1/3 max-w-screen-sm h-1/3 px-8 py-5 
+        rounded-[5px] text-sm bg-slate-50 flex flex-col items-center"
       >
         <div className="w-full flex justify-end">
           <button
             onClick={() => setShowsTitleChangeModel(false)}
-            className="text-xl text-right font-semibold"
+            className="mb-10 text-xl text-right font-semibold"
           >
             X
           </button>
         </div>
-        <form>
+        <form className="flex flex-col items-center">
           <input
             type="text"
             value={changedTitle}
             onChange={(e) => setChangedTitle(e.target.value)}
             placeholder="변경할 제목을 입력하세요."
+            className="w-60 h-10 mb-5 px-2 border-2 border-slate-200 rounded-sm outline-none"
           />
-          <input type="submit" value="제목 변경" onClick={handleUpdateTitle} />
+          <input
+            type="submit"
+            value="제목 변경"
+            onClick={handleUpdateTitle}
+            className="w-32 h-8 bg-slate-300 rounded-sm text-lg text-center cursor-pointer"
+          />
         </form>
       </div>
     </article>

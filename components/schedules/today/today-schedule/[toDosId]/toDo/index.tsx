@@ -18,7 +18,7 @@ export default function ToDo({
   const [isEditMode, setIsEditMode] = useState(false);
 
   return (
-    <li className="w-80 mb-1 flex justify-between">
+    <li className="w-full mb-1 px-4 flex justify-between">
       {isEditMode ? (
         <EditToDo
           content={content}

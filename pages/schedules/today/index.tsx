@@ -31,7 +31,7 @@ export default function TodayScheduleMain() {
       >
         일정 생성
       </button>
-      <p className="w-screen border border-input-color border-dashed fixed left-0 top-44"></p>
+      <hr />
       {todaySchedules.length === 0 && <span>오늘의 일정을 등록하세요</span>}
       {todaySchedules.length !== 0 && (
         <TodayScheduleList todaySchedules={todaySchedules} />
