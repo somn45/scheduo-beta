@@ -4,7 +4,11 @@ import AccountSubmit from '../common/Input/AccountSubmit';
 import { inputClickEvent } from '@/types/HTMLEvents';
 import { CHECK_USER } from '@/utils/graphQL/mutations/usersMutations';
 import { useMutation } from '@apollo/client';
-import { setAlertMessageReducer, useAppDispatch } from '@/lib/store/store';
+import {
+  setAlertMessageReducer,
+  signIn,
+  useAppDispatch,
+} from '@/lib/store/store';
 import { setCookie } from 'cookies-next';
 import useInputValidate, { Form } from '@/hooks/useInputValidate';
 import { INITIAL_LOGIN_FORM, VALIDATION_FORM } from './constants/constants';
@@ -33,7 +37,7 @@ export default function LoginForm() {
 
   const handleLogin = async (e: inputClickEvent) => {
     e.preventDefault();
-    const { errors: loginErrors } = await login({
+    const { data: loginData, errors: loginErrors } = await login({
       variables: { userId: input.userId, password: input.password },
     });
     if (loginErrors) {
@@ -53,6 +57,12 @@ export default function LoginForm() {
         return dispatch(setAlertMessageReducer('이미 로그인 된 사용자입니다.'));
       }
     }
+    dispatch(
+      signIn({
+        userId: loginData?.checkUser?.userId,
+        id: loginData?.checkUser?._id,
+      })
+    );
     setCookie('uid', input.userId);
     router.push('/');
   };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import Link from 'next/link';
 import { gql } from '@/generates/type';
@@ -7,6 +7,8 @@ import { useRouter } from 'next/router';
 import AlertBox from '../common/messageBox/AlertBox';
 import NavItem from '../common/list-item/nav-item';
 import Title from './Title';
+import { useSelector } from 'react-redux';
+import { RootState, signOut, useAppDispatch } from '@/lib/store/store';
 
 const GET_USER = gql(`
   query GetUser {
@@ -28,7 +30,11 @@ export default function Header() {
   const [showsAlertBox, setShowsAlertBox] = useState(false);
   const { data: getUserQuery } = useQuery(GET_USER);
   const [logOut] = useMutation(LOGOUT);
+  const loggedUser = useSelector((state: RootState) => state.loggedUser);
   const router = useRouter();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {}, []);
 
   const handleLogout = async (e: buttonClickEvent) => {
     e.preventDefault();
@@ -38,6 +44,7 @@ export default function Header() {
       logoutErrors[0].message === '이미 로그아웃 된 사용자입니다.'
     )
       return setShowsAlertBox(true);
+    dispatch(signOut());
     router.reload();
   };
 
@@ -61,15 +68,20 @@ export default function Header() {
           <NavItem linkHref="/schedules/monthly" text="한달 일정" />
         </ul>
         <ul className="w-1/2 sm:w-1/3 md:pr-2 lg:pr-5 text-sm flex justify-end">
-          {getUserQuery !== undefined && getUserQuery.getUser !== null ? (
+          {loggedUser.userId ||
+          (getUserQuery !== undefined && getUserQuery.getUser !== null) ? (
             <>
               <li className="h-header pt-3 mr-8 flex justfiy-center items-center">
                 <Link
-                  href={`/users/${getUserQuery.getUser._id}`}
+                  href={`/users/${
+                    loggedUser.id ? loggedUser.id : getUserQuery?.getUser?._id
+                  }`}
                   className="text-sm pb-3"
                 >
                   <span className="p-1 bg-blue-900 border rounded-md text-white ease-out duration-150 hover:bg-white hover:text-blue-900">
-                    {getUserQuery.getUser.userId}
+                    {loggedUser.userId
+                      ? loggedUser.userId
+                      : getUserQuery?.getUser?.userId}
                   </span>
                 </Link>
               </li>

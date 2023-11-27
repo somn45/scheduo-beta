@@ -23,7 +23,7 @@ mutation AddUser(
 export const CHECK_USER = gql(`
   mutation CheckUser($userId: String!, $password: String!) {
     checkUser(userId: $userId, password: $password) {
-      userId
+      ...UserListIncludesId
     }
   }
 `);

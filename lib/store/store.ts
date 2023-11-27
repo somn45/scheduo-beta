@@ -6,6 +6,7 @@ import todaySkdSlice from './todaySchedules';
 import toDoSlice from './toDos';
 import errorMessagesSlice from './ErrorMessages';
 import alertMessagesSlice from './AlertMessages';
+import loggedUserSlice from './loggedUser';
 
 const reducer = combineReducers({
   todaySchedules: todaySkdSlice.reducer,
@@ -13,6 +14,7 @@ const reducer = combineReducers({
   followers: followerSlice.reducer,
   alertMessages: alertMessagesSlice.reducer,
   errorMessages: errorMessagesSlice.reducer,
+  loggedUser: loggedUserSlice.reducer,
 });
 
 export const {
@@ -35,6 +37,7 @@ export const {
 } = followerSlice.actions;
 export const { setErrorMessageReducer } = errorMessagesSlice.actions;
 export const { setAlertMessageReducer } = alertMessagesSlice.actions;
+export const { signIn, signOut } = loggedUserSlice.actions;
 let store: Store;
 
 const makeStore = () => {

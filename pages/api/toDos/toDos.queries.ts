@@ -17,7 +17,6 @@ export default {
       const todaySchedule = (await TodaySkd.findByIdTodaySkd(id)).populate<{
         sharingUsers: IUser[];
       }>('sharingUsers');
-      console.log('오늘의 일정', todaySchedule);
       return todaySchedule;
     },
     allDocedTodaySkds: async (

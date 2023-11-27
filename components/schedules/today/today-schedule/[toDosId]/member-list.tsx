@@ -9,7 +9,6 @@ export default function MemberListModal({
   members,
   setShowsMemberList,
 }: MemberListModalProps) {
-  console.log(members);
   return (
     <article
       className="w-full h-screen  bg-black/60 

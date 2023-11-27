@@ -83,7 +83,7 @@ export default {
         id: userId,
       };
       await req.session.save();
-      return { userId };
+      return user;
     },
     logout: async (_: unknown, __: unknown, { req, cookies }: ContextValue) => {
       const userId = req.session.user?.id;
