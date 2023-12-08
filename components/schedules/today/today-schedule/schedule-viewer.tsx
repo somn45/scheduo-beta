@@ -1,10 +1,9 @@
 import Link from 'next/link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClipboard } from '@fortawesome/free-solid-svg-icons';
 import { TodayScheduleWithID } from '@/types/interfaces/todaySkds.interface';
 import TitleChangeModal from './change-title.model';
 import ToDoPreview from './toDo-preview';
 import TodayScheduleUtilButtons from './schedule-util-buttons';
+import { useState } from 'react';
 
 interface TodayScheduleProps {
   schedule: TodayScheduleWithID;
@@ -17,6 +16,9 @@ export default function TodayScheduleViewer({
   showsTitleChangeModel,
   setShowsTitleChangeModel,
 }: TodayScheduleProps) {
+  const [showsManageScheduleModal, setShowsManageScheduleModal] =
+    useState(false);
+
   return (
     <div className="flex flex-col items-center">
       <Link href={`/schedules/today/${schedule._id}`} key={schedule._id}>
@@ -36,7 +38,7 @@ export default function TodayScheduleViewer({
           >
             {schedule.author}
           </p>
-          <ul className="w-full h-1/3 bg-schedule-color flex flex-col relative">
+          <ul className="w-full h-1/3 bg-schedule-color overflow-y-auto flex flex-col relative">
             {schedule.toDos.length === 0 && (
               <div className="w-full h-full flex justify-center items-center">
                 일정 없음
@@ -65,13 +67,12 @@ export default function TodayScheduleViewer({
       </Link>
       <TodayScheduleUtilButtons
         schedule={schedule}
-        setShowsTitleChangeModel={setShowsTitleChangeModel}
+        setShowsManageScheduleModal={setShowsManageScheduleModal}
       />
-      {showsTitleChangeModel && (
+      {showsManageScheduleModal && (
         <TitleChangeModal
-          todaySkdId={schedule._id}
-          title={''}
-          setShowsTitleChangeModel={setShowsTitleChangeModel}
+          schedule={schedule}
+          setShowsManageScheduleModal={setShowsManageScheduleModal}
         />
       )}
     </div>

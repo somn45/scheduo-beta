@@ -2,28 +2,58 @@ import {
   setAlertMessageReducer,
   setErrorMessageReducer,
   updateTitleTodaySkdReducer,
+  updateTodayScheduleMembersReducer,
   useAppDispatch,
 } from '@/lib/store/store';
 import { inputClickEvent } from '@/types/HTMLEvents';
+import { TodayScheduleWithID } from '@/types/interfaces/todaySkds.interface';
 import { GRAPHQL_ERROR_MESSAGE_LIST } from '@/utils/constants/constants';
-import { UPDATE_TODAY_SKD_TITLE } from '@/utils/graphQL/mutations/todaySkdMutations';
-import { useMutation } from '@apollo/client';
-import { useState } from 'react';
+import {
+  UPDATE_TODAY_SKD_MEMBERS,
+  UPDATE_TODAY_SKD_TITLE,
+} from '@/utils/graphQL/mutations/todaySkdMutations';
+import { useMutation, useQuery } from '@apollo/client';
+import { useEffect, useState } from 'react';
+import SharingUsersItem from './SharingUserItem';
+import { ALL_FOLLOWERS } from '@/utils/graphQL/querys/userQuerys';
+import useUpdateSharingUsers from '@/hooks/useUpdateSharingUsers';
 
 interface TitleChangeModalProps {
-  todaySkdId?: string;
-  title: string;
-  setShowsTitleChangeModel: React.Dispatch<React.SetStateAction<boolean>>;
+  schedule: TodayScheduleWithID;
+  setShowsManageScheduleModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function TitleChangeModal({
-  todaySkdId,
-  title,
-  setShowsTitleChangeModel,
+  schedule,
+  setShowsManageScheduleModal,
 }: TitleChangeModalProps) {
-  const [changedTitle, setChangedTitle] = useState(title);
+  const [changedTitle, setChangedTitle] = useState(schedule.title);
+  const [sharingUsers, setSharingUsers] = useState(schedule.sharingUsers);
+  const { data: followersQuery } = useQuery(ALL_FOLLOWERS);
   const [updateTodaySkdTitle] = useMutation(UPDATE_TODAY_SKD_TITLE);
+  const [updateTodayScheduleMembers] = useMutation(UPDATE_TODAY_SKD_MEMBERS);
   const dispatch = useAppDispatch();
+
+  const [followersWithChecked, onChange] = useUpdateSharingUsers({
+    followers:
+      !followersQuery || !followersQuery.allFollowers
+        ? null
+        : followersQuery.allFollowers,
+    sharingUsers: schedule.sharingUsers,
+  });
+
+  useEffect(() => {
+    if (followersWithChecked) {
+      setSharingUsers(
+        followersWithChecked
+          .filter((follower) => follower.checked)
+          .map((follower) => {
+            const { checked, ...followerInfo } = follower;
+            return followerInfo;
+          })
+      );
+    }
+  }, [followersWithChecked]);
 
   const handleUpdateTitle = async (e: inputClickEvent) => {
     e.preventDefault();
@@ -31,7 +61,7 @@ export default function TitleChangeModal({
       data: updateTodayScheduleTitleQuery,
       errors: updateTodayScheduleTiTleErrors,
     } = await updateTodaySkdTitle({
-      variables: { title: changedTitle, _id: todaySkdId ? todaySkdId : '' },
+      variables: { title: changedTitle, _id: schedule._id ? schedule._id : '' },
     });
     if (updateTodayScheduleTiTleErrors) {
       if (
@@ -55,24 +85,43 @@ export default function TitleChangeModal({
     );
   };
 
+  const handleUpdateSharingUsers = async () => {
+    if (sharingUsers) {
+      const { data, errors } = await updateTodayScheduleMembers({
+        variables: {
+          _id: schedule._id ? schedule._id : '',
+          sharingUsers,
+        },
+      });
+      if (data?.updateSharingUsers.sharingUsers) {
+        dispatch(
+          updateTodayScheduleMembersReducer({
+            _id: schedule._id ? schedule._id : '',
+            sharingUsers: data?.updateSharingUsers.sharingUsers,
+          })
+        );
+      }
+    }
+  };
+
   return (
     <article
       className="w-full h-screen  bg-black/60 
   flex justify-center items-center z-20 fixed top-0 left-0"
     >
       <div
-        className="w-full sm:w-1/2 lg:w-1/3 max-w-screen-sm h-1/3 px-8 py-5 
+        className="w-full sm:w-1/2 lg:w-1/3 max-w-screen-sm h-1/2 px-8 py-5 
         rounded-[5px] text-sm bg-slate-50 flex flex-col items-center"
       >
         <div className="w-full flex justify-end">
           <button
-            onClick={() => setShowsTitleChangeModel(false)}
+            onClick={() => setShowsManageScheduleModal(false)}
             className="mb-10 text-xl text-right font-semibold"
           >
             X
           </button>
         </div>
-        <form className="flex flex-col items-center">
+        <form className="flex items-center">
           <input
             type="text"
             value={changedTitle}
@@ -87,6 +136,13 @@ export default function TitleChangeModal({
             className="w-32 h-8 bg-slate-300 rounded-sm text-lg text-center cursor-pointer"
           />
         </form>
+        <ul>
+          <SharingUsersItem
+            followers={followersWithChecked}
+            onChange={onChange}
+          />
+        </ul>
+        <button onClick={handleUpdateSharingUsers}>일정 공유 회원 변경</button>
       </div>
     </article>
   );

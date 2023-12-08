@@ -38,6 +38,7 @@ export default {
         {
           path: 'followers',
           transform: (doc: IFollower) => ({
+            _id: doc._id,
             userId: doc.userId,
             name: doc.name,
             email: doc.email,
@@ -55,6 +56,7 @@ export default {
           {
             path: 'followers',
             transform: (doc: IFollower) => ({
+              _id: doc._id,
               userId: doc.userId,
               name: doc.name,
               email: doc.email,

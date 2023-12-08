@@ -31,6 +31,14 @@ export const UPDATE_TODAY_SKD_TITLE = gql(`
   }
 `);
 
+export const UPDATE_TODAY_SKD_MEMBERS = gql(`
+  mutation UpdateSharingUsers($_id: String!, $sharingUsers: [followersInput]) {
+    updateSharingUsers(_id: $_id, sharingUsers: $sharingUsers) {
+      ...TodayScheduleField
+    }
+  }
+`);
+
 export const DELETE_SCHEDULE = gql(`
   mutation DeleteScheDule($_id: String!) {
     deleteSchedule(_id: $_id) {

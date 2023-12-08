@@ -5,8 +5,11 @@ const TODAY_SCHEDULE_LIST = gql(`
     title
     author
     sharingUsers {
+      _id
       userId
       name
+      email
+      company
     }
     toDos {
       content

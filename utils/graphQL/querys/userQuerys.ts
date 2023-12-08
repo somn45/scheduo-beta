@@ -19,6 +19,7 @@ query GetUserById($id: String!) {
 export const ALL_FOLLOWERS = gql(`
 query GetFollowers($userId: String) {
   allFollowers(userId: $userId) {
+    _id
     userId
     name
     email

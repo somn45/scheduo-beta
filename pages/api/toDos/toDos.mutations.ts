@@ -9,7 +9,7 @@ import {
   todayScheduleUniqueField,
   UpdateToDoStateProps,
 } from '@/types/interfaces/todaySkds.interface';
-import { IFollower, IUser } from '@/types/interfaces/users.interface';
+import { IFollower } from '@/types/interfaces/users.interface';
 import User from '@/models/User';
 import checkAuthorizeTodaySchedule from '@/utils/methods/checkAuthorize';
 import {
@@ -92,7 +92,7 @@ export default {
 
       const todaySchedule = await (
         await TodaySkd.findByIdTodaySkd(_id)
-      ).populate<{ sharingUsers: IUser[] }>('sharingUsers');
+      ).populate<{ sharingUsers: IFollower[] }>('sharingUsers');
       if (!todaySchedule)
         throw new GraphQLError(TODAY_SCHEDULE_NOT_FOUND_ERROR.message, {
           extensions: { code: TODAY_SCHEDULE_NOT_FOUND_ERROR.code },
@@ -124,7 +124,7 @@ export default {
 
       const todaySchedule = await (
         await TodaySkd.findByIdTodaySkd(id)
-      ).populate<{ sharingUsers: IUser[] }>('sharingUsers');
+      ).populate<{ sharingUsers: IFollower[] }>('sharingUsers');
 
       const hasAccessTodaySkd = checkAuthorizeTodaySchedule(
         todaySchedule,
@@ -158,7 +158,7 @@ export default {
 
       const todaySchedule = await (
         await TodaySkd.findByIdTodaySkd(id)
-      ).populate<{ sharingUsers: IUser[] }>('sharingUsers');
+      ).populate<{ sharingUsers: IFollower[] }>('sharingUsers');
 
       const hasAccessTodaySkd = checkAuthorizeTodaySchedule(
         todaySchedule,
@@ -200,7 +200,7 @@ export default {
       const todaySchedule = await (
         await TodaySkd.findByIdTodaySkd(id)
       ).populate<{
-        sharingUsers: IUser[];
+        sharingUsers: IFollower[];
       }>('sharingUsers');
 
       const hasAccessTodaySkd = checkAuthorizeTodaySchedule(
@@ -234,7 +234,7 @@ export default {
       const todaySchedule = await (
         await TodaySkd.findByIdTodaySkd(id)
       ).populate<{
-        sharingUsers: IUser[];
+        sharingUsers: IFollower[];
       }>('sharingUsers');
 
       const hasAccessTodaySkd = checkAuthorizeTodaySchedule(
@@ -296,7 +296,7 @@ export default {
           { author: loggedUser.userId },
           { sharingUsers: { $in: [loggedUser._id] } },
         ])
-        .populate<{ sharingUsers: IUser[] }>('sharingUsers');
+        .populate<{ sharingUsers: IFollower[] }>('sharingUsers');
 
       const finishedTodaySkd = todaySchedules.filter((todaySkd) =>
         todaySkd.toDos.every((toDo) => toDo.state === 'done')
@@ -333,7 +333,7 @@ export default {
       const todaySchedule = await (
         await TodaySkd.findByIdTodaySkd(_id)
       ).populate<{
-        sharingUsers: IUser[];
+        sharingUsers: IFollower[];
       }>('sharingUsers');
 
       if (!todaySchedule)
@@ -351,6 +351,42 @@ export default {
       todaySchedule.title = title;
       await todaySchedule.save();
       return todaySchedule;
+    },
+    updateSharingUsers: async (
+      _: unknown,
+      {
+        _id,
+        sharingUsers,
+      }: {
+        _id: string;
+        sharingUsers: IFollower[];
+      },
+      { req }: ContextValue
+    ) => {
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
+        });
+
+      const todaySchedule = await (
+        await TodaySkd.findByIdTodaySkd(_id)
+      ).populate<{
+        sharingUsers: IFollower[];
+      }>('sharingUsers');
+
+      if (!todaySchedule)
+        throw new GraphQLError(TODAY_SCHEDULE_NOT_FOUND_ERROR.message, {
+          extensions: { code: TODAY_SCHEDULE_NOT_FOUND_ERROR.code },
+        });
+
+      todaySchedule.sharingUsers = [...sharingUsers];
+      const saved = await (
+        await todaySchedule.save()
+      ).populate<{
+        sharingUsers: IFollower[];
+      }>('sharingUsers');
+      return saved;
     },
   },
 };

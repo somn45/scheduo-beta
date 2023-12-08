@@ -21,6 +21,7 @@ export const {
   initTodaySchedulesReducer,
   addTodaySkdReducer,
   updateTitleTodaySkdReducer,
+  updateTodayScheduleMembersReducer,
   deleteScheduleReducer,
 } = todaySkdSlice.actions;
 export const {

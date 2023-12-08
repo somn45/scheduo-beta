@@ -29,6 +29,7 @@ export interface IFollowerPreview extends FollowerSearchItem {
 }
 
 export interface IFollower {
+  _id: string | null;
   userId: string;
   name: string;
   email: string | null;

@@ -12,6 +12,7 @@ export default gql`
     author: String!
   }
   type Follower {
+    _id: String!
     userId: String!
     name: String!
     email: String
@@ -51,6 +52,7 @@ export default gql`
       followers: [followersInput]
     ): TodaySkd!
     updateTitle(title: String!, _id: String!): TodaySkd!
+    updateSharingUsers(_id: String!, sharingUsers: [followersInput]): TodaySkd!
     deleteSchedule(_id: String!): TodaySkd!
     addToDo(input: AddToDoAndUpdateToDoInput): ToDo!
     updateToDo(input: AddToDoAndUpdateToDoInput): ToDo!
@@ -74,7 +76,12 @@ export default gql`
     id: String!
     registeredAt: Float!
   }
+  input todayScheduleMemberInput {
+    userId: String!
+    name: String!
+  }
   input followersInput {
+    _id: String
     userId: String!
     name: String!
     email: String

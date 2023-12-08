@@ -5,10 +5,16 @@ import {
   TodayScheduleWithID,
   TodaySkdWithFollowers,
 } from '@/types/interfaces/todaySkds.interface';
+import { IFollower } from '@/types/interfaces/users.interface';
 
 interface TodaySkdTitleAndId {
   title: string;
   _id: string;
+}
+
+interface TodayScheduleMembersAndId {
+  _id: string;
+  sharingUsers: IFollower[];
 }
 
 const initialState: TodayScheduleWithID[] = [];
@@ -37,6 +43,17 @@ const todaySkdSlice = createSlice({
         todaySkd._id === action.payload._id
           ? { ...todaySkd, title: action.payload.title }
           : todaySkd
+      );
+      return changedTodaySkdList;
+    },
+    updateTodayScheduleMembersReducer: (
+      state,
+      action: PayloadAction<TodayScheduleMembersAndId>
+    ) => {
+      const changedTodaySkdList = state.map((todaySchedule) =>
+        todaySchedule._id === action.payload._id
+          ? { ...todaySchedule, sharingUsers: action.payload.sharingUsers }
+          : todaySchedule
       );
       return changedTodaySkdList;
     },

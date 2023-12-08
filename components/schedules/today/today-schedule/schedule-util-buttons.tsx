@@ -12,12 +12,12 @@ import { useMutation } from '@apollo/client';
 
 interface TodayScheduleUtilButtonsProps {
   schedule: TodayScheduleWithID;
-  setShowsTitleChangeModel: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowsManageScheduleModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function TodayScheduleUtilButtons({
   schedule,
-  setShowsTitleChangeModel,
+  setShowsManageScheduleModal,
 }: TodayScheduleUtilButtonsProps) {
   const [deleteSchedule] = useMutation(DELETE_SCHEDULE, { errorPolicy: 'all' });
   const dispatch = useAppDispatch();
@@ -47,7 +47,7 @@ export default function TodayScheduleUtilButtons({
     <ul className="w-schedule-viewer flex justify-between">
       <li>
         <button
-          onClick={() => setShowsTitleChangeModel(true)}
+          onClick={() => setShowsManageScheduleModal(true)}
           className="px-2 py-1 border-2 border-slate-600 rounded-md
           bg-slate-500 text-xs text-white font-semibold
           hover:bg-slate-800 ease-out duration-500"
