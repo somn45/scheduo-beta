@@ -43,3 +43,11 @@ export const SEARCH_FOLLOWERS_BY_ID = gql(`
     }
   }
 `);
+
+export const CHECK_CURRENT_PASSWORD = gql(`
+  query CheckCurrentPassword($_id: String!, $password: String!) {
+    checkCurrentPassword(_id: $_id, password: $password) {
+      ...UserListIncludesId
+    }
+  }
+`);

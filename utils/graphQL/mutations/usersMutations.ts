@@ -28,6 +28,26 @@ export const CHECK_USER = gql(`
   }
 `);
 
+export const EDIT_USER = gql(`
+  mutation EditUser($_id: String!, $name: String!, $email: String, $company: String) {
+    editUser(_id: $_id, name: $name, email: $email, company: $company) {
+      _id
+      name
+      email
+      company
+    }
+  }
+`);
+
+export const EDIT_USER_PASSWORD = gql(`
+  mutation EditUserPassword($_id: String! $password: String!) {
+    editUserPassword(_id: $_id, password: $password) {
+      _id
+      userId
+    }
+  }
+`);
+
 export const ADD_FOLLOWER = gql(`
 mutation AddFollower($userId: String!, $profileUserId: String!) {
   addFollower(userId: $userId, profileUserId: $profileUserId) {

@@ -1,7 +1,8 @@
+import bcrypt from 'bcrypt';
 import User from '@/models/User';
 import { ContextValue } from './users.mutations';
 import { GraphQLError } from 'graphql';
-import { IFollower } from '@/types/interfaces/users.interface';
+import { IFollower, IUser } from '@/types/interfaces/users.interface';
 import {
   GUEST_UNAUTHENTICATED_ERROR,
   USER_NOT_FOUND_ERROR,
@@ -110,6 +111,27 @@ export default {
         .ne(storedSessionUser.id)
         .exec();
       return users;
+    },
+    checkCurrentPassword: async (
+      _: unknown,
+      { _id, password }: IUser,
+      { req }: ContextValue
+    ) => {
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
+        });
+
+      const userObjectId = _id ? _id : '';
+      const user = await User.findUserById(userObjectId);
+      const isMatchPassword = await bcrypt.compare(password, user.password);
+      if (!isMatchPassword) {
+        throw new GraphQLError('Password not match', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
+      }
+      return user;
     },
   },
 };

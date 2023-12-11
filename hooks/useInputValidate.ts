@@ -2,7 +2,7 @@ import { ChangeEvent, useEffect, useState } from 'react';
 
 export interface Form {
   userId: string;
-  password: string;
+  password?: string;
   confirmPassword?: string;
   fullname?: string;
   email?: string;
@@ -13,7 +13,7 @@ type ValidateMethod = (accountForm: Form) => boolean;
 
 interface ValidateLoginResponse {
   userId: string;
-  password: string;
+  password?: string;
   confirmPassword?: string;
   fullname?: string;
   email?: string;

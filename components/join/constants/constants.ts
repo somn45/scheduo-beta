@@ -1,6 +1,6 @@
 export interface Form {
   userId: string;
-  password: string;
+  password?: string;
   confirmPassword?: string;
   fullname?: string;
   email?: string;
@@ -10,7 +10,7 @@ type ValidateMethod = (accountForm: Form) => boolean;
 
 interface ValidateLoginResponse {
   userId: string;
-  password: string;
+  password?: string;
   confirmPassword?: string;
   fullname?: string;
   email?: string;
@@ -54,8 +54,13 @@ export const VALIDATION_JOIN_FORM = new Map<
     },
   ],
   [
-    (accountForm) =>
-      accountForm.password.length <= 5 || accountForm.password.length >= 25,
+    (accountForm) => {
+      const { password } = accountForm;
+      if (password && password.length <= 5 && password.length >= 25) {
+        return true;
+      }
+      return false;
+    },
     {
       ...INITIAL_JOIN_FORM,
       password: '비밀번호는 6자 이상 24자 이하로 작성해주세요.',

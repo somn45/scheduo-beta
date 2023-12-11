@@ -96,6 +96,45 @@ export default {
       cookies.set('sid');
       return { userId };
     },
+    editUser: async (
+      _: unknown,
+      { _id, name, email, company }: IUser,
+      { req }: ContextValue
+    ) => {
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
+        });
+      const userObjectId = _id ? _id : '';
+      const user = await User.findUserById(userObjectId);
+
+      user.name = name;
+      user.email = email;
+      user.company = company;
+      const updatedUser = await user.save();
+      return user;
+    },
+
+    editUserPassword: async (
+      _: unknown,
+      { _id, password }: IUser,
+      { req }: ContextValue
+    ) => {
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
+        });
+
+      const userObjectId = _id ? _id : '';
+      const user = await User.findUserById(userObjectId);
+
+      user.password = password;
+      await user.save();
+      return user;
+    },
+
     addFollower: async (
       _: unknown,
       { userId, profileUserId }: { userId: string; profileUserId: string },

@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import UserProfile from '@/components/users/([id])/user-profile';
 import MyFollowerList from '@/components/users/([id])/my-follower-list/my-follower-list';
 import SearchFollowerModel from '@/components/users/([id])/search-follower/search-follower.model';
+import Link from 'next/link';
 
 interface UserProfileProps {
   user: IUser;
@@ -32,12 +33,21 @@ export default function User({ user, myFollowers }: UserProfileProps) {
 
   return (
     <section className="mt-10 flex flex-col lg:flex-row">
-      <UserProfile user={user} />
-      <MyFollowerList
-        user={user}
-        myFollowers={myFollowers}
-        setShowsFollowModal={setShowsFollowModal}
-      />
+      <div>
+        <UserProfile user={user} />
+        <MyFollowerList
+          user={user}
+          myFollowers={myFollowers}
+          setShowsFollowModal={setShowsFollowModal}
+        />
+      </div>
+      <div>
+        <article>
+          <Link href={`/users/${user._id}/edit`}>
+            <h5>수정 버튼</h5>
+          </Link>
+        </article>
+      </div>
       {showsFollowModal && (
         <SearchFollowerModel
           setShowsFollowModal={setShowsFollowModal}

@@ -39,7 +39,7 @@ export default function JoinForm() {
     const { errors: joinErrors } = await join({
       variables: {
         userId,
-        password,
+        password: password ? password : '',
         name: fullname ? fullname : '',
         email: email ? email : '',
         company: company ? company : '',
@@ -67,9 +67,11 @@ export default function JoinForm() {
       <AccountLabel caption=" *비밀번호(6자 이상 ~ 24자 이하)" />
       <AccountInput
         name="password"
-        value={input.password}
+        value={input.password ? input.password : ''}
         onChange={setInput}
-        errorMsg={validateErrorMessage.password}
+        errorMsg={
+          validateErrorMessage.password ? validateErrorMessage.password : ''
+        }
       />
 
       <AccountLabel caption=" *비밀번호 확인" />

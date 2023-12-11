@@ -86,7 +86,9 @@ const userSchema: Schema<DBUserDocument> = new Schema(
 
 userSchema.pre('save', async function (next) {
   const saltRounds = 5;
-  this.password = await bcrypt.hash(this.password, saltRounds);
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, saltRounds);
+  }
   next();
 });
 
