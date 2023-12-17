@@ -71,6 +71,18 @@ export default {
         author,
         sharingUsers,
       });
+
+      const user = await User.findUser(author);
+      console.log(user)
+      user.todaySchedules.push(newTodaySkd._id);
+      await user.save();
+      for (let follower of followers) {
+        const sharingUser = await User.findUser(follower.userId);
+        console.log(sharingUser);
+        sharingUser.todaySchedules.push(newTodaySkd._id);
+        await sharingUser.save();
+      }
+
       return {
         _id: newTodaySkd._id,
         title,

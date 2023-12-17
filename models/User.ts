@@ -18,6 +18,7 @@ import {
 
 export interface DBUser extends Omit<IUserWithoutID, 'followers'> {
   followers: Types.ObjectId[];
+  todaySchedules: Types.ObjectId[];
 }
 
 interface DBUserDocument extends DBUser, Document {
@@ -78,6 +79,7 @@ const userSchema: Schema<DBUserDocument> = new Schema(
     refreshToken: String,
     expiredAt: Date,
     followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    todaySchedules: [{ type: Schema.Types.ObjectId, ref: 'TodaySkd' }],
   },
   {
     timestamps: true,

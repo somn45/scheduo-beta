@@ -59,7 +59,7 @@ export default {
           extensions: { code: 'NOT_FOUND' },
         });
 
-      const isMatchPassword = user.checkPassword(password);
+      const isMatchPassword = await user.checkPassword(password);
       if (!isMatchPassword)
         throw new GraphQLError('Password not match', {
           extensions: { code: 'BAD_REQUEST' },
