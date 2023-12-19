@@ -46,6 +46,9 @@ export default function User({ user, myFollowers }: UserProfileProps) {
           <Link href={`/users/${user._id}/edit`}>
             <h5>수정 버튼</h5>
           </Link>
+          <Link href={`/users/${user._id}/delete`}>
+            <h5>삭제 버튼</h5>
+          </Link>
         </article>
       </div>
       {showsFollowModal && (

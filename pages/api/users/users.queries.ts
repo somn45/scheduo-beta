@@ -47,6 +47,7 @@ export default {
           }),
         },
       ]);
+
       const followers = user?.followers;
       if (!user) {
         const user = await User.findOne({

@@ -31,6 +31,7 @@ export default gql`
     logout: User!
     editUser(_id: String!, name: String!, email: String, company: String): User!
     editUserPassword(_id: String!, password: String!): User!
+    deleteUser(_id: String!, password: String!): User!
     addFollower(userId: String!, profileUserId: String!): User!
     deleteFollower(userId: String!, profileUserId: String!): User!
   }

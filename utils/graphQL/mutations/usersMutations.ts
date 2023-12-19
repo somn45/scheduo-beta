@@ -39,6 +39,15 @@ export const EDIT_USER = gql(`
   }
 `);
 
+export const DELETE_USER = gql(`
+  mutation DeleteUser($_id: String! $password: String!) {
+    deleteUser(_id: $_id, password: $password) {
+      _id
+      userId
+    }
+  }
+`);
+
 export const EDIT_USER_PASSWORD = gql(`
   mutation EditUserPassword($_id: String! $password: String!) {
     editUserPassword(_id: $_id, password: $password) {

@@ -73,12 +73,11 @@ export default {
       });
 
       const user = await User.findUser(author);
-      console.log(user)
+      console.log(user);
       user.todaySchedules.push(newTodaySkd._id);
       await user.save();
       for (let follower of followers) {
         const sharingUser = await User.findUser(follower.userId);
-        console.log(sharingUser);
         sharingUser.todaySchedules.push(newTodaySkd._id);
         await sharingUser.save();
       }
@@ -118,6 +117,20 @@ export default {
         throw new GraphQLError(UNAUTHORIZED_ERROR.message, {
           extensions: { code: UNAUTHORIZED_ERROR.code },
         });
+
+      const author = await User.findUser(todaySchedule.author);
+      author.todaySchedules = author.todaySchedules.filter((objectId) =>
+        objectId.equals(todaySchedule._id) ? false : true
+      );
+      await author.save();
+
+      for (let sharingUser of todaySchedule.sharingUsers) {
+        const user = await User.findUser(sharingUser.userId);
+        user.todaySchedules = user.todaySchedules.filter((objectid) => {
+          return objectid.equals(todaySchedule._id) ? false : true;
+        });
+        await user.save();
+      }
 
       todaySchedule.deleteOne();
       return todaySchedule;
@@ -324,10 +337,21 @@ export default {
         return doumentedSchedule;
       });
 
-      finishedTodaySkd.map(
-        async (finishedTodaySkd) =>
-          await TodaySkd.deleteOne({ title: finishedTodaySkd.title })
-      );
+      for (let schedule of finishedTodaySkd) {
+        const sharingUsers = schedule.sharingUsers;
+        const author = await User.findUser(schedule.author);
+        author.todaySchedules = author.todaySchedules.filter((objectId) =>
+          objectId.equals(schedule._id) ? false : true
+        );
+        for (let sharingUser of sharingUsers) {
+          const user = await User.findUserById(sharingUser.userId);
+          user.todaySchedules = user.todaySchedules.filter((objectId) =>
+            objectId.equals(schedule._id) ? false : true
+          );
+          await user.save();
+        }
+        await schedule.deleteOne();
+      }
 
       return outputDocedSchedule;
     },

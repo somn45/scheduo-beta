@@ -13,6 +13,8 @@ import {
   GUEST_UNAUTHENTICATED_ERROR,
   UNAUTHORIZED_ERROR,
 } from '@/constants/apolloErrorMessages';
+import { TodayScheduleWithID } from '@/types/interfaces/todaySkds.interface';
+import TodaySkd from '@/models/TodaySkd';
 
 export interface ContextValue {
   req: NextApiRequest;
@@ -132,6 +134,53 @@ export default {
 
       user.password = password;
       await user.save();
+      return user;
+    },
+
+    deleteUser: async (
+      _: unknown,
+      { _id, password }: IUser,
+      { req, cookies }: ContextValue
+    ) => {
+      const storedSessionUser = req.session.user;
+      if (!storedSessionUser)
+        throw new GraphQLError(GUEST_UNAUTHENTICATED_ERROR.message, {
+          extensions: { code: GUEST_UNAUTHENTICATED_ERROR.code },
+        });
+
+      const userObjectId = _id ? _id : '';
+      const user = await User.findUserById(userObjectId);
+
+      const isMatchPassword = await user.checkPassword(password);
+      if (!isMatchPassword)
+        throw new GraphQLError('Password was not match', {
+          extensions: { code: 'BAD_REQUEST' },
+        });
+
+      for (let todayScheduleId of user.todaySchedules) {
+        const todaySchedule = await TodaySkd.findById(
+          todayScheduleId
+        ).populate<{ sharingUsers: IFollower[] }>('sharingUsers');
+        if (!todaySchedule) return;
+
+        if (user.userId === todaySchedule.author) {
+          await todaySchedule.deleteOne({ _id: todayScheduleId });
+        } else {
+          const sharingUsersExceptDeletedUser =
+            todaySchedule?.sharingUsers.filter((sharingUser) => {
+              if (sharingUser.userId === user.userId) return false;
+              return true;
+            });
+          todaySchedule.sharingUsers = sharingUsersExceptDeletedUser;
+          await todaySchedule.save();
+        }
+      }
+
+      await User.deleteOne({ userId: user.userId });
+
+      req.session.destroy();
+      cookies.set('accessToken');
+      cookies.set('sid');
       return user;
     },
 
