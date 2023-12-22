@@ -13,6 +13,7 @@ import { Event } from '@/types/interfaces/documentedTodaySchedules.interface';
 import EventDetail from '@/components/calendar/event-detail';
 import { useMediaQuery } from 'react-responsive';
 import MobileCalendar from '@/components/dashBoard/mobile-calendar';
+import { useRouter } from 'next/router';
 
 export default function Home({ events }: { events: Event[] }) {
   const [eventDetail, setEventDetail] = useState<Event | null>(null);
@@ -31,10 +32,11 @@ export default function Home({ events }: { events: Event[] }) {
   useEffect(() => {
     isMobile ? setIsMobileSize(true) : setIsMobileSize(false);
     isTablet ? setIsTabletSize(true) : setIsTabletSize(false);
+    return () => {};
   }, [isMobile, isTablet]);
 
   return (
-    <section className="mt-10">
+    <section className="mt-10 flex">
       <article className="w-full lg:w-1/2 h-calendar hidden sm:block">
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}
@@ -80,7 +82,7 @@ export default function Home({ events }: { events: Event[] }) {
 export const getServerSideProps = withIronSessionSsr(
   async function getServerSideProps({ req }) {
     const storedSessionUser = req.session.user;
-    if (!storedSessionUser) {
+    if (!storedSessionUser || !storedSessionUser.id) {
       return {
         props: { events: [] },
       };

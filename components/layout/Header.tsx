@@ -34,8 +34,6 @@ export default function Header() {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  useEffect(() => {}, []);
-
   const handleLogout = async (e: buttonClickEvent) => {
     e.preventDefault();
     const { errors: logoutErrors } = await logOut();

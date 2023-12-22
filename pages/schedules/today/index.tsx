@@ -7,13 +7,14 @@ import wrapper, {
 import { ALL_SCHEDULES } from '@/utils/graphQL/querys/TodaySkdQuerys';
 import request from 'graphql-request';
 import { withIronSessionSsr } from 'iron-session/next';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
   filterMyTodaySchedules,
   filterTodayScheduleIncludeSharingUsers,
 } from '../../../utils/methods/filteringMethods';
 import removeGraphQLTypename from '@/components/schedules/today/create-schedule.modal/utils/removeGraphQLTypename';
+import { useRouter } from 'next/router';
 
 export default function TodayScheduleMain() {
   const [showsCreationTodaySkdModal, setShowsCreationTodaySkdModal] =

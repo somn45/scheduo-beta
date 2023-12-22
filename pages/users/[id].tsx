@@ -27,10 +27,6 @@ export default function User({ user, myFollowers }: UserProfileProps) {
   const followers = useSelector((state: RootState) => state.followers);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    dispatch(initFollowerReducer(myFollowers));
-  }, []);
-
   return (
     <section className="mt-10 flex flex-col lg:flex-row">
       <div>

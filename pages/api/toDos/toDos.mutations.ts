@@ -73,7 +73,6 @@ export default {
       });
 
       const user = await User.findUser(author);
-      console.log(user);
       user.todaySchedules.push(newTodaySkd._id);
       await user.save();
       for (let follower of followers) {
