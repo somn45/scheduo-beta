@@ -8,6 +8,14 @@ query GetUsers {
 }
 `);
 
+export const GET_USER = gql(`
+  query GetUser {
+    getUser {
+      ...UserListIncludesId
+    }
+  }
+`);
+
 export const GET_USER_BY_Id = gql(`
 query GetUserById($id: String!) {
   getUserById(id: $id) {

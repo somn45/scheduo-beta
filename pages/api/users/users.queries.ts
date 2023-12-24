@@ -16,9 +16,9 @@ export default {
       return users;
     },
     getUser: async (_: unknown, __: unknown, { req }: ContextValue) => {
-      const userId = req.session.user?.id;
-      if (userId) {
-        const user = await User.findUser(userId);
+      const storedSessionUser = req.session.user;
+      if (storedSessionUser) {
+        const user = await User.findUser(storedSessionUser.id);
         return user;
       }
     },

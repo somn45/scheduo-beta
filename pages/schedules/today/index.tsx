@@ -14,7 +14,6 @@ import {
   filterTodayScheduleIncludeSharingUsers,
 } from '../../../utils/methods/filteringMethods';
 import removeGraphQLTypename from '@/components/schedules/today/create-schedule.modal/utils/removeGraphQLTypename';
-import { useRouter } from 'next/router';
 
 export default function TodayScheduleMain() {
   const [showsCreationTodaySkdModal, setShowsCreationTodaySkdModal] =

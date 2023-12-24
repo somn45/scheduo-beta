@@ -36,7 +36,6 @@ const createDocumentedTodaySchedule = (
 const getDocedScheduleTemplate = (
   schedule: TodayScheduleWithID
 ): DocumentedTodaySchedule => ({
-  _id: schedule._id ? schedule._id : '',
   title: schedule.title,
   start: schedule.createdAt ? schedule.createdAt : Date.now(),
   end: getCurrentDay().getTime(),

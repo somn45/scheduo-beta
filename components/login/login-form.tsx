@@ -64,7 +64,7 @@ export default function LoginForm() {
       })
     );
     setCookie('uid', input.userId);
-    router.push('/');
+    window.location.href = '/';
   };
 
   return (

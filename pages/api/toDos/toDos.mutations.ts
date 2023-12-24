@@ -342,18 +342,23 @@ export default {
         author.todaySchedules = author.todaySchedules.filter((objectId) =>
           objectId.equals(schedule._id) ? false : true
         );
+        await author.save();
+
         for (let sharingUser of sharingUsers) {
-          const user = await User.findUserById(sharingUser.userId);
+          const user = await User.findUserById(
+            sharingUser._id ? sharingUser._id : ''
+          );
           user.todaySchedules = user.todaySchedules.filter((objectId) =>
             objectId.equals(schedule._id) ? false : true
           );
           await user.save();
         }
-        await schedule.deleteOne();
+        await TodaySkd.deleteOne({ _id: schedule._id });
       }
 
       return outputDocedSchedule;
     },
+
     updateTitle: async (
       _: unknown,
       { title, _id }: { title: string; _id: string },

@@ -14,12 +14,15 @@ import EventDetail from '@/components/calendar/event-detail';
 import { useMediaQuery } from 'react-responsive';
 import MobileCalendar from '@/components/dashBoard/mobile-calendar';
 import { useRouter } from 'next/router';
+import { useLazyQuery } from '@apollo/client';
+import { GET_USER } from '@/utils/graphQL/querys/userQuerys';
 
 export default function Home({ events }: { events: Event[] }) {
   const [eventDetail, setEventDetail] = useState<Event | null>(null);
   const [isMobileSize, setIsMobileSize] = useState(true);
   const [isTabletSize, setIsTabletSize] = useState(false);
   const [showsMobileCalendar, setShowsMobileCalendar] = useState(false);
+  const [check] = useLazyQuery(GET_USER);
   const calendarRef = useRef();
   const isMobile = useMediaQuery({
     query: '(max-width: 639px)',

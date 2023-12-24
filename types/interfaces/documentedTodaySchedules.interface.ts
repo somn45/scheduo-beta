@@ -4,7 +4,6 @@ interface EventSharingUser {
 }
 
 export interface DocumentedTodaySchedule {
-  _id: string;
   title: string;
   start: number;
   end: number;

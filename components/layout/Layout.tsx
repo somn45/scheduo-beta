@@ -1,5 +1,5 @@
 import Header from '@/components/layout/Header';
-import { RootState } from '@/lib/store/store';
+import wrapper, { RootState, signIn } from '@/lib/store/store';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ErrorMessageBox from '../common/messageBox/ErrorMessageBox';
@@ -12,11 +12,20 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import MobileNav from './MobileNav';
 import { useRouter } from 'next/router';
+import { withIronSessionSsr } from 'iron-session/next';
+import { GET_USER } from '@/utils/graphQL/querys/userQuerys';
+import request from 'graphql-request';
 
-export default function Layout(props: { children: React.ReactNode }) {
+interface LayoutProps {
+  children: React.ReactNode;
+  userId: string;
+}
+
+export default function Layout({ children, userId }: LayoutProps) {
   const [loading, setLoading] = useState(false);
   const alertMessage = useSelector((state: RootState) => state.alertMessages);
   const errorMessage = useSelector((state: RootState) => state.errorMessages);
+  const loggedUser = useSelector((state: RootState) => state.loggedUser);
   const router = useRouter();
 
   useEffect(() => {
@@ -27,9 +36,7 @@ export default function Layout(props: { children: React.ReactNode }) {
     };
   }, [router]);
 
-  const handleRouteChange = () => {
-    setLoading(true);
-  };
+  const handleRouteChange = () => setLoading(true);
 
   return (
     <div>
@@ -58,7 +65,7 @@ export default function Layout(props: { children: React.ReactNode }) {
 px-mobile-white-space md:px-tablet-white-space xl:px-desktop-white-space
 pt-header text-sm"
         >
-          {props.children}
+          {children}
         </main>
       )}
 
@@ -71,3 +78,27 @@ pt-header text-sm"
     </div>
   );
 }
+
+export const getServerSideProps = withIronSessionSsr(
+  wrapper.getServerSideProps((store) => async ({ req }) => {
+    const getUserQuery = await request(
+      'http://localhost:3000/api/graphql',
+      GET_USER
+    );
+    store.dispatch(
+      signIn({
+        userId: getUserQuery.getUser?.userId,
+        id: getUserQuery.getUser?._id,
+      })
+    );
+    return {
+      props: {
+        userId: getUserQuery.getUser?.userId,
+      },
+    };
+  }),
+  {
+    cookieName: 'uid',
+    password: process.env.SESSION_PASSWORD ? process.env.SESSION_PASSWORD : '',
+  }
+);
