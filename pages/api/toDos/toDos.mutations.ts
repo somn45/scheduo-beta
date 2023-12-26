@@ -278,33 +278,38 @@ export default {
       await todaySchedule.save();
       return updatedToDos;
     },
-    finishToDos: async (
+    updateCheckedState: async (
       _: unknown,
-      { title }: todaySchedulePreview,
+      __: unknown,
       { req }: ContextValue
     ) => {
       const storedSessionUser = req.session.user;
       if (!storedSessionUser) return;
 
-      const todayScheduleDocument = await TodaySkd.findOne({ title });
-      if (!todayScheduleDocument)
-        throw new GraphQLError(TODAY_SCHEDULE_NOT_FOUND_ERROR.message, {
-          extensions: { code: TODAY_SCHEDULE_NOT_FOUND_ERROR.code },
-        });
-      if (todayScheduleDocument.toDos.length === 0) return [];
+      const loggedUser = await User.findUser(storedSessionUser.id);
+      const currentDay = getCurrentDay();
+      for (let scheduleObjectId of loggedUser.todaySchedules) {
+        const todaySchedule = await TodaySkd.findByIdAndUpdate(
+          scheduleObjectId
+        );
+        if (todaySchedule) {
+          const toDos = todaySchedule.toDos;
+          const updatedStateToDos = findIsCheckedStateNextDay(
+            toDos,
+            currentDay
+          );
+          todaySchedule.toDos = [...updatedStateToDos];
+          await todaySchedule.save();
+        }
+      }
 
-      const toDos = todayScheduleDocument.toDos;
-
-      const currentDaysharp = getCurrentDay();
-      const partialFinishedToDos = findIsCheckedStateNextDay(
-        toDos,
-        currentDaysharp
-      );
-
-      todayScheduleDocument.toDos = [...partialFinishedToDos];
-      await todayScheduleDocument.save();
-
-      return partialFinishedToDos;
+      const updatedStateTodaySchedules = await TodaySkd.find()
+        .or([
+          { author: loggedUser.userId },
+          { sharingUsers: { $in: [loggedUser._id] } },
+        ])
+        .populate<{ sharingUsers: IFollower[] }>('sharingUsers');
+      return updatedStateTodaySchedules;
     },
     documentedToDos: async (
       _: unknown,
@@ -322,8 +327,10 @@ export default {
         ])
         .populate<{ sharingUsers: IFollower[] }>('sharingUsers');
 
-      const finishedTodaySkd = todaySchedules.filter((todaySkd) =>
-        todaySkd.toDos.every((toDo) => toDo.state === 'done')
+      const finishedTodaySkd = todaySchedules.filter(
+        (todaySkd) =>
+          todaySkd.toDos.every((toDo) => toDo.state === 'done') &&
+          todaySkd.toDos.length > 0
       );
       if (!finishedTodaySkd)
         throw new GraphQLError(TODAY_SCHEDULE_NOT_FOUND_ERROR.message, {

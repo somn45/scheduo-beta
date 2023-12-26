@@ -6,6 +6,7 @@ import { EventContentArg } from '@fullcalendar/common';
 import {
   ALL_DOCUMENTED_TODAY_SKDS,
   DOCUMENTED_TODOS,
+  UPDATE_CHECKED_STATE,
 } from '@/utils/graphQL/mutations/todaySkdMutations';
 import { withIronSessionSsr } from 'iron-session/next';
 import request from 'graphql-request';
@@ -13,16 +14,16 @@ import { Event } from '@/types/interfaces/documentedTodaySchedules.interface';
 import EventDetail from '@/components/calendar/event-detail';
 import { useMediaQuery } from 'react-responsive';
 import MobileCalendar from '@/components/dashBoard/mobile-calendar';
-import { useRouter } from 'next/router';
-import { useLazyQuery } from '@apollo/client';
-import { GET_USER } from '@/utils/graphQL/querys/userQuerys';
+import { useLazyQuery, useMutation } from '@apollo/client';
 
 export default function Home({ events }: { events: Event[] }) {
   const [eventDetail, setEventDetail] = useState<Event | null>(null);
   const [isMobileSize, setIsMobileSize] = useState(true);
   const [isTabletSize, setIsTabletSize] = useState(false);
   const [showsMobileCalendar, setShowsMobileCalendar] = useState(false);
-  const [check] = useLazyQuery(GET_USER);
+  const [updateCheckedState] = useMutation(UPDATE_CHECKED_STATE, {
+    errorPolicy: 'all',
+  });
   const calendarRef = useRef();
   const isMobile = useMediaQuery({
     query: '(max-width: 639px)',
@@ -37,6 +38,28 @@ export default function Home({ events }: { events: Event[] }) {
     isTablet ? setIsTabletSize(true) : setIsTabletSize(false);
     return () => {};
   }, [isMobile, isTablet]);
+
+  useEffect(() => {
+    const currentDay = new Date(Date.now());
+    const nextMidnight = new Date(
+      currentDay.getFullYear(),
+      currentDay.getMonth(),
+      currentDay.getDate() + 1
+    );
+    const differ = nextMidnight.getTime() - currentDay.getTime();
+    setTimeout(handleUpdateCheckedTodos, differ);
+  }, []);
+
+  const handleUpdateCheckedTodos = async () => {
+    await updateCheckedState();
+    const currentDay = new Date(Date.now());
+
+    const delay =
+      currentDay.getSeconds() > 0
+        ? 1000 * 60 * 60 * 24 - currentDay.getSeconds() * 1000
+        : 1000 * 60 * 60 * 24;
+    setTimeout(handleUpdateCheckedTodos, delay);
+  };
 
   return (
     <section className="mt-10 flex">

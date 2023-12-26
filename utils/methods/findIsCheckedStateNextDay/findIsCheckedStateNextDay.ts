@@ -13,6 +13,7 @@ const findIsCheckedStateNextDay = (toDos: IToDo[], currentDay: Date) => {
 };
 
 const isRegisteredAtNotToday = (toDo: IToDo, currentDay: Date) => {
+  return true;
   return (
     new Date(toDo.updatedAt).getDate() !== currentDay.getDate() &&
     toDo.updatedAt < currentDay.getTime()

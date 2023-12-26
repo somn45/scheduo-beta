@@ -55,12 +55,12 @@ export const ADD_TODO = gql(`
   }
 `);
 
-export const FINISH_TODOS = gql(`
-mutation FinishToDos($title: String!) {
-  finishToDos(title: $title) {
-    ...ToDosIncludesStateField
+export const UPDATE_CHECKED_STATE = gql(`
+  mutation UpdateCheckedState {
+    updateCheckedState {
+      ...TodayScheduleField
+    }
   }
-}
 `);
 
 export const UPDATE_TODO = gql(`

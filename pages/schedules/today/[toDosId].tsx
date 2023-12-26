@@ -6,12 +6,10 @@ import {
   TodaySchedule,
   TodaySkdWithFollowers,
 } from '@/types/interfaces/todaySkds.interface';
-import { FINISH_TODOS } from '@/utils/graphQL/mutations/todaySkdMutations';
 import {
   ALL_SCHEDULES,
   GET_SCHEDULE,
 } from '@/utils/graphQL/querys/TodaySkdQuerys';
-import { useMutation } from '@apollo/client';
 import { request } from 'graphql-request';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -22,14 +20,7 @@ export default function TodayScheduleToDos({
   sharingUsers,
 }: TodaySkdWithFollowers) {
   const [showsMemberList, setShowsMemberList] = useState(false);
-  const [finishToDos] = useMutation(FINISH_TODOS);
   const toDos = useSelector((state: RootState) => state.toDos);
-  useEffect(() => {
-    const handleFinishToDos = async () => {
-      await finishToDos({ variables: { title } });
-    };
-    handleFinishToDos();
-  }, []);
 
   return (
     <section className="mt-10 lg:px-20 xl:px-40 font-solmee">
