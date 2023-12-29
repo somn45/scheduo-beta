@@ -48,9 +48,9 @@ export default function EditPasswordForm() {
     }
   };
   return (
-    <section>
-      <article>
-        <form>
+    <section className="w-full flex flex-col items-center">
+      <article className="w-full lg:w-1/2 2xl:w-1/3 px-8 py-5 rounded-[5px] text-sm flex flex-col items-center">
+        <form className="w-full flex flex-col items-center">
           <AccountLabel caption="새 비밀번호(6자 이상 24자 이하)" />
           <AccountInput
             name="password"

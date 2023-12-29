@@ -13,7 +13,10 @@ export default function CreateScheduleFollowers({
   followers,
   onChange,
 }: CreateScheduleFollowersProps) {
-  if (!followers) return <li>팔로워가 없습니다.</li>;
+  if (!followers || followers.length === 0)
+    return (
+      <li className="flex justify-center items-center">팔로워가 없습니다.</li>
+    );
   return followers.map((follower) => (
     <li key={follower.userId}>
       <div className="flex flex-row">

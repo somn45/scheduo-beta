@@ -35,10 +35,12 @@ export default function DeleteUserForm() {
   };
 
   return (
-    <section>
-      <article>
-        <h2>삭제 전 본인 확인</h2>
-        <form>
+    <section className="w-full h-full flex flex-col items-center">
+      <article className="w-full lg:w-1/2 2xl:w-1/3 px-8 py-5 rounded-[5px] text-sm flex flex-col items-center">
+        <h2 className="mb-4 text-lg font-semibold text-center">
+          삭제 전 본인 확인
+        </h2>
+        <form className="w-full flex flex-col items-center">
           <AccountLabel caption="비밀번호" />
           <AccountInput
             name="password"

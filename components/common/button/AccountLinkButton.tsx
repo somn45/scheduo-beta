@@ -13,7 +13,7 @@ export default function AccountLinkButton({
       onClick={onClick}
       className="text-center font-semibold ease-out duration-100 hover:text-light-pink"
     >
-      기존 계정으로 로그인
+      {value}
     </button>
   );
 }

@@ -29,24 +29,42 @@ export default function User({ user, myFollowers }: UserProfileProps) {
 
   return (
     <section className="mt-10 flex flex-col lg:flex-row">
-      <div>
+      <article
+        className="lg:w-1/2 py-5 
+      border-b-2 lg:border-b-0 lg:border-r-2 border-dotted
+      flex flex-col items-center
+      "
+      >
         <UserProfile user={user} />
+        <div className="w-1/2 flex justify-between">
+          <Link href={`/users/${user._id}/edit`}>
+            <h5
+              className="px-3 py-2 bg-slate-300 border-2 rounded-md 
+            text-sm font-semibold text-slate-700
+            flex jusitfy-center items-center
+            hover:bg-slate-400 focus:bg-slate-400 transition ease-in-out"
+            >
+              수정
+            </h5>
+          </Link>
+          <Link href={`/users/${user._id}/delete`}>
+            <h5
+              className="px-3 py-2 bg-red-400 rounded-md text-white
+            flex jusitfy-center items-center
+            hover:bg-red-600 focus:bg-red-600 transition ease-in-out"
+            >
+              삭제
+            </h5>
+          </Link>
+        </div>
+      </article>
+      <article className="lg:w-1/2 py-5 flex flex-col items-center">
         <MyFollowerList
           user={user}
           myFollowers={myFollowers}
           setShowsFollowModal={setShowsFollowModal}
         />
-      </div>
-      <div>
-        <article>
-          <Link href={`/users/${user._id}/edit`}>
-            <h5>수정 버튼</h5>
-          </Link>
-          <Link href={`/users/${user._id}/delete`}>
-            <h5>삭제 버튼</h5>
-          </Link>
-        </article>
-      </div>
+      </article>
       {showsFollowModal && (
         <SearchFollowerModel
           setShowsFollowModal={setShowsFollowModal}

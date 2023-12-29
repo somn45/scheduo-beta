@@ -95,8 +95,13 @@ export default function CreateScheduleModal({
             hover:border-pink-400 focus:border-pink-400"
             />
           </div>
-          <button className="mb-2">팔로워 공유</button>
-          <div className="w-64 h-56 mb-3 border-4 border-slate-400 rounded-lg">
+          <button className="w-full mb-4 text-left font-semibold">
+            일정을 공유할 멤버 선택
+          </button>
+          <div
+            className="w-64 h-56 mb-4 border-t-4 border-b-4 border-slate-300
+            bg-yellow-50 rounded-lg"
+          >
             <ul className="w-full h-full p-2">
               <CreateScheduleFollowers
                 followers={followersWithChecked}
@@ -108,6 +113,9 @@ export default function CreateScheduleModal({
             type="submit"
             value="일정 생성"
             onClick={handleCreateTodaySkd}
+            className="w-1/2 p-2 border-slate-200 rounded-md bg-slate-300
+            text-slate-700 font-semibold hover:bg-slate-400
+            "
           />
         </form>
       </div>

@@ -31,9 +31,9 @@ export default function verificationPasswordForm() {
   };
 
   return (
-    <div>
-      <h1>비밀번호 변경</h1>
-      <form>
+    <section className="mt-10 flex flex-col items-center">
+      <h1 className="mb-4 text-lg font-semibold text-center">비밀번호 변경</h1>
+      <form className="w-full flex flex-col items-center">
         <AccountLabel caption="기존 비밀번호" />
         <AccountInput
           name="password"
@@ -48,6 +48,6 @@ export default function verificationPasswordForm() {
           isDisabledSubmit={false}
         />
       </form>
-    </div>
+    </section>
   );
 }

@@ -1,5 +1,6 @@
 import AccountInput from '@/components/common/Input/AccountInput';
 import AccountSubmit from '@/components/common/Input/AccountSubmit';
+import AccountLinkButton from '@/components/common/button/AccountLinkButton';
 import AccountLabel from '@/components/common/label/AccountLabel';
 import { VALIDATION_EDIT_FORM } from '@/components/users/([id])/edit/constants/constants';
 import useEditFormValidate from '@/hooks/useEditFormValidate';
@@ -55,21 +56,11 @@ export default function EditProfile({ user }: { user: IUser }) {
   return (
     <section className="w-full h-full flex flex-col items-center">
       <article
-        className="w-full lg:w-1/2 2xl:w-1/3 px-8 py-5 rounded-[5px] text-sm 
-          flex flex-col"
+        className="w-full lg:w-1/2 2xl:w-1/3 px-8 py-5 text-sm 
+          flex flex-col items-center"
       >
-        <h2>프로필 수정 화면</h2>
-        <form>
-          <AccountLabel caption="비밀번호" />
-          <Link
-            href={{
-              pathname: `/users/${user._id}/edit/password/first`,
-              query: { _id: user._id },
-            }}
-          >
-            비밀번호 변경
-          </Link>
-
+        <h2 className="mb-5 text-lg font-semibold">프로필 수정 화면</h2>
+        <form className="w-full flex flex-col items-center">
           <AccountLabel caption="이름" />
           <AccountInput
             name="fullname"
@@ -106,6 +97,10 @@ export default function EditProfile({ user }: { user: IUser }) {
             isDisabledSubmit={isDisabledSubmit}
           />
         </form>
+        <AccountLinkButton
+          value="비밀번호 변경"
+          onClick={() => router.push(`/users/${user._id}/edit/password/first`)}
+        />
       </article>
     </section>
   );
